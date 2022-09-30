@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_ycbt_client/flutter_ycbt_client.dart';
 
@@ -31,8 +31,8 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
-      platformVersion =
-          await _flutterYcbtClientPlugin.getPlatformVersion() ?? 'Unknown platform version';
+      platformVersion = await _flutterYcbtClientPlugin.getPlatformVersion() ??
+          'Unknown platform version';
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
@@ -54,8 +54,25 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Plugin example app'),
         ),
-        body: Center(
-          child: Text('Running on: $_platformVersion\n'),
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(
+              child: Text('Running on: $_platformVersion\n'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await _flutterYcbtClientPlugin.startScan();
+              },
+              child: const Text('startScan BLE'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                await _flutterYcbtClientPlugin.stopScan();
+              },
+              child: const Text('stopScan BLE'),
+            ),
+          ],
         ),
       ),
     );

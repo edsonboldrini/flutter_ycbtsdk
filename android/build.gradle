@@ -1,4 +1,4 @@
-group 'com.example.flutter_ycbt_client'
+group 'com.edsonboldrini.flutter_ycbt_client'
 version '1.0'
 
 buildscript {
@@ -8,7 +8,6 @@ buildscript {
     }
 
     dependencies {
-        implementation fileTree(dir: "libs", include: ["*.jar", "*.aar"])
         classpath 'com.android.tools.build:gradle:7.1.2'
     }
 }
@@ -31,6 +30,11 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 18
     }
+}
+
+dependencies {
+    compileOnly files('libs/ycbtsdk-release.aar')
+    // implementation fileTree(dir: 'libs', include: ['*.aar', '*.jar'], exclude: [])
 }

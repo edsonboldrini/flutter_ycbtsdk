@@ -11,4 +11,12 @@ class FlutterYcbtClient {
   Future<String?> getPlatformVersion() {
     return FlutterYcbtClientPlatform.instance.getPlatformVersion();
   }
+
+  Future<void> startScan() async {
+    await FlutterYcbtClientPlatform.instance.startScan();
+  }
+
+  Future<void> stopScan() async {
+    await FlutterYcbtClientPlatform.instance.stopScan();
+  }
 }
