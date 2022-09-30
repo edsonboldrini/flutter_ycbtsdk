@@ -8,7 +8,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:7.1.2'
+        classpath 'com.android.tools.build:gradle:7.0.0'
     }
 }
 
@@ -30,6 +30,10 @@ android {
     }
 
     defaultConfig {
-        minSdkVersion 16
+        minSdkVersion 20
     }
+}
+
+dependencies {
+    compileOnly fileTree(dir: 'libs', include: ['*.aar', '*.jar'], exclude: [])
 }
