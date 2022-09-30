@@ -1,0 +1,2 @@
+include ':app', ':ycbtsdk'
+rootProject.name='YCBleSdkDemo'

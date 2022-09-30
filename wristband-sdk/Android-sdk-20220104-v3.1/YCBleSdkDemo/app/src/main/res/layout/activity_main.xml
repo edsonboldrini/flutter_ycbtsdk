@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    tools:context="com.example.ycblesdkdemo.MainActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="15dp"
+        android:orientation="horizontal">
+        <!--开始搜索设备-->
+        <Button
+            android:id="@+id/bt_start_scan"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:textSize="12dp"
+            android:textColor="#000000"
+            android:text="Start scan" />
+
+        <!--结束搜索设备-->
+        <Button
+            android:id="@+id/bt_stop_scan"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:textSize="12dp"
+            android:textColor="#000000"
+            android:text="End scan" />
+
+        <Button
+            android:id="@+id/bt_disconnect_dev"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:textSize="12dp"
+            android:textColor="#000000"
+            android:text="Disconnect" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <!--ECG实时开始-->
+        <Button
+            android:visibility="visible"
+            android:id="@+id/bt_write_test"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Start ECG" />
+        <!--结束ECG实时-->
+        <Button
+            android:id="@+id/bt_write_stop"
+            android:layout_width="wrap_content"
+            android:visibility="visible"
+            android:layout_height="wrap_content"
+            android:text="Stop ECG" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/bt_connect_dev"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Connect fixed equipment"
+        android:visibility="gone" />
+
+    <!--实时状态上报-->
+    <Button
+        android:id="@+id/bt_write_real"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Real time status reporting"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/bt_get_history_data"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Get History data" />
+
+        <Button
+            android:id="@+id/bt_delete_history_data"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete History data" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/bt_ui_getinfo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="file breakpoint information"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/start_sport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="start exercising" />
+
+        <Button
+            android:id="@+id/end_sport"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="end the movement" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/get_real"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Get real-time data" />
+
+        <TextView
+            android:id="@+id/tv_get_real"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#000000" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/history_data_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:textSize="12dp"
+            android:textColor="#000000"
+            android:text="Synchronize three-axis acceleration history data" />
+
+        <Button
+            android:id="@+id/delete_history_data_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:textSize="12dp"
+            android:textColor="#000000"
+            android:text="Delete three-axis acceleration history data" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:visibility="visible">
+
+        <Button
+            android:id="@+id/history_ecg_data_index"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:textSize="12dp"
+            android:textColor="#000000"
+            android:text="collectEcgDataWithIndex" />
+
+        <Button
+            android:id="@+id/history_ecg_data_timestamp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:textSize="12dp"
+            android:textColor="#000000"
+            android:text="collectEcgDataWithTimestamp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/history_data_light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:textSize="12dp"
+            android:textColor="#000000"
+            android:text="Synchronized ambient light history data" />
+
+        <Button
+            android:id="@+id/delete_history_data_light"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:visibility="gone"
+            android:textSize="12dp"
+            android:textColor="#000000"
+            android:text="Delete ambient light history data" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/history_blood_data_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="Inflation blood pressure historical data" />
+
+        <Button
+            android:id="@+id/delete_history_blood_data_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="10dp"
+            android:text="Delete blood pressure history data" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/start_test_blood_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="Start measuring inflation blood pressure"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/watchDialDownload"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Watch face download" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/dfu_update_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="DFU upgrade"
+        android:visibility="gone" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/open_real_temp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:text="OpenRealTemp"
+            android:textSize="10dp" />
+
+        <Button
+            android:id="@+id/read_real_temp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:text="ReadRealTemp"
+            android:textSize="10dp" />
+
+        <Button
+            android:id="@+id/close_real_temp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1.0"
+            android:text="CloseRealTemp"
+            android:textSize="10dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/send_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="sendTestMessage" />
+
+        <Button
+            android:id="@+id/send_model"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="sendMobileModel" />
+
+    </LinearLayout>
+
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/send_reset_order"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Reset" />
+
+        <!--        <Button-->
+        <!--            android:id="@+id/send_model"-->
+        <!--            android:layout_width="wrap_content"-->
+        <!--            android:layout_height="wrap_content"-->
+        <!--            android:text="sendMobileModel" />-->
+
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/device_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp" />
+
+</LinearLayout>
