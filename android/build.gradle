@@ -1,4 +1,4 @@
-group 'com.edsonboldrinie.flutter_ycbtsdk'
+group 'com.edsonboldrini.flutter_ycbtsdk'
 version '1.0'
 
 buildscript {

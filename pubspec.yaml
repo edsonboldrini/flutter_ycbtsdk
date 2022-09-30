@@ -35,7 +35,7 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.edsonboldrinie.flutter_ycbtsdk
+        package: com.edsonboldrini.flutter_ycbtsdk
         pluginClass: FlutterYcbtsdkPlugin
       ios:
         pluginClass: FlutterYcbtsdkPlugin

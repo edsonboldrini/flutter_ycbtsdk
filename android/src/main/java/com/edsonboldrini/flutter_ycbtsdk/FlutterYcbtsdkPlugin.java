@@ -1,4 +1,4 @@
-package com.edsonboldrinie.flutter_ycbtsdk;
+package com.edsonboldrini.flutter_ycbtsdk;
 
 import androidx.annotation.NonNull;
 

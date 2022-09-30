@@ -1,4 +1,4 @@
-package com.edsonboldrinie.flutter_ycbtsdk_example;
+package com.edsonboldrini.flutter_ycbtsdk_example;
 
 import io.flutter.embedding.android.FlutterActivity;
 
