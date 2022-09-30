@@ -62,13 +62,13 @@ class _MyAppState extends State<MyApp> {
             ),
             ElevatedButton(
               onPressed: () async {
-                await _flutterYcbtClientPlugin.startScan();
+                await _flutterYcbtsdkPlugin.startScan();
               },
               child: const Text('startScan BLE'),
             ),
             ElevatedButton(
               onPressed: () async {
-                await _flutterYcbtClientPlugin.stopScan();
+                await _flutterYcbtsdkPlugin.stopScan();
               },
               child: const Text('stopScan BLE'),
             ),
