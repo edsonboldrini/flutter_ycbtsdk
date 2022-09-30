@@ -1,6 +1,6 @@
-# flutter_ycbt_client_example
+# flutter_ycbtsdk_example
 
-Demonstrates how to use the flutter_ycbt_client plugin.
+Demonstrates how to use the flutter_ycbtsdk plugin.
 
 ## Getting Started
 

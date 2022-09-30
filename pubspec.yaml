@@ -1,4 +1,4 @@
-name: flutter_ycbt_client
+name: flutter_ycbtsdk
 description: A new Flutter plugin project.
 version: 0.0.1
 homepage:
@@ -35,8 +35,10 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.edsonboldrini.flutter_ycbt_client
-        pluginClass: FlutterYcbtClientPlugin
+        package: com.edsonboldrinie.flutter_ycbtsdk
+        pluginClass: FlutterYcbtsdkPlugin
+      ios:
+        pluginClass: FlutterYcbtsdkPlugin
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:
