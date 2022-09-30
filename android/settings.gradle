@@ -1,1 +1,2 @@
+include ':libs'
 rootProject.name = 'flutter_ycbtsdk'
