@@ -1,8 +1,10 @@
 package com.edsonboldrini.flutter_ycbtsdk;
 
+import android.content.Intent;
+import android.os.Bundle;
 import android.os.Handler;
-import android.util.Log;
 import android.os.Message;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -32,9 +34,9 @@ import com.yucheng.ycbtsdk.response.BleRealDataResponse;
 import com.yucheng.ycbtsdk.response.BleScanResponse;
 import com.yucheng.ycbtsdk.utils.YCBTLog;
 
-// import org.greenrobot.eventbus.EventBus;
-// import org.greenrobot.eventbus.Subscribe;
-// import org.greenrobot.eventbus.ThreadMode;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
@@ -66,6 +68,8 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler {
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
     channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "flutter_ycbtsdk");
     channel.setMethodCallHandler(this);
+
+    EventBus.getDefault().register(this);
   }
 
   private List<ScanDeviceBean> listModel = new ArrayList<>();
@@ -80,7 +84,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler {
         YCBTClient.getAllRealDataFromDevice(new BleDataResponse() {
           @Override
           public void onDataResponse(int i, float v, HashMap hashMap) {
-            Log.e("debug" , hashMap.toString());
+            Log.e("debug", hashMap.toString());
           }
         });
       } else if (msg.what == 1) {
@@ -103,7 +107,6 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler {
         result.success("Android " + android.os.Build.VERSION.RELEASE);
         break;
       case "startScan": {
-
         YCBTClient.startScanBle(new BleScanResponse() {
           @Override
           public void onScanResponse(int i, ScanDeviceBean scanDeviceBean) {

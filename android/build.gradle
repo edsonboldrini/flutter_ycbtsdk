@@ -39,5 +39,6 @@ android {
 }
 
 dependencies {
-    implementation (name: 'ycbtsdk', ext: 'aar')    
+    implementation (name: 'ycbtsdk', ext: 'aar')
+    implementation 'org.greenrobot:eventbus:3.0.0'
 }
