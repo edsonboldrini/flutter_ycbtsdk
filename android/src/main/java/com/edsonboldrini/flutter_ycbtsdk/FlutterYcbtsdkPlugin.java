@@ -1,5 +1,7 @@
 package com.edsonboldrini.flutter_ycbtsdk;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -8,7 +10,9 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
+import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
@@ -55,7 +59,7 @@ import java.util.List;
 import java.util.TimeZone;
 
 /** FlutterYcbtsdkPlugin */
-public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler {
+public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, ActivityAware {
   /// The MethodChannel that will the communication between Flutter and native
   /// Android
   ///
@@ -63,11 +67,40 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler {
   /// and unregister it
   /// when the Flutter Engine is detached from the Activity
   private MethodChannel channel;
+  private Context context;
+  private Activity activity;
+
+  @Override
+  public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
+    channel.setMethodCallHandler(null);
+  }
+
+  @Override
+  public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
+    activity = binding.getActivity();
+  }
+
+  @Override
+  public void onDetachedFromActivityForConfigChanges() {
+
+  }
+
+  @Override
+  public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
+
+  }
+
+  @Override
+  public void onDetachedFromActivity() {
+
+  }
 
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
     channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "flutter_ycbtsdk");
     channel.setMethodCallHandler(this);
+
+    context = flutterPluginBinding.getApplicationContext();
   }
 
   BleDeviceToAppDataResponse toAppDataResponse = new BleDeviceToAppDataResponse() {
@@ -161,7 +194,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler {
       case "initPlugin": {
         Log.e("device", "initPlugin...");
 
-        YCBTClient.initClient(null, true);
+        YCBTClient.initClient(context, true);
         YCBTClient.registerBleStateChange(bleConnectResponse);
         YCBTClient.deviceToApp(toAppDataResponse);
 
@@ -197,10 +230,5 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler {
         result.notImplemented();
         break;
     }
-  }
-
-  @Override
-  public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-    channel.setMethodCallHandler(null);
   }
 }
