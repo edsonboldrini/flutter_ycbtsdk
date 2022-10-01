@@ -27,6 +27,10 @@ abstract class FlutterYcbtsdkPlatform extends PlatformInterface {
     throw UnimplementedError('platformVersion() has not been implemented.');
   }
 
+  Future<void> initPlugin() {
+    throw UnimplementedError('initPlugin() has not been implemented.');
+  }
+
   Future<void> startScan() {
     throw UnimplementedError('startScan() has not been implemented.');
   }

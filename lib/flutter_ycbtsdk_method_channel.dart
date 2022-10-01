@@ -17,6 +17,11 @@ class MethodChannelFlutterYcbtsdk extends FlutterYcbtsdkPlatform {
   }
 
   @override
+  Future<void> initPlugin() async {
+    await methodChannel.invokeMethod<String>('initPlugin');
+  }
+
+  @override
   Future<void> startScan() async {
     await methodChannel.invokeMethod<String>('startScan');
   }

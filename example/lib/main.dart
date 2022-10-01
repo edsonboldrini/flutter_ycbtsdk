@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
+import 'dart:developer';
 
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_ycbtsdk/flutter_ycbtsdk.dart';
 
@@ -23,6 +24,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     initPlatformState();
+    initPlugin();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -31,8 +33,8 @@ class _MyAppState extends State<MyApp> {
     // Platform messages may fail, so we use a try/catch PlatformException.
     // We also handle the message potentially returning null.
     try {
-      platformVersion =
-          await _flutterYcbtsdkPlugin.getPlatformVersion() ?? 'Unknown platform version';
+      platformVersion = await _flutterYcbtsdkPlugin.getPlatformVersion() ??
+          'Unknown platform version';
     } on PlatformException {
       platformVersion = 'Failed to get platform version.';
     }
@@ -45,6 +47,14 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _platformVersion = platformVersion;
     });
+  }
+
+  Future<void> initPlugin() async {
+    try {
+      await _flutterYcbtsdkPlugin.initPlugin();
+    } catch (e) {
+      log(e.toString());
+    }
   }
 
   @override
@@ -62,13 +72,21 @@ class _MyAppState extends State<MyApp> {
             ),
             ElevatedButton(
               onPressed: () async {
-                await _flutterYcbtsdkPlugin.startScan();
+                try {
+                  await _flutterYcbtsdkPlugin.startScan();
+                } catch (e) {
+                  log(e.toString());
+                }
               },
               child: const Text('startScan BLE'),
             ),
             ElevatedButton(
               onPressed: () async {
-                await _flutterYcbtsdkPlugin.stopScan();
+                try {
+                  await _flutterYcbtsdkPlugin.stopScan();
+                } catch (e) {
+                  log(e.toString());
+                }
               },
               child: const Text('stopScan BLE'),
             ),

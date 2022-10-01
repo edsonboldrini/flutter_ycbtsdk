@@ -1,9 +1,12 @@
-
 import 'flutter_ycbtsdk_platform_interface.dart';
 
 class FlutterYcbtsdk {
   Future<String?> getPlatformVersion() {
     return FlutterYcbtsdkPlatform.instance.getPlatformVersion();
+  }
+
+  Future<void> initPlugin() {
+    return FlutterYcbtsdkPlatform.instance.initPlugin();
   }
 
   Future<void> startScan() async {

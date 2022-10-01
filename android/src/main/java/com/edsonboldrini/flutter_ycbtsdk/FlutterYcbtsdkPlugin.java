@@ -15,7 +15,7 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 
 import com.edsonboldrini.flutter_ycbtsdk.DeviceAdapter;
-// import com.edsonboldrini.ConnectEvent;
+import com.edsonboldrini.flutter_ycbtsdk.ConnectEvent;
 
 import static com.yucheng.ycbtsdk.Constants.BLEState.ReadWriteOK;
 
@@ -68,9 +68,61 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler {
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
     channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "flutter_ycbtsdk");
     channel.setMethodCallHandler(this);
-
-    EventBus.getDefault().register(this);
   }
+
+  BleDeviceToAppDataResponse toAppDataResponse = new BleDeviceToAppDataResponse() {
+
+    @Override
+    public void onDataResponse(int dataType, HashMap dataMap) {
+
+      Log.e("TimeSetActivity", "被动回传数据。。。");
+      Log.e("TimeSetActivity", dataMap.toString());
+
+    }
+  };
+
+  boolean isActiveDisconnect = false;
+  BleConnectResponse bleConnectResponse = new BleConnectResponse() {
+    @Override
+    public void onConnectResponse(int code) {
+      // Toast.makeText(MyApplication.this, "i222=" + var1,
+      // Toast.LENGTH_SHORT).show();
+
+      Log.e("deviceconnect", "全局监听返回=" + code);
+
+      if (code == com.yucheng.ycbtsdk.Constants.BLEState.Disconnect) {
+        // thirdConnect = false;
+        // BangleUtil.getInstance().SDK_VERSIONS = -1;
+        // EventBus.getDefault().post(new BlueConnectFailEvent());
+        /*
+         * if(SPUtil.getBindedDeviceMac() != null &&
+         * !"".equals(SPUtil.getBindedDeviceMac())){
+         * YCBTClient.connectBle(SPUtil.getBindedDeviceMac(), new BleConnectResponse() {
+         * 
+         * @Override
+         * public void onConnectResponse(int code) {
+         * 
+         * }
+         * });
+         * }
+         */
+      } else if (code == com.yucheng.ycbtsdk.Constants.BLEState.Connected) {
+
+      } else if (code == com.yucheng.ycbtsdk.Constants.BLEState.ReadWriteOK) {
+
+        // thirdConnect = true;
+        // BangleUtil.getInstance().SDK_VERSIONS = 3;
+        // Log.e("deviceconnect", "蓝牙连接成功，全局监听");
+        // setBaseOrder();
+        EventBus.getDefault().post(new ConnectEvent());
+      } else {
+        // code == Constants.BLEState.Disconnect
+        // thirdConnect = false;
+        // BangleUtil.getInstance().SDK_VERSIONS = -1;
+        // EventBus.getDefault().post(new ConnectEvent());
+      }
+    }
+  };
 
   private List<ScanDeviceBean> listModel = new ArrayList<>();
   private List<String> listVal = new ArrayList<>();
@@ -106,6 +158,18 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler {
       case "getPlatformVersion":
         result.success("Android " + android.os.Build.VERSION.RELEASE);
         break;
+      case "initPlugin": {
+        Log.e("device", "initPlugin...");
+
+        YCBTClient.initClient(null, true);
+        YCBTClient.registerBleStateChange(bleConnectResponse);
+        YCBTClient.deviceToApp(toAppDataResponse);
+
+        EventBus.getDefault().register(this);
+
+        Log.e("device", "finish...");
+        break;
+      }
       case "startScan": {
         YCBTClient.startScanBle(new BleScanResponse() {
           @Override
@@ -123,7 +187,6 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler {
             }
           }
         }, 6);
-
         break;
       }
       case "stopScan": {
