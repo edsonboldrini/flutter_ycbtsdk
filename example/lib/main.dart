@@ -79,7 +79,7 @@ class _MyAppState extends State<MyApp> {
                 try {
                   await _flutterYcbtsdkPlugin.initPlugin();
                 } catch (e) {
-                  log(e.toString());
+                  // log(e.toString());
                 }
               },
               child: const Text('initPlugin BLE'),
@@ -89,7 +89,7 @@ class _MyAppState extends State<MyApp> {
                 try {
                   await _flutterYcbtsdkPlugin.startScan();
                 } catch (e) {
-                  log(e.toString());
+                  // log(e.toString());
                 }
               },
               child: const Text('startScan BLE'),
@@ -99,7 +99,7 @@ class _MyAppState extends State<MyApp> {
                 try {
                   await _flutterYcbtsdkPlugin.stopScan();
                 } catch (e) {
-                  log(e.toString());
+                  // log(e.toString());
                 }
               },
               child: const Text('stopScan BLE'),
