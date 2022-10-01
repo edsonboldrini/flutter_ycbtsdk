@@ -1,5 +1,9 @@
 package com.edsonboldrini.flutter_ycbtsdk;
 
+import android.os.Handler;
+import android.util.Log;
+import android.os.Message;
+
 import androidx.annotation.NonNull;
 
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
@@ -8,18 +12,45 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 
+import com.edsonboldrini.flutter_ycbtsdk.DeviceAdapter;
+// import com.edsonboldrini.ConnectEvent;
+
+import static com.yucheng.ycbtsdk.Constants.BLEState.ReadWriteOK;
+
+import com.yucheng.ycbtsdk.AITools;
+import com.yucheng.ycbtsdk.Constants;
 import com.yucheng.ycbtsdk.YCBTClient;
+import com.yucheng.ycbtsdk.bean.AIDataBean;
+import com.yucheng.ycbtsdk.bean.HRVNormBean;
 import com.yucheng.ycbtsdk.bean.ScanDeviceBean;
+import com.yucheng.ycbtsdk.response.BleAIDiagnosisHRVNormResponse;
+import com.yucheng.ycbtsdk.response.BleAIDiagnosisResponse;
+import com.yucheng.ycbtsdk.response.BleConnectResponse;
+import com.yucheng.ycbtsdk.response.BleDataResponse;
+import com.yucheng.ycbtsdk.response.BleDeviceToAppDataResponse;
+import com.yucheng.ycbtsdk.response.BleRealDataResponse;
 import com.yucheng.ycbtsdk.response.BleScanResponse;
+import com.yucheng.ycbtsdk.utils.YCBTLog;
 
 // import org.greenrobot.eventbus.EventBus;
 // import org.greenrobot.eventbus.Subscribe;
 // import org.greenrobot.eventbus.ThreadMode;
 
-import android.util.Log;
-
+import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.TimeZone;
 
 /** FlutterYcbtsdkPlugin */
 public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler {
@@ -40,6 +71,30 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler {
   private List<ScanDeviceBean> listModel = new ArrayList<>();
   private List<String> listVal = new ArrayList<>();
   DeviceAdapter deviceAdapter = new DeviceAdapter(listModel);
+
+  private Handler handler = new Handler(new Handler.Callback() {
+    @Override
+    public boolean handleMessage(@NonNull Message msg) {
+      if (msg.what == 0) {
+        handler.sendEmptyMessageDelayed(0, 1000);
+        YCBTClient.getAllRealDataFromDevice(new BleDataResponse() {
+          @Override
+          public void onDataResponse(int i, float v, HashMap hashMap) {
+            Log.e("debug" , hashMap.toString());
+          }
+        });
+      } else if (msg.what == 1) {
+        Log.e("debug", "1");
+      } else if (msg.what == 2) {
+        Log.e("debug", "2");
+      } else if (msg.what == 3) {
+        Log.e("debug", "3");
+      } else if (msg.what == 4) {
+        Log.e("debug", "4");
+      }
+      return false;
+    }
+  });
 
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
