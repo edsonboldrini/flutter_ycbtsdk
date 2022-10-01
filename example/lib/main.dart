@@ -24,7 +24,11 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     initPlatformState();
-    initPlugin();
+
+    // WidgetsBinding.instance.addPostFrameCallback((_) async {
+    //   await Future.delayed(Duration.zero);
+    //   await initPlugin();
+    // });
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -69,6 +73,16 @@ class _MyAppState extends State<MyApp> {
           children: [
             Center(
               child: Text('Running on: $_platformVersion\n'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                try {
+                  await _flutterYcbtsdkPlugin.initPlugin();
+                } catch (e) {
+                  log(e.toString());
+                }
+              },
+              child: const Text('initPlugin BLE'),
             ),
             ElevatedButton(
               onPressed: () async {
