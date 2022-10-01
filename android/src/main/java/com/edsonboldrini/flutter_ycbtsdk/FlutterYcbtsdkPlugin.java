@@ -180,22 +180,22 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 	};
 
 	private static String[] PERMISSIONS_STORAGE = {
-			Manifest.permission.READ_EXTERNAL_STORAGE,
-			Manifest.permission.WRITE_EXTERNAL_STORAGE,
-			Manifest.permission.ACCESS_FINE_LOCATION,
-			Manifest.permission.ACCESS_COARSE_LOCATION,
-			Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
-			Manifest.permission.BLUETOOTH_SCAN,
-			Manifest.permission.BLUETOOTH_CONNECT,
-			Manifest.permission.BLUETOOTH_PRIVILEGED
+					Manifest.permission.READ_EXTERNAL_STORAGE,
+					Manifest.permission.WRITE_EXTERNAL_STORAGE,
+					Manifest.permission.ACCESS_FINE_LOCATION,
+					Manifest.permission.ACCESS_COARSE_LOCATION,
+					Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
+					Manifest.permission.BLUETOOTH_SCAN,
+					Manifest.permission.BLUETOOTH_CONNECT,
+					Manifest.permission.BLUETOOTH_PRIVILEGED
 	};
 	private static String[] PERMISSIONS_LOCATION = {
-			Manifest.permission.ACCESS_FINE_LOCATION,
-			Manifest.permission.ACCESS_COARSE_LOCATION,
-			Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
-			Manifest.permission.BLUETOOTH_SCAN,
-			Manifest.permission.BLUETOOTH_CONNECT,
-			Manifest.permission.BLUETOOTH_PRIVILEGED
+					Manifest.permission.ACCESS_FINE_LOCATION,
+					Manifest.permission.ACCESS_COARSE_LOCATION,
+					Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
+					Manifest.permission.BLUETOOTH_SCAN,
+					Manifest.permission.BLUETOOTH_CONNECT,
+					Manifest.permission.BLUETOOTH_PRIVILEGED
 	};
 
 	private void checkPermissions() {
@@ -206,14 +206,14 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 		if (permission1 != PackageManager.PERMISSION_GRANTED) {
 			// We don't have permission so prompt the user
 			ActivityCompat.requestPermissions(
-					activity,
-					PERMISSIONS_STORAGE,
-					1);
+							activity,
+							PERMISSIONS_STORAGE,
+							1);
 		} else if (permission2 != PackageManager.PERMISSION_GRANTED) {
 			ActivityCompat.requestPermissions(
-					activity,
-					PERMISSIONS_LOCATION,
-					1);
+							activity,
+							PERMISSIONS_LOCATION,
+							1);
 		}
 	}
 
@@ -253,7 +253,6 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				break;
 			case "initPlugin": {
 				Log.e("device", "initPlugin...");
-
 				checkPermissions();
 
 				YCBTClient.initClient(context, true);
@@ -274,7 +273,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 							}
 
 							Log.e("device", "mac=" + scanDeviceBean.getDeviceMac() + ";name=" + scanDeviceBean.getDeviceName()
-									+ "rssi=" + scanDeviceBean.getDeviceRssi());
+											+ "rssi=" + scanDeviceBean.getDeviceRssi());
 
 						}
 					}

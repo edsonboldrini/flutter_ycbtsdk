@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,11 +23,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     initPlatformState();
-
-    // WidgetsBinding.instance.addPostFrameCallback((_) async {
-    //   await Future.delayed(Duration.zero);
-    //   await initPlugin();
-    // });
+    initPlugin();
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -57,7 +52,7 @@ class _MyAppState extends State<MyApp> {
     try {
       await _flutterYcbtsdkPlugin.initPlugin();
     } catch (e) {
-      log(e.toString());
+      // log(e.toString());
     }
   }
 
@@ -69,40 +64,34 @@ class _MyAppState extends State<MyApp> {
           title: const Text('Plugin example app'),
         ),
         body: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Center(
-              child: Text('Running on: $_platformVersion\n'),
+            const SizedBox(
+              height: 10,
             ),
-            ElevatedButton(
-              onPressed: () async {
-                try {
-                  await _flutterYcbtsdkPlugin.initPlugin();
-                } catch (e) {
-                  // log(e.toString());
-                }
-              },
-              child: const Text('initPlugin BLE'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                try {
-                  await _flutterYcbtsdkPlugin.startScan();
-                } catch (e) {
-                  // log(e.toString());
-                }
-              },
-              child: const Text('startScan BLE'),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                try {
-                  await _flutterYcbtsdkPlugin.stopScan();
-                } catch (e) {
-                  // log(e.toString());
-                }
-              },
-              child: const Text('stopScan BLE'),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      await _flutterYcbtsdkPlugin.startScan();
+                    } catch (e) {
+                      // log(e.toString());
+                    }
+                  },
+                  child: const Text('startScan BLE'),
+                ),
+                ElevatedButton(
+                  onPressed: () async {
+                    try {
+                      await _flutterYcbtsdkPlugin.stopScan();
+                    } catch (e) {
+                      // log(e.toString());
+                    }
+                  },
+                  child: const Text('stopScan BLE'),
+                ),
+              ],
             ),
           ],
         ),
