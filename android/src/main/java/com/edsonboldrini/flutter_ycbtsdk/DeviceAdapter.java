@@ -1,7 +1,5 @@
 package com.edsonboldrini.flutter_ycbtsdk;
 
-import android.content.Context;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
@@ -14,68 +12,76 @@ import java.util.List;
 
 public class DeviceAdapter extends BaseAdapter {
 
-  private List<ScanDeviceBean> listVals;
+	private List<ScanDeviceBean> scanDevicesList;
 
-  public DeviceAdapter(List<ScanDeviceBean> listVal) {
-    this.listVals = listVal;
-  }
+	public DeviceAdapter(List<ScanDeviceBean> list) {
+		this.scanDevicesList = list;
+	}
 
-  public void addModel(ScanDeviceBean scanDeviceBean) {
-    listVals.add(scanDeviceBean);
-    notifyDataSetChanged();
-  }
+	public void addModel(ScanDeviceBean scanDeviceBean) {
+		scanDevicesList.add(scanDeviceBean);
+		notifyDataSetChanged();
+	}
 
-  @Override
-  public int getCount() {
-    return listVals.size();
-  }
+	public List<ScanDeviceBean> getScanDevicesList() {
+		return scanDevicesList;
+	}
 
-  @Override
-  public Object getItem(int i) {
-    return listVals.get(i);
-  }
+	public void setScanDevicesList(List<ScanDeviceBean> scanDevicesList) {
+		this.scanDevicesList = scanDevicesList;
+	}
 
-  @Override
-  public long getItemId(int i) {
-    return i;
-  }
+	@Override
+	public int getCount() {
+		return scanDevicesList.size();
+	}
 
-  @Override
-  public View getView(int i, View view, ViewGroup viewGroup) {
+	@Override
+	public Object getItem(int i) {
+		return scanDevicesList.get(i);
+	}
 
-    ViewHolder vh;
+	@Override
+	public long getItemId(int i) {
+		return i;
+	}
 
-    // if (view == null) {
-    // vh = new ViewHolder();
-    // view = LayoutInflater.from(context).inflate(R.layout.device_item_layout,
-    // null);
-    // // vh.headImg = (ImageView)
-    // view.findViewById(R.id.check_box_select_img_view);
-    // vh.nameView = (TextView) view.findViewById(R.id.item_name_view);
-    // vh.macView = (TextView) view.findViewById(R.id.item_mac_view);
-    // view.setTag(vh);
-    // } else {
-    // vh = (ViewHolder) view.getTag();
-    // }
+	@Override
+	public View getView(int i, View view, ViewGroup viewGroup) {
 
-    // final ScanDeviceBean checkBoxModel = listVals.get(i);
+		ViewHolder vh;
 
-    // vh.nameView.setText(checkBoxModel.getDeviceName());
-    // vh.macView.setText(checkBoxModel.getDeviceMac());
+		// if (view == null) {
+		// vh = new ViewHolder();
+		// view = LayoutInflater.from(context).inflate(R.layout.device_item_layout,
+		// null);
+		// // vh.headImg = (ImageView)
+		// view.findViewById(R.id.check_box_select_img_view);
+		// vh.nameView = (TextView) view.findViewById(R.id.item_name_view);
+		// vh.macView = (TextView) view.findViewById(R.id.item_mac_view);
+		// view.setTag(vh);
+		// } else {
+		// vh = (ViewHolder) view.getTag();
+		// }
 
-    return view;
-  }
+		// final ScanDeviceBean checkBoxModel = listVals.get(i);
 
-  public final class ViewHolder {
-    // public ImageView headImg;
-    public TextView nameView;
-    public TextView macView;
-  }
+		// vh.nameView.setText(checkBoxModel.getDeviceName());
+		// vh.macView.setText(checkBoxModel.getDeviceMac());
 
-  // public interface FriendStateListener {
-  // void aggreeClick(FriendListModel friendListModel);
-  //
-  // void refuseClick(FriendListModel friendListModel);
-  // }
+		return view;
+	}
+
+	public final class ViewHolder {
+		// public ImageView headImg;
+		public TextView nameView;
+		public TextView macView;
+	}
+
+	// public interface FriendStateListener {
+	// void aggreeClick(FriendListModel friendListModel);
+	//
+	// void refuseClick(FriendListModel friendListModel);
+	// }
 
 }

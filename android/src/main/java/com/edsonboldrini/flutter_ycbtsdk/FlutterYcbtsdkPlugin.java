@@ -2,14 +2,16 @@ package com.edsonboldrini.flutter_ycbtsdk;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.Application;
+import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.util.Log;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -17,50 +19,29 @@ import androidx.core.app.ActivityCompat;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
+import io.flutter.plugin.common.BinaryMessenger;
+import io.flutter.plugin.common.EventChannel;
+import io.flutter.plugin.common.EventChannel.EventSink;
+import io.flutter.plugin.common.EventChannel.StreamHandler;
 import io.flutter.plugin.common.MethodCall;
 import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 
-import com.edsonboldrini.flutter_ycbtsdk.DeviceAdapter;
-import com.edsonboldrini.flutter_ycbtsdk.ConnectEvent;
-
-import static com.yucheng.ycbtsdk.Constants.BLEState.ReadWriteOK;
-
-import com.yucheng.ycbtsdk.AITools;
-import com.yucheng.ycbtsdk.Constants;
 import com.yucheng.ycbtsdk.YCBTClient;
-import com.yucheng.ycbtsdk.bean.AIDataBean;
-import com.yucheng.ycbtsdk.bean.HRVNormBean;
 import com.yucheng.ycbtsdk.bean.ScanDeviceBean;
-import com.yucheng.ycbtsdk.response.BleAIDiagnosisHRVNormResponse;
-import com.yucheng.ycbtsdk.response.BleAIDiagnosisResponse;
 import com.yucheng.ycbtsdk.response.BleConnectResponse;
 import com.yucheng.ycbtsdk.response.BleDataResponse;
 import com.yucheng.ycbtsdk.response.BleDeviceToAppDataResponse;
-import com.yucheng.ycbtsdk.response.BleRealDataResponse;
 import com.yucheng.ycbtsdk.response.BleScanResponse;
-import com.yucheng.ycbtsdk.utils.YCBTLog;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.TimeZone;
 
 /**
  * FlutterYcbtsdkPlugin
@@ -72,10 +53,17 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 	/// This local reference serves to register the plugin with the Flutter Engine
 	/// and unregister it
 	/// when the Flutter Engine is detached from the Activity
+	private static final String TAG = "FlutterYCBTSDK";
+	private static final String NAMESPACE = "flutter_ycbtsdk";
 	private MethodChannel channel;
+	private EventChannel stateChannel;
 	private Context context;
 	private Activity activity;
 	private String macVal;
+
+	private final Object initializationLock = new Object();
+	private FlutterPluginBinding pluginBinding;
+	private ActivityPluginBinding activityBinding;
 
 	@Override
 	public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
@@ -104,18 +92,52 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 
 	@Override
 	public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
-		channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "flutter_ycbtsdk");
-		channel.setMethodCallHandler(this);
-
-		context = flutterPluginBinding.getApplicationContext();
-
-		EventBus.getDefault().register(this);
-		// startService(new Intent(this, MyBleService.class));
+		Log.d(TAG, "onAttachedToEngine");
+		pluginBinding = flutterPluginBinding;
+		setup(pluginBinding.getBinaryMessenger(), (Application) pluginBinding.getApplicationContext());
 	}
+
+	private void setup(final BinaryMessenger messenger, final Application application) {
+		synchronized (initializationLock) {
+			Log.d(TAG, "setup");
+			context = application;
+			channel = new MethodChannel(messenger, NAMESPACE + "/methods");
+			channel.setMethodCallHandler(this);
+			stateChannel = new EventChannel(messenger, NAMESPACE + "/state");
+			stateChannel.setStreamHandler((StreamHandler) stateHandler);
+
+			EventBus.getDefault().register(this);
+			// startService(new Intent(this, MyBleService.class));
+		}
+	}
+
+	private final StreamHandler stateHandler = new EventChannel.StreamHandler() {
+		private EventSink sink;
+
+		private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				final String action = intent.getAction();
+			}
+		};
+
+		@Override
+		public void onListen(Object o, EventSink eventSink) {
+			sink = eventSink;
+			IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+			context.registerReceiver(mReceiver, filter);
+		}
+
+		@Override
+		public void onCancel(Object o) {
+			sink = null;
+			context.unregisterReceiver(mReceiver);
+		}
+	};
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void connectEvent(ConnectEvent connectEvent) {
-		Log.e("mainOrder", "connected...");
+		Log.e(TAG, "connected...");
 		// baseOrderSet();
 		// Intent timeIntent = new Intent(context, ChoseActivity.class);
 		// timeIntent.putExtra("mac", macVal);
@@ -130,8 +152,8 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 		@Override
 		public void onDataResponse(int dataType, HashMap dataMap) {
 
-			Log.e("TimeSetActivity", "被动回传数据。。。");
-			Log.e("TimeSetActivity", dataMap.toString());
+			Log.e(TAG, "被动回传数据。。。");
+			Log.e(TAG, dataMap.toString());
 
 		}
 	};
@@ -143,7 +165,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			// Toast.makeText(MyApplication.this, "i222=" + var1,
 			// Toast.LENGTH_SHORT).show();
 
-			Log.e("deviceconnect", "全局监听返回=" + code);
+			Log.e(TAG, "全局监听返回=" + code);
 
 			if (code == com.yucheng.ycbtsdk.Constants.BLEState.Disconnect) {
 				// thirdConnect = false;
@@ -167,7 +189,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 
 				// thirdConnect = true;
 				// BangleUtil.getInstance().SDK_VERSIONS = 3;
-				// Log.e("deviceconnect", "蓝牙连接成功，全局监听");
+				// Log.e(TAG, "蓝牙连接成功，全局监听");
 				// setBaseOrder();
 				EventBus.getDefault().post(new ConnectEvent());
 			} else {
@@ -179,47 +201,25 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 		}
 	};
 
-	private static String[] PERMISSIONS_STORAGE = {
-					Manifest.permission.READ_EXTERNAL_STORAGE,
-					Manifest.permission.WRITE_EXTERNAL_STORAGE,
-					Manifest.permission.ACCESS_FINE_LOCATION,
-					Manifest.permission.ACCESS_COARSE_LOCATION,
-					Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
-					Manifest.permission.BLUETOOTH_SCAN,
-					Manifest.permission.BLUETOOTH_CONNECT,
-					Manifest.permission.BLUETOOTH_PRIVILEGED
-	};
-	private static String[] PERMISSIONS_LOCATION = {
-					Manifest.permission.ACCESS_FINE_LOCATION,
-					Manifest.permission.ACCESS_COARSE_LOCATION,
-					Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
-					Manifest.permission.BLUETOOTH_SCAN,
-					Manifest.permission.BLUETOOTH_CONNECT,
-					Manifest.permission.BLUETOOTH_PRIVILEGED
-	};
+	private static String[] PERMISSIONS_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_PRIVILEGED};
+	private static String[] PERMISSIONS_LOCATION = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_PRIVILEGED};
 
 	private void checkPermissions() {
-		Log.e("debug", "checking permissions...");
+		Log.e(TAG, "checking permissions...");
 
 		int permission1 = ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 		int permission2 = ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN);
 		if (permission1 != PackageManager.PERMISSION_GRANTED) {
 			// We don't have permission so prompt the user
-			ActivityCompat.requestPermissions(
-							activity,
-							PERMISSIONS_STORAGE,
-							1);
+			ActivityCompat.requestPermissions(activity, PERMISSIONS_STORAGE, 1);
 		} else if (permission2 != PackageManager.PERMISSION_GRANTED) {
-			ActivityCompat.requestPermissions(
-							activity,
-							PERMISSIONS_LOCATION,
-							1);
+			ActivityCompat.requestPermissions(activity, PERMISSIONS_LOCATION, 1);
 		}
 	}
 
-	private List<ScanDeviceBean> listModel = new ArrayList<>();
-	private List<String> listVal = new ArrayList<>();
-	DeviceAdapter deviceAdapter = new DeviceAdapter(listModel);
+	private List<ScanDeviceBean> scanDevicesList = new ArrayList<>();
+	private List<String> macAddressList = new ArrayList<>();
+	DeviceAdapter deviceAdapter = new DeviceAdapter(scanDevicesList);
 
 	private Handler handler = new Handler(new Handler.Callback() {
 		@Override
@@ -229,17 +229,17 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				YCBTClient.getAllRealDataFromDevice(new BleDataResponse() {
 					@Override
 					public void onDataResponse(int i, float v, HashMap hashMap) {
-						Log.e("debug", hashMap.toString());
+						Log.e(TAG, hashMap.toString());
 					}
 				});
 			} else if (msg.what == 1) {
-				Log.e("debug", "1");
+				Log.e(TAG, "1");
 			} else if (msg.what == 2) {
-				Log.e("debug", "2");
+				Log.e(TAG, "2");
 			} else if (msg.what == 3) {
-				Log.e("debug", "3");
+				Log.e(TAG, "3");
 			} else if (msg.what == 4) {
-				Log.e("debug", "4");
+				Log.e(TAG, "4");
 			}
 			return false;
 		}
@@ -252,7 +252,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				result.success("Android " + android.os.Build.VERSION.RELEASE);
 				break;
 			case "initPlugin": {
-				Log.e("device", "initPlugin...");
+				Log.e(TAG, "initPlugin...");
 				checkPermissions();
 
 				YCBTClient.initClient(context, true);
@@ -262,22 +262,25 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				break;
 			}
 			case "startScan": {
+				Log.e(TAG, "startScan...");
+				macAddressList = new ArrayList<>();
+				deviceAdapter.setScanDevicesList(new ArrayList<>());
 				YCBTClient.startScanBle(new BleScanResponse() {
 					@Override
 					public void onScanResponse(int i, ScanDeviceBean scanDeviceBean) {
 
 						if (scanDeviceBean != null) {
-							if (!listVal.contains(scanDeviceBean.getDeviceMac())) {
-								listVal.add(scanDeviceBean.getDeviceMac());
+							if (!macAddressList.contains(scanDeviceBean.getDeviceMac())) {
+								macAddressList.add(scanDeviceBean.getDeviceMac());
 								deviceAdapter.addModel(scanDeviceBean);
 							}
 
-							Log.e("device", "mac=" + scanDeviceBean.getDeviceMac() + ";name=" + scanDeviceBean.getDeviceName()
-											+ "rssi=" + scanDeviceBean.getDeviceRssi());
-
+							Log.e(TAG, "mac= " + scanDeviceBean.getDeviceMac() + "; name= " + scanDeviceBean.getDeviceName() + "; rssi= " + scanDeviceBean.getDeviceRssi());
 						}
 					}
-				}, 6);
+				}, 15);
+				Log.e(TAG, "finishStartScan...");
+				result.success(deviceAdapter.getScanDevicesList());
 				break;
 			}
 			case "stopScan": {

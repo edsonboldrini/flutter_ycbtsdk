@@ -1,6 +1,5 @@
+import 'package:flutter_ycbtsdk/flutter_ycbtsdk.dart';
 import 'package:plugin_platform_interface/plugin_platform_interface.dart';
-
-import 'flutter_ycbtsdk_method_channel.dart';
 
 abstract class FlutterYcbtsdkPlatform extends PlatformInterface {
   /// Constructs a FlutterYcbtsdkPlatform.
@@ -31,7 +30,7 @@ abstract class FlutterYcbtsdkPlatform extends PlatformInterface {
     throw UnimplementedError('initPlugin() has not been implemented.');
   }
 
-  Future<void> startScan() {
+  Future startScan() {
     throw UnimplementedError('startScan() has not been implemented.');
   }
 

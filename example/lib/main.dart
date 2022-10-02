@@ -17,7 +17,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String _platformVersion = 'Unknown';
-  final _flutterYcbtsdkPlugin = FlutterYcbtsdk();
+  final _flutterYcbtsdkPlugin = FlutterYcbtsdk.instance;
 
   @override
   void initState() {
@@ -74,7 +74,11 @@ class _MyAppState extends State<MyApp> {
                 ElevatedButton(
                   onPressed: () async {
                     try {
-                      await _flutterYcbtsdkPlugin.startScan();
+                      print('Begin scan');
+                      final scanResult =
+                          await _flutterYcbtsdkPlugin.startScan();
+                      print('End scan');
+                      print(scanResult);
                     } catch (e) {
                       // log(e.toString());
                     }

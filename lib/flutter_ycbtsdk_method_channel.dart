@@ -1,33 +1,30 @@
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-
-import 'flutter_ycbtsdk_platform_interface.dart';
+part of flutter_ycbtsdk;
 
 /// An implementation of [FlutterYcbtsdkPlatform] that uses method channels.
 class MethodChannelFlutterYcbtsdk extends FlutterYcbtsdkPlatform {
-  /// The method channel used to interact with the native platform.
-  @visibleForTesting
-  final methodChannel = const MethodChannel('flutter_ycbtsdk');
-
   @override
   Future<String?> getPlatformVersion() async {
-    final version =
-        await methodChannel.invokeMethod<String>('getPlatformVersion');
+    final version = await FlutterYcbtsdk.instance.methodChannel
+        .invokeMethod<String>('getPlatformVersion');
     return version;
   }
 
   @override
   Future<void> initPlugin() async {
-    await methodChannel.invokeMethod<String>('initPlugin');
+    await FlutterYcbtsdk.instance.methodChannel
+        .invokeMethod<String>('initPlugin');
   }
 
   @override
-  Future<void> startScan() async {
-    await methodChannel.invokeMethod<String>('startScan');
+  Future startScan() async {
+    final scanResult = await FlutterYcbtsdk.instance.methodChannel
+        .invokeMethod<String>('startScan');
+    return scanResult;
   }
 
   @override
   Future<void> stopScan() async {
-    await methodChannel.invokeMethod<String>('stopScan');
+    await FlutterYcbtsdk.instance.methodChannel
+        .invokeMethod<String>('stopScan');
   }
 }
