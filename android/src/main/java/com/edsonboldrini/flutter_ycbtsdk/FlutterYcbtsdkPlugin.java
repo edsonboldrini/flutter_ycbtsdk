@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
 
@@ -55,19 +56,20 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 	/// when the Flutter Engine is detached from the Activity
 	private static final String TAG = "FlutterYCBTSDK";
 	private static final String NAMESPACE = "flutter_ycbtsdk";
-	private MethodChannel channel;
+	private MethodChannel methodChannel;
 	private EventChannel stateChannel;
 	private Context context;
 	private Activity activity;
 	private String macVal;
 
 	private final Object initializationLock = new Object();
+	private final Object tearDownLock = new Object();
 	private FlutterPluginBinding pluginBinding;
 	private ActivityPluginBinding activityBinding;
 
 	@Override
 	public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-		channel.setMethodCallHandler(null);
+		methodChannel.setMethodCallHandler(null);
 	}
 
 	@Override
@@ -101,14 +103,40 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 		synchronized (initializationLock) {
 			Log.d(TAG, "setup");
 			context = application;
-			channel = new MethodChannel(messenger, NAMESPACE + "/methods");
-			channel.setMethodCallHandler(this);
+			methodChannel = new MethodChannel(messenger, NAMESPACE + "/methods");
+			methodChannel.setMethodCallHandler(this);
 			stateChannel = new EventChannel(messenger, NAMESPACE + "/state");
 			stateChannel.setStreamHandler((StreamHandler) stateHandler);
 
 			EventBus.getDefault().register(this);
 			// startService(new Intent(this, MyBleService.class));
 		}
+	}
+
+	private void tearDown() {
+		synchronized (tearDownLock) {
+			Log.d(TAG, "teardown");
+			context = null;
+			methodChannel.setMethodCallHandler(null);
+			methodChannel = null;
+			stateChannel.setStreamHandler(null);
+			stateChannel = null;
+//			mBluetoothAdapter = null;
+//			mBluetoothManager = null;
+		}
+	}
+
+	private void invokeMethodUIThread(final String name, final Object arguments) {
+		new Handler(Looper.getMainLooper()).post(() -> {
+			synchronized (tearDownLock) {
+				//Could already be teared down at this moment
+				if (methodChannel != null) {
+					methodChannel.invokeMethod(name, arguments);
+				} else {
+					Log.w(TAG, "Tried to call " + name + " on closed channel");
+				}
+			}
+		});
 	}
 
 	private final StreamHandler stateHandler = new EventChannel.StreamHandler() {
@@ -252,9 +280,9 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				result.success("Android " + android.os.Build.VERSION.RELEASE);
 				break;
 			case "initPlugin": {
-				Log.e(TAG, "initPlugin...");
 				checkPermissions();
 
+				Log.e(TAG, "initPlugin...");
 				YCBTClient.initClient(context, true);
 				YCBTClient.registerBleStateChange(bleConnectResponse);
 				YCBTClient.deviceToApp(toAppDataResponse);
@@ -276,11 +304,15 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 							}
 
 							Log.e(TAG, "mac = " + scanDeviceBean.getDeviceMac() + "; name = " + scanDeviceBean.getDeviceName() + "; rssi = " + scanDeviceBean.getDeviceRssi());
+							HashMap scanData = new HashMap<>();
+							scanData.put("mac", scanDeviceBean.getDeviceMac());
+							scanData.put("name", scanDeviceBean.getDeviceName());
+							scanData.put("rssi", scanDeviceBean.getDeviceRssi());
+
+							invokeMethodUIThread("ScanResult", scanData);
 						}
 					}
 				}, 15);
-				Log.e(TAG, "finishStartScan...");
-				result.success(deviceAdapter.getScanDevicesList());
 				break;
 			}
 			case "stopScan": {

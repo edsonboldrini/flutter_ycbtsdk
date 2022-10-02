@@ -28,6 +28,7 @@ class FlutterYcbtsdk {
   /// Singleton boilerplate
   FlutterYcbtsdk._() {
     methodChannel.setMethodCallHandler((MethodCall call) async {
+      print(call);
       methodStreamController.add(call);
     });
   }

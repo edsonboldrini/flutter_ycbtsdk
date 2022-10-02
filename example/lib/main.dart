@@ -75,10 +75,8 @@ class _MyAppState extends State<MyApp> {
                   onPressed: () async {
                     try {
                       print('Begin scan');
-                      final scanResult =
-                          await _flutterYcbtsdkPlugin.startScan();
+                      await _flutterYcbtsdkPlugin.startScan();
                       print('End scan');
-                      print(scanResult);
                     } catch (e) {
                       // log(e.toString());
                     }
