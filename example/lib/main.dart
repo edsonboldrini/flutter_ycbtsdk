@@ -51,6 +51,10 @@ class _MyAppState extends State<MyApp> {
   Future<void> initPlugin() async {
     try {
       await _flutterYcbtsdkPlugin.initPlugin();
+
+      _flutterYcbtsdkPlugin.scanResults.listen((event) {
+        print(event);
+      });
     } catch (e) {
       // log(e.toString());
     }
@@ -74,9 +78,7 @@ class _MyAppState extends State<MyApp> {
                 ElevatedButton(
                   onPressed: () async {
                     try {
-                      print('Begin scan');
                       await _flutterYcbtsdkPlugin.startScan();
-                      print('End scan');
                     } catch (e) {
                       // log(e.toString());
                     }
@@ -94,6 +96,46 @@ class _MyAppState extends State<MyApp> {
                   child: const Text('stopScan BLE'),
                 ),
               ],
+            ),
+            const SizedBox(
+              height: 10,
+            ),
+            const Text('scanResults'),
+            const SizedBox(
+              height: 10,
+            ),
+            Expanded(
+              child: StreamBuilder<List<ScanResult>>(
+                stream: _flutterYcbtsdkPlugin.scanResults,
+                initialData: const [],
+                builder: (c, snapshot) {
+                  if (snapshot.hasData) {
+                    List<ScanResult> scanResults = snapshot.data!;
+
+                    return ListView.builder(
+                      itemCount: scanResults.length,
+                      itemBuilder: (context, index) {
+                        ScanResult scanResult = scanResults[index];
+
+                        return ListTile(
+                          title: Text(scanResult.name),
+                          subtitle:
+                              Text('${scanResult.mac} ${scanResult.rssi}'),
+                          onTap: () {
+                            //   Navigator.of(context)
+                            //     .push(MaterialPageRoute(builder: (context) {
+                            //   r.device.connect();
+                            //   return DeviceScreen(device: r.device);
+                            // }));
+                          },
+                        );
+                      },
+                    );
+                  }
+
+                  return const SizedBox();
+                },
+              ),
             ),
           ],
         ),

@@ -29,6 +29,8 @@ import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.yucheng.ycbtsdk.YCBTClient;
 import com.yucheng.ycbtsdk.bean.ScanDeviceBean;
 import com.yucheng.ycbtsdk.response.BleConnectResponse;
@@ -66,6 +68,8 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 	private final Object tearDownLock = new Object();
 	private FlutterPluginBinding pluginBinding;
 	private ActivityPluginBinding activityBinding;
+
+	private ObjectMapper mapper = new ObjectMapper();
 
 	@Override
 	public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
@@ -286,7 +290,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				YCBTClient.initClient(context, true);
 				YCBTClient.registerBleStateChange(bleConnectResponse);
 				YCBTClient.deviceToApp(toAppDataResponse);
-
+				result.success(null);
 				break;
 			}
 			case "startScan": {
@@ -309,10 +313,17 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 							scanData.put("name", scanDeviceBean.getDeviceName());
 							scanData.put("rssi", scanDeviceBean.getDeviceRssi());
 
-							invokeMethodUIThread("ScanResult", scanData);
+							try {
+								String scanDataString
+												= mapper.writeValueAsString(scanData);
+							invokeMethodUIThread("onScanResult", scanDataString);
+							} catch (JsonProcessingException e) {
+								e.printStackTrace();
+							}
 						}
 					}
 				}, 15);
+				result.success(null);
 				break;
 			}
 			case "stopScan": {
