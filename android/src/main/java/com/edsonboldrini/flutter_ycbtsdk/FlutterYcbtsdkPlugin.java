@@ -275,7 +275,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 								deviceAdapter.addModel(scanDeviceBean);
 							}
 
-							Log.e(TAG, "mac= " + scanDeviceBean.getDeviceMac() + "; name= " + scanDeviceBean.getDeviceName() + "; rssi= " + scanDeviceBean.getDeviceRssi());
+							Log.e(TAG, "mac = " + scanDeviceBean.getDeviceMac() + "; name = " + scanDeviceBean.getDeviceName() + "; rssi = " + scanDeviceBean.getDeviceRssi());
 						}
 					}
 				}, 15);
