@@ -34,6 +34,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 // import com.yucheng.ycbtsdk.AITools;
 // import com.yucheng.ycbtsdk.Constants;
+import com.yucheng.ycbtsdk.Constants;
 import com.yucheng.ycbtsdk.YCBTClient;
 // import com.yucheng.ycbtsdk.bean.AIDataBean;
 // import com.yucheng.ycbtsdk.bean.HRVNormBean;
@@ -156,7 +157,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 							}
 
 							Log.e(TAG, "mac = " + scanDeviceBean.getDeviceMac() + "; name = " + scanDeviceBean.getDeviceName()
-									+ "; rssi = " + scanDeviceBean.getDeviceRssi());
+											+ "; rssi = " + scanDeviceBean.getDeviceRssi());
 							HashMap scanData = new HashMap<>();
 							scanData.put("mac", scanDeviceBean.getDeviceMac());
 							scanData.put("name", scanDeviceBean.getDeviceName());
@@ -194,8 +195,8 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 					}
 				});
 			}
-				result.success(null);
-				break;
+			result.success(null);
+			break;
 			case "disconnectDevice": {
 				Log.e(TAG, "disconnectDevice...");
 				// PendingIntent pendingIntent = null;
@@ -217,10 +218,10 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				 * AITools.getInstance().init();
 				 * AITools.getInstance().setAIDiagnosisHRVNormResponse(new
 				 * BleAIDiagnosisHRVNormResponse() {
-				 * 
+				 *
 				 * @Override
 				 * public void onAIDiagnosisResponse(HRVNormBean hrvNormBean) {
-				 * 
+				 *
 				 * float heavy_load = bean.heavy_load; // Load index (the bigger the better the
 				 * outgoing)
 				 * float pressure = bean.pressure; // Pressure index (the bigger the better the
@@ -229,7 +230,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				 * outgoing)
 				 * float body = bean.body; // body index (the bigger the better the outgoing)
 				 * int flag = -1; // 0 normal -1 error
-				 * 
+				 *
 				 * System.out.println("AIDiagnosis");
 				 * }
 				 * });
@@ -275,9 +276,9 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 						 * float body = bean.body; // body index (the bigger the better the outgoing)
 						 * }
 						 * }
-						 * 
+						 *
 						 * AITools.getInstance().getAIDiagnosisResult(new BleAIDiagnosisResponse() {
-						 * 
+						 *
 						 * @Override
 						 * public void onAIDiagnosisResponse(AIDataBean aiDataBean) {
 						 * if (aiDataBean != null) {
@@ -340,15 +341,15 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 		}
 	}
 
-	private static String[] PERMISSIONS_STORAGE = { Manifest.permission.READ_EXTERNAL_STORAGE,
-			Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION,
-			Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
-			Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT,
-			Manifest.permission.BLUETOOTH_PRIVILEGED };
-	private static String[] PERMISSIONS_LOCATION = { Manifest.permission.ACCESS_FINE_LOCATION,
-			Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
-			Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT,
-			Manifest.permission.BLUETOOTH_PRIVILEGED };
+	private static String[] PERMISSIONS_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE,
+					Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION,
+					Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
+					Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT,
+					Manifest.permission.BLUETOOTH_PRIVILEGED};
+	private static String[] PERMISSIONS_LOCATION = {Manifest.permission.ACCESS_FINE_LOCATION,
+					Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
+					Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT,
+					Manifest.permission.BLUETOOTH_PRIVILEGED};
 
 	private void checkPermissions() {
 		Log.e(TAG, "checking permissions...");
@@ -444,7 +445,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 	BleDeviceToAppDataResponse toAppDataResponse = new BleDeviceToAppDataResponse() {
 		@Override
 		public void onDataResponse(int dataType, HashMap dataMap) {
-			Log.e(TAG, "Passive return data = " + dataMap.toString());
+			Log.e(TAG, "Passive return data = " + dataMap);
 		}
 	};
 
@@ -452,30 +453,18 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 	BleConnectResponse bleConnectResponse = new BleConnectResponse() {
 		@Override
 		public void onConnectResponse(int code) {
-			Log.e(TAG, "Global monitor return = " + code);
+			Log.e(TAG, "onConnectResponse = " + code);
 
-			if (code == com.yucheng.ycbtsdk.Constants.BLEState.Disconnect) {
-				// EventBus.getDefault().post(new BlueConnectFailEvent());
-				/*
-				 * if(SPUtil.getBindedDeviceMac() != null &&
-				 * !"".equals(SPUtil.getBindedDeviceMac())){
-				 * YCBTClient.connectBle(SPUtil.getBindedDeviceMac(), new BleConnectResponse() {
-				 *
-				 * @Override
-				 * public void onConnectResponse(int code) {
-				 *
-				 * }
-				 * });
-				 * }
-				 */
-			} else if (code == com.yucheng.ycbtsdk.Constants.BLEState.Connected) {
-				Log.e(TAG, "Connected = " + code);
-			} else if (code == com.yucheng.ycbtsdk.Constants.BLEState.ReadWriteOK) {
-				Log.e(TAG, "Bluetooth connection is successful");
-				EventBus.getDefault().post(new ConnectEvent());
+			if (code <= Constants.BLEState.Disconnecting) {
+				Log.e(TAG, "Disconnected! " + code);
+			} else if (code == Constants.BLEState.Disconnecting) {
+				Log.e(TAG, "Disconnecting... " + code);
+			} else if (code == Constants.BLEState.Connecting) {
+				Log.e(TAG, "Connecting... " + code);
+			} else if (code >= com.yucheng.ycbtsdk.Constants.BLEState.Connected) {
+				Log.e(TAG, "Connected! " + code);
 			} else {
-				Log.e(TAG, "Bluetooth connection disconnected");
-				EventBus.getDefault().post(new ConnectEvent());
+				Log.e(TAG, "Unknown status " + code);
 			}
 		}
 	};

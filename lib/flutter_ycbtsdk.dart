@@ -38,7 +38,7 @@ class FlutterYcbtsdk {
       }
     });
 
-    onStreamBatteryStatus();
+    // onStreamBatteryStatus();
   }
 
   String batteryStatus = 'Streaming';
