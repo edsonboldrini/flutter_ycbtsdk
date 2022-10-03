@@ -3,6 +3,7 @@ package com.edsonboldrini.flutter_ycbtsdk;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Application;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -160,7 +161,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 	private final StreamHandler stateHandler = new EventChannel.StreamHandler() {
 		private EventSink sink;
 
-		private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+		private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {
 				final String action = intent.getAction();
@@ -171,13 +172,13 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 		public void onListen(Object o, EventSink eventSink) {
 			sink = eventSink;
 			IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-			context.registerReceiver(mReceiver, filter);
+			context.registerReceiver(broadcastReceiver, filter);
 		}
 
 		@Override
 		public void onCancel(Object o) {
 			sink = null;
-			context.unregisterReceiver(mReceiver);
+			context.unregisterReceiver(broadcastReceiver);
 		}
 	};
 
@@ -348,6 +349,14 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			break;
 			case "disconnectDevice": {
 				Log.e(TAG, "disconnectDevice...");
+//				PendingIntent pendingIntent = null;
+//				if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+//					pendingIntent = PendingIntent.getActivity
+//									(context, 0, null, PendingIntent.FLAG_MUTABLE);
+//				} else {
+//					pendingIntent = PendingIntent.getActivity
+//									(context, 0, null, PendingIntent.FLAG_ONE_SHOT);
+//				}
 				YCBTClient.disconnectBle();
 				result.success(null);
 				break;
@@ -467,6 +476,26 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				});
 				result.success(null);
 				break;
+			}
+			case "startMeasurement": {
+				Log.e(TAG, "startMeasurement...");
+				YCBTClient.appStartMeasurement(1, 0, new BleDataResponse() {
+					@Override
+					public void onDataResponse(int i, float v, HashMap hashMap) {
+						try {
+							String responseString
+											= mapper.writeValueAsString(hashMap);
+							Log.e("qob", "onRealDataResponse " + i + " " + v + " " + " dataType " + responseString);
+						} catch (JsonProcessingException e) {
+							e.printStackTrace();
+						}
+
+						if (i == 0) {
+							//success
+						}
+					}
+				});
+				result.success(null);
 			}
 			default: {
 				result.notImplemented();

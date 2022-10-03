@@ -122,6 +122,11 @@ class FlutterYcbtsdk {
         .invokeMethod<String>('stopEcgTest');
   }
 
+  Future<void> startMeasurement() async {
+    await FlutterYcbtsdk.instance.methodChannel
+        .invokeMethod<String>('startMeasurement');
+  }
+
   onScanResult(arguments) async {
     try {
       log(arguments.toString());
