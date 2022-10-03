@@ -60,6 +60,11 @@ class FlutterYcbtsdk {
     return version;
   }
 
+  Future<void> checkPermissions() async {
+    await FlutterYcbtsdk.instance.methodChannel
+        .invokeMethod<String>('checkPermissions');
+  }
+
   Future<void> initPlugin() async {
     await FlutterYcbtsdk.instance.methodChannel
         .invokeMethod<String>('initPlugin');
@@ -95,6 +100,11 @@ class FlutterYcbtsdk {
   Future<void> stopScan() async {
     await FlutterYcbtsdk.instance.methodChannel
         .invokeMethod<String>('stopScan');
+  }
+
+  Future<void> connectDevice(String deviceMacAddress) async {
+    await FlutterYcbtsdk.instance.methodChannel
+        .invokeMethod<String>('connectDevice', deviceMacAddress);
   }
 
   onScanResult(arguments) async {

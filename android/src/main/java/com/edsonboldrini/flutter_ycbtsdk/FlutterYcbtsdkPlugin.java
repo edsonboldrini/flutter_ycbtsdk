@@ -62,7 +62,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 	private EventChannel stateChannel;
 	private Context context;
 	private Activity activity;
-	private String macVal;
+	private String deviceMacAddress;
 
 	private final Object initializationLock = new Object();
 	private final Object tearDownLock = new Object();
@@ -73,27 +73,30 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 
 	@Override
 	public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
-		methodChannel.setMethodCallHandler(null);
+		Log.d(TAG, "onDetachedFromEngine");
+		tearDown();
 	}
 
 	@Override
 	public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
+		Log.d(TAG, "onAttachedToActivity");
+		activityBinding = binding;
 		activity = binding.getActivity();
 	}
 
 	@Override
 	public void onDetachedFromActivityForConfigChanges() {
-
+		Log.d(TAG, "onDetachedFromActivityForConfigChanges");
 	}
 
 	@Override
 	public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
-
+		Log.d(TAG, "onReattachedToActivityForConfigChanges");
 	}
 
 	@Override
 	public void onDetachedFromActivity() {
-
+		Log.d(TAG, "onDetachedFromActivity");
 	}
 
 	@Override
@@ -112,6 +115,10 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			stateChannel = new EventChannel(messenger, NAMESPACE + "/state");
 			stateChannel.setStreamHandler((StreamHandler) stateHandler);
 
+			YCBTClient.initClient(context, true);
+			YCBTClient.registerBleStateChange(bleConnectResponse);
+			YCBTClient.deviceToApp(toAppDataResponse);
+
 			EventBus.getDefault().register(this);
 			// startService(new Intent(this, MyBleService.class));
 		}
@@ -125,8 +132,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			methodChannel = null;
 			stateChannel.setStreamHandler(null);
 			stateChannel = null;
-//			mBluetoothAdapter = null;
-//			mBluetoothManager = null;
+			EventBus.getDefault().unregister(this);
 		}
 	}
 
@@ -169,24 +175,13 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void connectEvent(ConnectEvent connectEvent) {
-		Log.e(TAG, "connected...");
-		// baseOrderSet();
-		// Intent timeIntent = new Intent(context, ChoseActivity.class);
-		// timeIntent.putExtra("mac", macVal);
-		// startActivity(timeIntent);
-
-		// Toast.makeText(MainActivity.this, "connection succeeded",
-		// Toast.LENGTH_SHORT).show();
+		Log.e(TAG, "Connected = " + connectEvent);
 	}
 
 	BleDeviceToAppDataResponse toAppDataResponse = new BleDeviceToAppDataResponse() {
-
 		@Override
 		public void onDataResponse(int dataType, HashMap dataMap) {
-
-			Log.e(TAG, "被动回传数据。。。");
-			Log.e(TAG, dataMap.toString());
-
+			Log.e(TAG, "Passive return data = " + dataMap.toString());
 		}
 	};
 
@@ -194,14 +189,9 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 	BleConnectResponse bleConnectResponse = new BleConnectResponse() {
 		@Override
 		public void onConnectResponse(int code) {
-			// Toast.makeText(MyApplication.this, "i222=" + var1,
-			// Toast.LENGTH_SHORT).show();
-
-			Log.e(TAG, "全局监听返回=" + code);
+			Log.e(TAG, "Global monitor return = " + code);
 
 			if (code == com.yucheng.ycbtsdk.Constants.BLEState.Disconnect) {
-				// thirdConnect = false;
-				// BangleUtil.getInstance().SDK_VERSIONS = -1;
 				// EventBus.getDefault().post(new BlueConnectFailEvent());
 				/*
 				 * if(SPUtil.getBindedDeviceMac() != null &&
@@ -216,19 +206,13 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				 * }
 				 */
 			} else if (code == com.yucheng.ycbtsdk.Constants.BLEState.Connected) {
-
+				Log.e(TAG, "Connected = " + code);
 			} else if (code == com.yucheng.ycbtsdk.Constants.BLEState.ReadWriteOK) {
-
-				// thirdConnect = true;
-				// BangleUtil.getInstance().SDK_VERSIONS = 3;
-				// Log.e(TAG, "蓝牙连接成功，全局监听");
-				// setBaseOrder();
+				Log.e(TAG, "Bluetooth connection is successful");
 				EventBus.getDefault().post(new ConnectEvent());
 			} else {
-				// code == Constants.BLEState.Disconnect
-				// thirdConnect = false;
-				// BangleUtil.getInstance().SDK_VERSIONS = -1;
-				// EventBus.getDefault().post(new ConnectEvent());
+				Log.e(TAG, "Bluetooth connection disconnected");
+				EventBus.getDefault().post(new ConnectEvent());
 			}
 		}
 	};
@@ -280,16 +264,22 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 	@Override
 	public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
 		switch (call.method) {
-			case "getPlatformVersion":
+			case "getPlatformVersion": {
 				result.success("Android " + android.os.Build.VERSION.RELEASE);
 				break;
-			case "initPlugin": {
+			}
+			case "checkPermissions": {
 				checkPermissions();
-
+				result.success(null);
+				break;
+			}
+			case "initPlugin": {
 				Log.e(TAG, "initPlugin...");
+				/*
 				YCBTClient.initClient(context, true);
 				YCBTClient.registerBleStateChange(bleConnectResponse);
 				YCBTClient.deviceToApp(toAppDataResponse);
+				*/
 				result.success(null);
 				break;
 			}
@@ -316,7 +306,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 							try {
 								String scanDataString
 												= mapper.writeValueAsString(scanData);
-							invokeMethodUIThread("onScanResult", scanDataString);
+								invokeMethodUIThread("onScanResult", scanDataString);
 							} catch (JsonProcessingException e) {
 								e.printStackTrace();
 							}
@@ -327,12 +317,30 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				break;
 			}
 			case "stopScan": {
+				Log.e(TAG, "stopScan...");
 				YCBTClient.stopScanBle();
+				result.success(null);
 				break;
 			}
-			default:
+			case "connectDevice": {
+				Log.e(TAG, "connectDevice...");
+				Log.e(TAG, call.arguments.toString());
+				YCBTClient.stopScanBle();
+
+				deviceMacAddress = call.arguments.toString();
+
+				YCBTClient.connectBle(deviceMacAddress, new BleConnectResponse() {
+					@Override
+					public void onConnectResponse(final int i) {
+						Log.e(TAG, "onConnectResponse... " + i);
+					}
+				});
+			}
+			break;
+			default: {
 				result.notImplemented();
 				break;
+			}
 		}
 	}
 }
