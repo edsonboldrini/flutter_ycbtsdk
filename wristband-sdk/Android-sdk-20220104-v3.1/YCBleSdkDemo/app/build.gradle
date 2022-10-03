@@ -6,7 +6,7 @@ android {
     buildToolsVersion "29.0.3"
     defaultConfig {
         applicationId "com.example.ycblesdkdemo"
-        minSdkVersion 20
+        minSdkVersion 19
         targetSdkVersion 30
         versionCode 2
         versionName "1.1"

@@ -164,8 +164,8 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 							scanData.put("rssi", scanDeviceBean.getDeviceRssi());
 
 							try {
-								String scanDataString = mapper.writeValueAsString(scanData);
-								invokeMethodUIThread("onScanResult", scanDataString);
+								String dataString = mapper.writeValueAsString(scanData);
+								invokeMethodUIThread("onScanResult", dataString);
 							} catch (JsonProcessingException e) {
 								e.printStackTrace();
 							}
@@ -245,6 +245,12 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 					@Override
 					public void onRealDataResponse(int dataType, HashMap dataMap) {
 						Log.e("qob", "onRealDataResponse dataType: " + dataType + " data: " + dataMap);
+						try {
+							String dataString = mapper.writeValueAsString(dataMap);
+							invokeMethodUIThread("onRealDataResponse", dataString);
+						} catch (JsonProcessingException e) {
+							e.printStackTrace();
+						}
 					}
 				});
 				result.success(null);

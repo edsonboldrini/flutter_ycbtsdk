@@ -33,6 +33,9 @@ class FlutterYcbtsdk {
         case 'onScanResult':
           await onScanResult(call.arguments);
           break;
+        case 'onRealDataResponse':
+          await onRealDataResponse(call.arguments);
+          break;
         default:
           throw UnimplementedError('${call.method} has not been implemented.');
       }
@@ -40,6 +43,8 @@ class FlutterYcbtsdk {
 
     // onStreamBatteryStatus();
   }
+
+  late StreamSubscription _streamSubscription;
 
   String batteryStatus = 'Streaming';
   onStreamBatteryStatus() {
@@ -55,16 +60,11 @@ class FlutterYcbtsdk {
   final BehaviorSubject<List<ScanResult>> _scanResults =
       BehaviorSubject.seeded([]);
 
-  /// Returns a stream that is a list of [ScanResult] results while a scan is in progress.
-  ///
-  /// The list emitted is all the scanned results as of the last initiated scan. When a scan is
-  /// first started, an empty list is emitted. The returned stream is never closed.
-  ///
-  /// One use for [scanResults] is as the stream in a StreamBuilder to display the
-  /// results of a scan in real time while the scan is in progress.
   Stream<List<ScanResult>> get scanResults => _scanResults.stream;
 
-  late StreamSubscription _streamSubscription;
+  final BehaviorSubject<RealData?> _realData = BehaviorSubject.seeded(null);
+
+  Stream<RealData?> get realData => _realData.stream;
 
   Future<String?> getPlatformVersion() async {
     final version = await FlutterYcbtsdk.instance.methodChannel
@@ -139,10 +139,10 @@ class FlutterYcbtsdk {
         'startMeasurement', {"onOff": onOff, "type": type});
   }
 
-  onScanResult(arguments) async {
+  onScanResult(payload) async {
     try {
-      log(arguments.toString());
-      final result = ScanResult.fromJson(arguments);
+      log(payload.toString());
+      final result = ScanResult.fromJson(payload);
       final list = _scanResults.value;
       int index = list.indexWhere((s) => s.mac == result.mac);
       if (index != -1) {
@@ -156,6 +156,90 @@ class FlutterYcbtsdk {
       log(e.toString());
     }
   }
+
+  onRealDataResponse(payload) {
+    try {
+      log(payload.toString());
+      Map map = json.decode(payload);
+      for (var element in map.keys) {
+        switch (element) {
+          case "heartValue":
+            _realData.add(RealData(
+              type: 'heartRate',
+              value: map['heartValue'].toString(),
+            ));
+            break;
+          case "bloodSBP":
+          case "bloodDBP":
+            _realData.add(RealData(
+              type: 'heartRate',
+              value:
+                  "${map['bloodSBP'].toString()}x${map['bloodDBP'].toString()}}",
+            ));
+            break;
+          default:
+        }
+      }
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+}
+
+// enum RealDataType {
+//   heartRate,
+//   bloodPressure,
+//   bloodOxygen,
+//   steps,
+//   temperature,
+// }
+
+class RealData {
+  final String type;
+  final String value;
+
+  RealData({
+    required this.type,
+    required this.value,
+  });
+
+  RealData copyWith({
+    String? type,
+    String? value,
+  }) {
+    return RealData(
+      type: type ?? this.type,
+      value: value ?? this.value,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'type': type,
+      'value': value,
+    };
+  }
+
+  factory RealData.fromMap(Map<String, dynamic> map) {
+    return RealData(
+      type: map['type'],
+      value: map['value'],
+    );
+  }
+  String toJson() => json.encode(toMap());
+  factory RealData.fromJson(String source) =>
+      RealData.fromMap(json.decode(source));
+  @override
+  String toString() => 'RealData(type: $type, value: $value)';
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is RealData && other.type == type && other.value == value;
+  }
+
+  @override
+  int get hashCode => type.hashCode ^ value.hashCode;
 }
 
 class ScanResult {
