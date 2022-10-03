@@ -108,15 +108,15 @@ class _MyAppState extends State<MyApp> {
                                     icon: const Icon(Icons.arrow_forward),
                                     onPressed: () async {
                                       await _flutterYcbtsdkPlugin
-                                          .startMeasurement(2, 0);
+                                          .startEcgTest();
                                     },
                                   ),
-                                  // IconButton(
-                                  //   icon: const Icon(Icons.arrow_back),
-                                  //   onPressed: () async {
-                                  //     await _flutterYcbtsdkPlugin.stopEcgTest();
-                                  //   },
-                                  // ),
+                                  IconButton(
+                                    icon: const Icon(Icons.arrow_back),
+                                    onPressed: () async {
+                                      await _flutterYcbtsdkPlugin.stopEcgTest();
+                                    },
+                                  ),
                                   IconButton(
                                     icon: const Icon(Icons.close),
                                     onPressed: () async {

@@ -233,46 +233,12 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				YCBTClient.appEcgTestStart(new BleDataResponse() {
 					@Override
 					public void onDataResponse(int i, float v, HashMap hashMap) {
-						try {
-							String responseString
-											= mapper.writeValueAsString(hashMap);
-							Log.e("qob", "onRealDataResponse " + i + " " + v + " dataType " + responseString);
-						} catch (JsonProcessingException e) {
-							e.printStackTrace();
-						}
-						/*
-						if (hashMap != null) {
-							int dataType = (int) hashMap.get("dataType");
-							Log.e("qob", "onRealDataResponse " + i + " " + v + " dataType " + dataType);
-						}
-						*/
+						Log.e("qob", "onDataResponse dataType: " + i + " " + v + " data: " + hashMap);
 					}
 				}, new BleRealDataResponse() {
 					@Override
-					public void onRealDataResponse(int i, HashMap hashMap) {
-						if (hashMap != null) {
-							int dataType = (int) hashMap.get("dataType");
-							Log.e("qob", "onRealDataResponse " + i + " dataType " + dataType);
-							if (i == Constants.DATATYPE.Real_UploadECG) {
-								final List<Integer> tData = (List<Integer>) hashMap.get("data");
-								System.out.println("ecgData==" + tData.toString());
-								// Must be analyzed on the main thread
-								Log.e("qob", "AI " + tData.size());
-							} else if (i == Constants.DATATYPE.Real_UploadPPG) {
-								byte[] param = (byte[]) hashMap.get("data");
-								Log.e("qob", "ppg: " + Arrays.toString(param));
-							} else if (i == Constants.DATATYPE.Real_UploadECGHrv) {
-								float param = (float) hashMap.get("data");
-								Log.e("qob", "HRV: " + param);
-							} else if (i == Constants.DATATYPE.Real_UploadECGRR) {
-								float param = (float) hashMap.get("data");
-								Log.e("qob", "RR invo " + param);
-							} else if (i == Constants.DATATYPE.Real_UploadBlood) {
-								int heart = (int) hashMap.get("heartValue"); // heart rate
-								int tDBP = (int) hashMap.get("bloodDBP"); // low pressure
-								int tSBP = (int) hashMap.get("bloodSBP"); // high pressure
-							}
-						}
+					public void onRealDataResponse(int dataType, HashMap dataMap) {
+						Log.e("qob", "onRealDataResponse dataType: " + dataType + " data: " + dataMap);
 					}
 				});
 				result.success(null);
@@ -283,17 +249,10 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				YCBTClient.appEcgTestEnd(new BleDataResponse() {
 					@Override
 					public void onDataResponse(int i, float v, HashMap hashMap) {
-						try {
-							String responseString
-											= mapper.writeValueAsString(hashMap);
-							Log.e("qob", "onRealDataResponse " + i + " " + v + " dataType " + responseString);
-						} catch (JsonProcessingException e) {
-							e.printStackTrace();
-						}
+						Log.e("qob", "onDataResponse dataType: " + i + " " + v + " data: " + hashMap);
 
-						if (i != 0) {
-							// test exception
-							return;
+						if (i == 0) {
+							//success
 						}
 
 						/*
@@ -334,13 +293,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				YCBTClient.appStartMeasurement(onOff, type, new BleDataResponse() {
 					@Override
 					public void onDataResponse(int i, float v, HashMap hashMap) {
-						try {
-							String responseString
-											= mapper.writeValueAsString(hashMap);
-							Log.e("qob", "onRealDataResponse " + i + " " + v + " dataType " + responseString);
-						} catch (JsonProcessingException e) {
-							e.printStackTrace();
-						}
+						Log.e("qob", "onDataResponse dataType: " + i + " " + v + " data: " + hashMap);
 
 						if (i == 0) {
 							//success
