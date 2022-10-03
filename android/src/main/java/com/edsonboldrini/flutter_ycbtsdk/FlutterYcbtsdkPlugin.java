@@ -80,6 +80,10 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 
 	private ObjectMapper mapper = new ObjectMapper();
 
+	private List<ScanDeviceBean> scanDevicesList = new ArrayList<>();
+	private List<String> macAddressList = new ArrayList<>();
+	DeviceAdapter deviceAdapter = new DeviceAdapter(scanDevicesList);
+
 	@Override
 	public void onDetachedFromEngine(@NonNull FlutterPluginBinding binding) {
 		Log.d(TAG, "onDetachedFromEngine");
@@ -114,161 +118,6 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 		pluginBinding = flutterPluginBinding;
 		setup(pluginBinding.getBinaryMessenger(), (Application) pluginBinding.getApplicationContext());
 	}
-
-	private void setup(final BinaryMessenger messenger, final Application application) {
-		synchronized (initializationLock) {
-			Log.d(TAG, "setup");
-			context = application;
-			methodChannel = new MethodChannel(messenger, NAMESPACE + "/methods");
-			methodChannel.setMethodCallHandler(this);
-			stateChannel = new EventChannel(messenger, NAMESPACE + "/state");
-			stateChannel.setStreamHandler((StreamHandler) stateHandler);
-
-			YCBTClient.initClient(context, true);
-			YCBTClient.registerBleStateChange(bleConnectResponse);
-			YCBTClient.deviceToApp(toAppDataResponse);
-
-			EventBus.getDefault().register(this);
-			// startService(new Intent(this, MyBleService.class));
-		}
-	}
-
-	private void tearDown() {
-		synchronized (tearDownLock) {
-			Log.d(TAG, "teardown");
-			context = null;
-			methodChannel.setMethodCallHandler(null);
-			methodChannel = null;
-			stateChannel.setStreamHandler(null);
-			stateChannel = null;
-			EventBus.getDefault().unregister(this);
-		}
-	}
-
-	private void invokeMethodUIThread(final String name, final Object arguments) {
-		new Handler(Looper.getMainLooper()).post(() -> {
-			synchronized (tearDownLock) {
-				//Could already be teared down at this moment
-				if (methodChannel != null) {
-					methodChannel.invokeMethod(name, arguments);
-				} else {
-					Log.w(TAG, "Tried to call " + name + " on closed channel");
-				}
-			}
-		});
-	}
-
-	private final StreamHandler stateHandler = new EventChannel.StreamHandler() {
-		private EventSink sink;
-
-		private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-			@Override
-			public void onReceive(Context context, Intent intent) {
-				final String action = intent.getAction();
-			}
-		};
-
-		@Override
-		public void onListen(Object o, EventSink eventSink) {
-			sink = eventSink;
-			IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
-			context.registerReceiver(broadcastReceiver, filter);
-		}
-
-		@Override
-		public void onCancel(Object o) {
-			sink = null;
-			context.unregisterReceiver(broadcastReceiver);
-		}
-	};
-
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void connectEvent(ConnectEvent connectEvent) {
-		Log.e(TAG, "Connected");
-	}
-
-	BleDeviceToAppDataResponse toAppDataResponse = new BleDeviceToAppDataResponse() {
-		@Override
-		public void onDataResponse(int dataType, HashMap dataMap) {
-			Log.e(TAG, "Passive return data = " + dataMap.toString());
-		}
-	};
-
-	boolean isActiveDisconnect = false;
-	BleConnectResponse bleConnectResponse = new BleConnectResponse() {
-		@Override
-		public void onConnectResponse(int code) {
-			Log.e(TAG, "Global monitor return = " + code);
-
-			if (code == com.yucheng.ycbtsdk.Constants.BLEState.Disconnect) {
-				// EventBus.getDefault().post(new BlueConnectFailEvent());
-				/*
-				 * if(SPUtil.getBindedDeviceMac() != null &&
-				 * !"".equals(SPUtil.getBindedDeviceMac())){
-				 * YCBTClient.connectBle(SPUtil.getBindedDeviceMac(), new BleConnectResponse() {
-				 *
-				 * @Override
-				 * public void onConnectResponse(int code) {
-				 *
-				 * }
-				 * });
-				 * }
-				 */
-			} else if (code == com.yucheng.ycbtsdk.Constants.BLEState.Connected) {
-				Log.e(TAG, "Connected = " + code);
-			} else if (code == com.yucheng.ycbtsdk.Constants.BLEState.ReadWriteOK) {
-				Log.e(TAG, "Bluetooth connection is successful");
-				EventBus.getDefault().post(new ConnectEvent());
-			} else {
-				Log.e(TAG, "Bluetooth connection disconnected");
-				EventBus.getDefault().post(new ConnectEvent());
-			}
-		}
-	};
-
-	private static String[] PERMISSIONS_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_PRIVILEGED};
-	private static String[] PERMISSIONS_LOCATION = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_PRIVILEGED};
-
-	private void checkPermissions() {
-		Log.e(TAG, "checking permissions...");
-
-		int permission1 = ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-		int permission2 = ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN);
-		if (permission1 != PackageManager.PERMISSION_GRANTED) {
-			// We don't have permission so prompt the user
-			ActivityCompat.requestPermissions(activity, PERMISSIONS_STORAGE, 1);
-		} else if (permission2 != PackageManager.PERMISSION_GRANTED) {
-			ActivityCompat.requestPermissions(activity, PERMISSIONS_LOCATION, 1);
-		}
-	}
-
-	private List<ScanDeviceBean> scanDevicesList = new ArrayList<>();
-	private List<String> macAddressList = new ArrayList<>();
-	DeviceAdapter deviceAdapter = new DeviceAdapter(scanDevicesList);
-
-	private Handler handler = new Handler(new Handler.Callback() {
-		@Override
-		public boolean handleMessage(@NonNull Message msg) {
-			if (msg.what == 0) {
-				handler.sendEmptyMessageDelayed(0, 1000);
-				YCBTClient.getAllRealDataFromDevice(new BleDataResponse() {
-					@Override
-					public void onDataResponse(int i, float v, HashMap hashMap) {
-						Log.e(TAG, hashMap.toString());
-					}
-				});
-			} else if (msg.what == 1) {
-				Log.e(TAG, "1");
-			} else if (msg.what == 2) {
-				Log.e(TAG, "2");
-			} else if (msg.what == 3) {
-				Log.e(TAG, "3");
-			} else if (msg.what == 4) {
-				Log.e(TAG, "4");
-			}
-			return false;
-		}
-	});
 
 	@Override
 	public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
@@ -507,4 +356,155 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			}
 		}
 	}
+
+	private void setup(final BinaryMessenger messenger, final Application application) {
+		synchronized (initializationLock) {
+			Log.d(TAG, "setup");
+			context = application;
+			methodChannel = new MethodChannel(messenger, NAMESPACE + "/methods");
+			methodChannel.setMethodCallHandler(this);
+			stateChannel = new EventChannel(messenger, NAMESPACE + "/state");
+			stateChannel.setStreamHandler((StreamHandler) stateHandler);
+
+			YCBTClient.initClient(context, true);
+			YCBTClient.registerBleStateChange(bleConnectResponse);
+			YCBTClient.deviceToApp(toAppDataResponse);
+
+			EventBus.getDefault().register(this);
+			// startService(new Intent(this, MyBleService.class));
+		}
+	}
+
+	private static String[] PERMISSIONS_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_PRIVILEGED};
+	private static String[] PERMISSIONS_LOCATION = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_PRIVILEGED};
+
+	private void checkPermissions() {
+		Log.e(TAG, "checking permissions...");
+
+		int permission1 = ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+		int permission2 = ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN);
+		if (permission1 != PackageManager.PERMISSION_GRANTED) {
+			// We don't have permission so prompt the user
+			ActivityCompat.requestPermissions(activity, PERMISSIONS_STORAGE, 1);
+		} else if (permission2 != PackageManager.PERMISSION_GRANTED) {
+			ActivityCompat.requestPermissions(activity, PERMISSIONS_LOCATION, 1);
+		}
+	}
+
+	private Handler handler = new Handler(new Handler.Callback() {
+		@Override
+		public boolean handleMessage(@NonNull Message msg) {
+			if (msg.what == 0) {
+				handler.sendEmptyMessageDelayed(0, 1000);
+				YCBTClient.getAllRealDataFromDevice(new BleDataResponse() {
+					@Override
+					public void onDataResponse(int i, float v, HashMap hashMap) {
+						Log.e(TAG, hashMap.toString());
+					}
+				});
+			} else if (msg.what == 1) {
+				Log.e(TAG, "1");
+			} else if (msg.what == 2) {
+				Log.e(TAG, "2");
+			} else if (msg.what == 3) {
+				Log.e(TAG, "3");
+			} else if (msg.what == 4) {
+				Log.e(TAG, "4");
+			}
+			return false;
+		}
+	});
+
+	private void tearDown() {
+		synchronized (tearDownLock) {
+			Log.d(TAG, "teardown");
+			context = null;
+			methodChannel.setMethodCallHandler(null);
+			methodChannel = null;
+			stateChannel.setStreamHandler(null);
+			stateChannel = null;
+			EventBus.getDefault().unregister(this);
+		}
+	}
+
+	private void invokeMethodUIThread(final String name, final Object arguments) {
+		new Handler(Looper.getMainLooper()).post(() -> {
+			synchronized (tearDownLock) {
+				//Could already be teared down at this moment
+				if (methodChannel != null) {
+					methodChannel.invokeMethod(name, arguments);
+				} else {
+					Log.w(TAG, "Tried to call " + name + " on closed channel");
+				}
+			}
+		});
+	}
+
+	private final StreamHandler stateHandler = new EventChannel.StreamHandler() {
+		private EventSink sink;
+
+		private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+			@Override
+			public void onReceive(Context context, Intent intent) {
+				final String action = intent.getAction();
+			}
+		};
+
+		@Override
+		public void onListen(Object o, EventSink eventSink) {
+			sink = eventSink;
+			IntentFilter filter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);
+			context.registerReceiver(broadcastReceiver, filter);
+		}
+
+		@Override
+		public void onCancel(Object o) {
+			sink = null;
+			context.unregisterReceiver(broadcastReceiver);
+		}
+	};
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void connectEvent(ConnectEvent connectEvent) {
+		Log.e(TAG, "Connected");
+	}
+
+	BleDeviceToAppDataResponse toAppDataResponse = new BleDeviceToAppDataResponse() {
+		@Override
+		public void onDataResponse(int dataType, HashMap dataMap) {
+			Log.e(TAG, "Passive return data = " + dataMap.toString());
+		}
+	};
+
+	boolean isActiveDisconnect = false;
+	BleConnectResponse bleConnectResponse = new BleConnectResponse() {
+		@Override
+		public void onConnectResponse(int code) {
+			Log.e(TAG, "Global monitor return = " + code);
+
+			if (code == com.yucheng.ycbtsdk.Constants.BLEState.Disconnect) {
+				// EventBus.getDefault().post(new BlueConnectFailEvent());
+				/*
+				 * if(SPUtil.getBindedDeviceMac() != null &&
+				 * !"".equals(SPUtil.getBindedDeviceMac())){
+				 * YCBTClient.connectBle(SPUtil.getBindedDeviceMac(), new BleConnectResponse() {
+				 *
+				 * @Override
+				 * public void onConnectResponse(int code) {
+				 *
+				 * }
+				 * });
+				 * }
+				 */
+			} else if (code == com.yucheng.ycbtsdk.Constants.BLEState.Connected) {
+				Log.e(TAG, "Connected = " + code);
+			} else if (code == com.yucheng.ycbtsdk.Constants.BLEState.ReadWriteOK) {
+				Log.e(TAG, "Bluetooth connection is successful");
+				EventBus.getDefault().post(new ConnectEvent());
+			} else {
+				Log.e(TAG, "Bluetooth connection disconnected");
+				EventBus.getDefault().post(new ConnectEvent());
+			}
+		}
+	};
 }
