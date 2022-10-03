@@ -70,15 +70,15 @@ class FlutterYcbtsdk {
         .invokeMethod<String>('initPlugin');
   }
 
-  Future startScan() async {
-    await startScanStream().drain();
+  Future startScan(int timeout) async {
+    await startScanStream(timeout).drain();
     return _scanResults.value;
   }
 
-  Stream<ScanResult> startScanStream() async* {
+  Stream<ScanResult> startScanStream(int timeout) async* {
     // Clear scan results list
     _scanResults.add(<ScanResult>[]);
-    await methodChannel.invokeMethod<String>('startScan');
+    await methodChannel.invokeMethod<String>('startScan', timeout);
 
     // yield* methodStream
     //     .where((m) => m.method == 'ScanResult')
@@ -122,9 +122,9 @@ class FlutterYcbtsdk {
         .invokeMethod<String>('stopEcgTest');
   }
 
-  Future<void> startMeasurement() async {
-    await FlutterYcbtsdk.instance.methodChannel
-        .invokeMethod<String>('startMeasurement');
+  Future<void> startMeasurement(int onOff, int type) async {
+    await FlutterYcbtsdk.instance.methodChannel.invokeMethod<String>(
+        'startMeasurement', {"onOff": onOff, "type": type});
   }
 
   onScanResult(arguments) async {
@@ -132,7 +132,7 @@ class FlutterYcbtsdk {
       log(arguments.toString());
       final result = ScanResult.fromJson(arguments);
       final list = _scanResults.value;
-      int index = list.indexOf(result);
+      int index = list.indexWhere((s) => s.mac == result.mac);
       if (index != -1) {
         list[index] = result;
       } else {

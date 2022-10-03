@@ -296,10 +296,10 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				Log.e(TAG, "startScan...");
 				macAddressList = new ArrayList<>();
 				deviceAdapter.setScanDevicesList(new ArrayList<>());
+				int timeout = (int) call.arguments;
 				YCBTClient.startScanBle(new BleScanResponse() {
 					@Override
 					public void onScanResponse(int i, ScanDeviceBean scanDeviceBean) {
-
 						if (scanDeviceBean != null) {
 							if (!macAddressList.contains(scanDeviceBean.getDeviceMac())) {
 								macAddressList.add(scanDeviceBean.getDeviceMac());
@@ -321,7 +321,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 							}
 						}
 					}
-				}, 15);
+				}, timeout);
 				result.success(null);
 				break;
 			}
@@ -479,7 +479,9 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			}
 			case "startMeasurement": {
 				Log.e(TAG, "startMeasurement...");
-				YCBTClient.appStartMeasurement(1, 0, new BleDataResponse() {
+				int onOff = call.argument("onOff");
+				int type = call.argument("type");
+				YCBTClient.appStartMeasurement(onOff, type, new BleDataResponse() {
 					@Override
 					public void onDataResponse(int i, float v, HashMap hashMap) {
 						try {
@@ -496,6 +498,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 					}
 				});
 				result.success(null);
+				break;
 			}
 			default: {
 				result.notImplemented();

@@ -50,7 +50,7 @@ class _MyAppState extends State<MyApp> {
                 ElevatedButton(
                   onPressed: () async {
                     try {
-                      await _flutterYcbtsdkPlugin.startScan();
+                      await _flutterYcbtsdkPlugin.startScan(30);
                     } catch (e) {
                       // log(e.toString());
                     }
@@ -108,7 +108,7 @@ class _MyAppState extends State<MyApp> {
                                     icon: const Icon(Icons.arrow_forward),
                                     onPressed: () async {
                                       await _flutterYcbtsdkPlugin
-                                          .startMeasurement();
+                                          .startMeasurement(1, 0);
                                     },
                                   ),
                                   // IconButton(
