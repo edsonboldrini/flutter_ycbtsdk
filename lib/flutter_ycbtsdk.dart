@@ -107,6 +107,21 @@ class FlutterYcbtsdk {
         .invokeMethod<String>('connectDevice', deviceMacAddress);
   }
 
+  Future<void> disconnectDevice() async {
+    await FlutterYcbtsdk.instance.methodChannel
+        .invokeMethod<String>('disconnectDevice');
+  }
+
+  Future<void> startEcgTest() async {
+    await FlutterYcbtsdk.instance.methodChannel
+        .invokeMethod<String>('startEcgTest');
+  }
+
+  Future<void> stopEcgTest() async {
+    await FlutterYcbtsdk.instance.methodChannel
+        .invokeMethod<String>('stopEcgTest');
+  }
+
   onScanResult(arguments) async {
     try {
       log(arguments.toString());

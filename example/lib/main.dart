@@ -90,13 +90,45 @@ class _MyAppState extends State<MyApp> {
                         ScanResult scanResult = scanResults[index];
 
                         return ListTile(
-                          title: Text(scanResult.name),
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(scanResult.name),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.bluetooth),
+                                    onPressed: () async {
+                                      await _flutterYcbtsdkPlugin
+                                          .connectDevice(scanResult.mac);
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.arrow_forward),
+                                    onPressed: () async {
+                                      await _flutterYcbtsdkPlugin
+                                          .startEcgTest();
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.arrow_back),
+                                    onPressed: () async {
+                                      await _flutterYcbtsdkPlugin.stopEcgTest();
+                                    },
+                                  ),
+                                  IconButton(
+                                    icon: const Icon(Icons.close),
+                                    onPressed: () async {
+                                      await _flutterYcbtsdkPlugin.disconnectDevice();
+                                    },
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                           subtitle:
                               Text('${scanResult.mac} ${scanResult.rssi}'),
-                          onTap: () async {
-                            await _flutterYcbtsdkPlugin
-                                .connectDevice(scanResult.mac);
-                          },
                         );
                       },
                     );

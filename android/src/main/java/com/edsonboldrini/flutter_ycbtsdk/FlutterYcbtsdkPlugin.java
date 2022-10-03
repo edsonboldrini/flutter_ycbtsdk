@@ -31,11 +31,18 @@ import io.flutter.plugin.common.MethodChannel.Result;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.yucheng.ycbtsdk.AITools;
+import com.yucheng.ycbtsdk.Constants;
 import com.yucheng.ycbtsdk.YCBTClient;
+import com.yucheng.ycbtsdk.bean.AIDataBean;
+import com.yucheng.ycbtsdk.bean.HRVNormBean;
 import com.yucheng.ycbtsdk.bean.ScanDeviceBean;
+import com.yucheng.ycbtsdk.response.BleAIDiagnosisHRVNormResponse;
+import com.yucheng.ycbtsdk.response.BleAIDiagnosisResponse;
 import com.yucheng.ycbtsdk.response.BleConnectResponse;
 import com.yucheng.ycbtsdk.response.BleDataResponse;
 import com.yucheng.ycbtsdk.response.BleDeviceToAppDataResponse;
+import com.yucheng.ycbtsdk.response.BleRealDataResponse;
 import com.yucheng.ycbtsdk.response.BleScanResponse;
 
 import org.greenrobot.eventbus.EventBus;
@@ -43,6 +50,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -175,7 +183,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void connectEvent(ConnectEvent connectEvent) {
-		Log.e(TAG, "Connected = " + connectEvent);
+		Log.e(TAG, "Connected");
 	}
 
 	BleDeviceToAppDataResponse toAppDataResponse = new BleDeviceToAppDataResponse() {
@@ -336,7 +344,130 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 					}
 				});
 			}
+			result.success(null);
 			break;
+			case "disconnectDevice": {
+				Log.e(TAG, "connectDevice...");
+				YCBTClient.disconnectBle();
+				result.success(null);
+				break;
+			}
+			case "startEcgTest": {
+				Log.e(TAG, "startEcgTest...");
+				//0x0200080047436FEC
+				/*
+				AITools.getInstance().init();
+				AITools.getInstance().setAIDiagnosisHRVNormResponse(new BleAIDiagnosisHRVNormResponse() {
+					@Override
+					public void onAIDiagnosisResponse(HRVNormBean hrvNormBean) {
+
+						float heavy_load = bean.heavy_load; // Load index (the bigger the better the outgoing)
+						float pressure = bean.pressure; // Pressure index (the bigger the better the outgoing)
+						float HRV_norm = bean.HRV_norm; // HRV index (the bigger the better the outgoing)
+						float body = bean.body; // body index (the bigger the better the outgoing)
+            int flag = -1; // 0 normal -1 error
+
+						System.out.println("AIDiagnosis");
+					}
+				});
+				*/
+
+				YCBTClient.appEcgTestStart(new BleDataResponse() {
+					@Override
+					public void onDataResponse(int i, float v, HashMap hashMap) {
+						try {
+							String responseString
+											= mapper.writeValueAsString(hashMap);
+							Log.e("qob", "onRealDataResponse " + i + " " + v + " " + " dataType " + responseString);
+						} catch (JsonProcessingException e) {
+							e.printStackTrace();
+						}
+						/*
+						if (hashMap != null) {
+							int dataType = (int) hashMap.get("dataType");
+							Log.e("qob", "onRealDataResponse " + i + " " + v + " " + " dataType " + dataType);
+						}
+						*/
+					}
+				}, new BleRealDataResponse() {
+					@Override
+					public void onRealDataResponse(int i, HashMap hashMap) {
+						if (hashMap != null) {
+							int dataType = (int) hashMap.get("dataType");
+							Log.e("qob", "onRealDataResponse " + i + " dataType " + dataType);
+							if (i == Constants.DATATYPE.Real_UploadECG) {
+								final List<Integer> tData = (List<Integer>) hashMap.get("data");
+								System.out.println("ecgData==" + tData.toString());
+								// Must be analyzed on the main thread
+								Log.e("qob", "AI " + tData.size());
+							} else if (i == Constants.DATATYPE.Real_UploadPPG) {
+								byte[] param = (byte[]) hashMap.get("data");
+								Log.e("qob", "ppg: " + Arrays.toString(param));
+							} else if (i == Constants.DATATYPE.Real_UploadECGHrv) {
+								float param = (float) hashMap.get("data");
+								Log.e("qob", "HRV: " + param);
+							} else if (i == Constants.DATATYPE.Real_UploadECGRR) {
+								float param = (float) hashMap.get("data");
+								Log.e("qob", "RR invo " + param);
+							} else if (i == Constants.DATATYPE.Real_UploadBlood) {
+								int heart = (int) hashMap.get("heartValue"); // heart rate
+								int tDBP = (int) hashMap.get("bloodDBP"); // low pressure
+								int tSBP = (int) hashMap.get("bloodSBP"); // high pressure
+							}
+						}
+					}
+				});
+				result.success(null);
+				break;
+			}
+			case "stopEcgTest": {
+				Log.e(TAG, "stopEcgTest...");
+				YCBTClient.appEcgTestEnd(new BleDataResponse() {
+					@Override
+					public void onDataResponse(int i, float v, HashMap hashMap) {
+						try {
+							String responseString
+											= mapper.writeValueAsString(hashMap);
+							Log.e("qob", "onRealDataResponse " + i + " " + v + " " + " dataType " + responseString);
+						} catch (JsonProcessingException e) {
+							e.printStackTrace();
+						}
+
+						if (i != 0) {
+							// test exception
+							return;
+						}
+
+						/*
+						HRVNormBean bean = AITools.getInstance().getHrvNorm();
+						if (bean != null) {
+							if (bean.flag == -1) {
+								//错误
+							} else {//正常
+								float heavy_load = bean.heavy_load; // Load index (the bigger the better the outgoing)
+								float pressure = bean.pressure; // Pressure index (the bigger the better the outgoing)
+								float HRV_norm = bean.HRV_norm; // HRV index (the bigger the better the outgoing)
+								float body = bean.body; // body index (the bigger the better the outgoing)
+							}
+						}
+
+						AITools.getInstance().getAIDiagnosisResult(new BleAIDiagnosisResponse() {
+							@Override
+							public void onAIDiagnosisResponse(AIDataBean aiDataBean) {
+								if (aiDataBean != null) {
+									short heart = aiDataBean.heart; // heart rate
+									int qrstype = aiDataBean.qrstype; // Type 1 normal heart beat 5 atrial premature beat 9 atrial premature beat 14 noise
+									boolean is_atrial_fibrillation = aiDataBean.is_atrial_fibrillation; // atrial fibrillation
+									System.out.println("heart = " + heart + " qrstype = " + qrstype + " is_atrial_fibrillation = " + is_atrial_fibrillation);
+								}
+							}
+						});
+						*/
+					}
+				});
+				result.success(null);
+				break;
+			}
 			default: {
 				result.notImplemented();
 				break;
