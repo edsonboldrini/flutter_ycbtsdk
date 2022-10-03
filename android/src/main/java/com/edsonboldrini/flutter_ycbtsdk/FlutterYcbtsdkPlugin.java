@@ -3,7 +3,7 @@ package com.edsonboldrini.flutter_ycbtsdk;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Application;
-import android.app.PendingIntent;
+// import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -32,14 +32,14 @@ import io.flutter.plugin.common.MethodChannel.Result;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.yucheng.ycbtsdk.AITools;
-import com.yucheng.ycbtsdk.Constants;
+// import com.yucheng.ycbtsdk.AITools;
+// import com.yucheng.ycbtsdk.Constants;
 import com.yucheng.ycbtsdk.YCBTClient;
-import com.yucheng.ycbtsdk.bean.AIDataBean;
-import com.yucheng.ycbtsdk.bean.HRVNormBean;
+// import com.yucheng.ycbtsdk.bean.AIDataBean;
+// import com.yucheng.ycbtsdk.bean.HRVNormBean;
 import com.yucheng.ycbtsdk.bean.ScanDeviceBean;
-import com.yucheng.ycbtsdk.response.BleAIDiagnosisHRVNormResponse;
-import com.yucheng.ycbtsdk.response.BleAIDiagnosisResponse;
+// import com.yucheng.ycbtsdk.response.BleAIDiagnosisHRVNormResponse;
+// import com.yucheng.ycbtsdk.response.BleAIDiagnosisResponse;
 import com.yucheng.ycbtsdk.response.BleConnectResponse;
 import com.yucheng.ycbtsdk.response.BleDataResponse;
 import com.yucheng.ycbtsdk.response.BleDeviceToAppDataResponse;
@@ -51,7 +51,7 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
-import java.util.Arrays;
+// import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -68,7 +68,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 	private static final String TAG = "FlutterYCBTSDK";
 	private static final String NAMESPACE = "flutter_ycbtsdk";
 	private MethodChannel methodChannel;
-	private EventChannel stateChannel;
+	private EventChannel eventChannel;
 	private Context context;
 	private Activity activity;
 	private String deviceMacAddress;
@@ -134,10 +134,10 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			case "initPlugin": {
 				Log.e(TAG, "initPlugin...");
 				/*
-				YCBTClient.initClient(context, true);
-				YCBTClient.registerBleStateChange(bleConnectResponse);
-				YCBTClient.deviceToApp(toAppDataResponse);
-				*/
+				 * YCBTClient.initClient(context, true);
+				 * YCBTClient.registerBleStateChange(bleConnectResponse);
+				 * YCBTClient.deviceToApp(toAppDataResponse);
+				 */
 				result.success(null);
 				break;
 			}
@@ -155,15 +155,15 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 								deviceAdapter.addModel(scanDeviceBean);
 							}
 
-							Log.e(TAG, "mac = " + scanDeviceBean.getDeviceMac() + "; name = " + scanDeviceBean.getDeviceName() + "; rssi = " + scanDeviceBean.getDeviceRssi());
+							Log.e(TAG, "mac = " + scanDeviceBean.getDeviceMac() + "; name = " + scanDeviceBean.getDeviceName()
+									+ "; rssi = " + scanDeviceBean.getDeviceRssi());
 							HashMap scanData = new HashMap<>();
 							scanData.put("mac", scanDeviceBean.getDeviceMac());
 							scanData.put("name", scanDeviceBean.getDeviceName());
 							scanData.put("rssi", scanDeviceBean.getDeviceRssi());
 
 							try {
-								String scanDataString
-												= mapper.writeValueAsString(scanData);
+								String scanDataString = mapper.writeValueAsString(scanData);
 								invokeMethodUIThread("onScanResult", scanDataString);
 							} catch (JsonProcessingException e) {
 								e.printStackTrace();
@@ -194,41 +194,46 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 					}
 				});
 			}
-			result.success(null);
-			break;
+				result.success(null);
+				break;
 			case "disconnectDevice": {
 				Log.e(TAG, "disconnectDevice...");
-//				PendingIntent pendingIntent = null;
-//				if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-//					pendingIntent = PendingIntent.getActivity
-//									(context, 0, null, PendingIntent.FLAG_MUTABLE);
-//				} else {
-//					pendingIntent = PendingIntent.getActivity
-//									(context, 0, null, PendingIntent.FLAG_ONE_SHOT);
-//				}
+				// PendingIntent pendingIntent = null;
+				// if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+				// pendingIntent = PendingIntent.getActivity
+				// (context, 0, null, PendingIntent.FLAG_MUTABLE);
+				// } else {
+				// pendingIntent = PendingIntent.getActivity
+				// (context, 0, null, PendingIntent.FLAG_ONE_SHOT);
+				// }
 				YCBTClient.disconnectBle();
 				result.success(null);
 				break;
 			}
 			case "startEcgTest": {
 				Log.e(TAG, "startEcgTest...");
-				//0x0200080047436FEC
+				// 0x0200080047436FEC
 				/*
-				AITools.getInstance().init();
-				AITools.getInstance().setAIDiagnosisHRVNormResponse(new BleAIDiagnosisHRVNormResponse() {
-					@Override
-					public void onAIDiagnosisResponse(HRVNormBean hrvNormBean) {
-
-						float heavy_load = bean.heavy_load; // Load index (the bigger the better the outgoing)
-						float pressure = bean.pressure; // Pressure index (the bigger the better the outgoing)
-						float HRV_norm = bean.HRV_norm; // HRV index (the bigger the better the outgoing)
-						float body = bean.body; // body index (the bigger the better the outgoing)
-            int flag = -1; // 0 normal -1 error
-
-						System.out.println("AIDiagnosis");
-					}
-				});
-				*/
+				 * AITools.getInstance().init();
+				 * AITools.getInstance().setAIDiagnosisHRVNormResponse(new
+				 * BleAIDiagnosisHRVNormResponse() {
+				 * 
+				 * @Override
+				 * public void onAIDiagnosisResponse(HRVNormBean hrvNormBean) {
+				 * 
+				 * float heavy_load = bean.heavy_load; // Load index (the bigger the better the
+				 * outgoing)
+				 * float pressure = bean.pressure; // Pressure index (the bigger the better the
+				 * outgoing)
+				 * float HRV_norm = bean.HRV_norm; // HRV index (the bigger the better the
+				 * outgoing)
+				 * float body = bean.body; // body index (the bigger the better the outgoing)
+				 * int flag = -1; // 0 normal -1 error
+				 * 
+				 * System.out.println("AIDiagnosis");
+				 * }
+				 * });
+				 */
 
 				YCBTClient.appEcgTestStart(new BleDataResponse() {
 					@Override
@@ -252,34 +257,41 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 						Log.e("qob", "onDataResponse dataType: " + i + " " + v + " data: " + hashMap);
 
 						if (i == 0) {
-							//success
+							// success
 						}
 
 						/*
-						HRVNormBean bean = AITools.getInstance().getHrvNorm();
-						if (bean != null) {
-							if (bean.flag == -1) {
-								//错误
-							} else {//正常
-								float heavy_load = bean.heavy_load; // Load index (the bigger the better the outgoing)
-								float pressure = bean.pressure; // Pressure index (the bigger the better the outgoing)
-								float HRV_norm = bean.HRV_norm; // HRV index (the bigger the better the outgoing)
-								float body = bean.body; // body index (the bigger the better the outgoing)
-							}
-						}
-
-						AITools.getInstance().getAIDiagnosisResult(new BleAIDiagnosisResponse() {
-							@Override
-							public void onAIDiagnosisResponse(AIDataBean aiDataBean) {
-								if (aiDataBean != null) {
-									short heart = aiDataBean.heart; // heart rate
-									int qrstype = aiDataBean.qrstype; // Type 1 normal heart beat 5 atrial premature beat 9 atrial premature beat 14 noise
-									boolean is_atrial_fibrillation = aiDataBean.is_atrial_fibrillation; // atrial fibrillation
-									System.out.println("heart = " + heart + " qrstype = " + qrstype + " is_atrial_fibrillation = " + is_atrial_fibrillation);
-								}
-							}
-						});
-						*/
+						 * HRVNormBean bean = AITools.getInstance().getHrvNorm();
+						 * if (bean != null) {
+						 * if (bean.flag == -1) {
+						 * //错误
+						 * } else {//正常
+						 * float heavy_load = bean.heavy_load; // Load index (the bigger the better the
+						 * outgoing)
+						 * float pressure = bean.pressure; // Pressure index (the bigger the better the
+						 * outgoing)
+						 * float HRV_norm = bean.HRV_norm; // HRV index (the bigger the better the
+						 * outgoing)
+						 * float body = bean.body; // body index (the bigger the better the outgoing)
+						 * }
+						 * }
+						 * 
+						 * AITools.getInstance().getAIDiagnosisResult(new BleAIDiagnosisResponse() {
+						 * 
+						 * @Override
+						 * public void onAIDiagnosisResponse(AIDataBean aiDataBean) {
+						 * if (aiDataBean != null) {
+						 * short heart = aiDataBean.heart; // heart rate
+						 * int qrstype = aiDataBean.qrstype; // Type 1 normal heart beat 5 atrial
+						 * premature beat 9 atrial premature beat 14 noise
+						 * boolean is_atrial_fibrillation = aiDataBean.is_atrial_fibrillation; // atrial
+						 * fibrillation
+						 * System.out.println("heart = " + heart + " qrstype = " + qrstype +
+						 * " is_atrial_fibrillation = " + is_atrial_fibrillation);
+						 * }
+						 * }
+						 * });
+						 */
 					}
 				});
 				result.success(null);
@@ -296,7 +308,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 						Log.e("qob", "onDataResponse dataType: " + i + " " + v + " data: " + hashMap);
 
 						if (i == 0) {
-							//success
+							// success
 						}
 					}
 				});
@@ -316,8 +328,8 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			context = application;
 			methodChannel = new MethodChannel(messenger, NAMESPACE + "/methods");
 			methodChannel.setMethodCallHandler(this);
-			stateChannel = new EventChannel(messenger, NAMESPACE + "/state");
-			stateChannel.setStreamHandler((StreamHandler) stateHandler);
+			eventChannel = new EventChannel(messenger, NAMESPACE + "/events");
+			eventChannel.setStreamHandler(new BatteryStreamHandler(context));
 
 			YCBTClient.initClient(context, true);
 			YCBTClient.registerBleStateChange(bleConnectResponse);
@@ -328,8 +340,15 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 		}
 	}
 
-	private static String[] PERMISSIONS_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_PRIVILEGED};
-	private static String[] PERMISSIONS_LOCATION = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_PRIVILEGED};
+	private static String[] PERMISSIONS_STORAGE = { Manifest.permission.READ_EXTERNAL_STORAGE,
+			Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION,
+			Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
+			Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT,
+			Manifest.permission.BLUETOOTH_PRIVILEGED };
+	private static String[] PERMISSIONS_LOCATION = { Manifest.permission.ACCESS_FINE_LOCATION,
+			Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
+			Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT,
+			Manifest.permission.BLUETOOTH_PRIVILEGED };
 
 	private void checkPermissions() {
 		Log.e(TAG, "checking permissions...");
@@ -374,8 +393,8 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			context = null;
 			methodChannel.setMethodCallHandler(null);
 			methodChannel = null;
-			stateChannel.setStreamHandler(null);
-			stateChannel = null;
+			eventChannel.setStreamHandler(null);
+			eventChannel = null;
 			EventBus.getDefault().unregister(this);
 		}
 	}
@@ -383,7 +402,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 	private void invokeMethodUIThread(final String name, final Object arguments) {
 		new Handler(Looper.getMainLooper()).post(() -> {
 			synchronized (tearDownLock) {
-				//Could already be teared down at this moment
+				// Could already be teared down at this moment
 				if (methodChannel != null) {
 					methodChannel.invokeMethod(name, arguments);
 				} else {

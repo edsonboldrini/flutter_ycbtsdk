@@ -17,7 +17,7 @@ class FlutterYcbtsdk {
 
   /// The event channel used to interact with the native platform state.
   @visibleForTesting
-  EventChannel stateChannel = const EventChannel('$namespace/state');
+  EventChannel eventChannel = const EventChannel('$namespace/events');
 
   StreamController<MethodCall> methodStreamController =
       StreamController.broadcast(); // ignore: close_sinks
@@ -37,6 +37,16 @@ class FlutterYcbtsdk {
           throw UnimplementedError('${call.method} has not been implemented.');
       }
     });
+
+    onStreamBatteryStatus();
+  }
+
+  String batteryStatus = 'Streaming';
+  onStreamBatteryStatus() {
+    _streamSubscription = eventChannel.receiveBroadcastStream().listen((event) {
+      print('$event');
+      batteryStatus = event;
+    });
   }
 
   static final FlutterYcbtsdk _instance = FlutterYcbtsdk._();
@@ -53,6 +63,8 @@ class FlutterYcbtsdk {
   /// One use for [scanResults] is as the stream in a StreamBuilder to display the
   /// results of a scan in real time while the scan is in progress.
   Stream<List<ScanResult>> get scanResults => _scanResults.stream;
+
+  late StreamSubscription _streamSubscription;
 
   Future<String?> getPlatformVersion() async {
     final version = await FlutterYcbtsdk.instance.methodChannel
