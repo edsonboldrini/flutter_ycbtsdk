@@ -347,7 +347,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			result.success(null);
 			break;
 			case "disconnectDevice": {
-				Log.e(TAG, "connectDevice...");
+				Log.e(TAG, "disconnectDevice...");
 				YCBTClient.disconnectBle();
 				result.success(null);
 				break;
