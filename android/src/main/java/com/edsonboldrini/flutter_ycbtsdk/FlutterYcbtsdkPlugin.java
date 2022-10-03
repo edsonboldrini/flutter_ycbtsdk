@@ -387,14 +387,14 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 						try {
 							String responseString
 											= mapper.writeValueAsString(hashMap);
-							Log.e("qob", "onRealDataResponse " + i + " " + v + " " + " dataType " + responseString);
+							Log.e("qob", "onRealDataResponse " + i + " " + v + " dataType " + responseString);
 						} catch (JsonProcessingException e) {
 							e.printStackTrace();
 						}
 						/*
 						if (hashMap != null) {
 							int dataType = (int) hashMap.get("dataType");
-							Log.e("qob", "onRealDataResponse " + i + " " + v + " " + " dataType " + dataType);
+							Log.e("qob", "onRealDataResponse " + i + " " + v + " dataType " + dataType);
 						}
 						*/
 					}
@@ -437,7 +437,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 						try {
 							String responseString
 											= mapper.writeValueAsString(hashMap);
-							Log.e("qob", "onRealDataResponse " + i + " " + v + " " + " dataType " + responseString);
+							Log.e("qob", "onRealDataResponse " + i + " " + v + " dataType " + responseString);
 						} catch (JsonProcessingException e) {
 							e.printStackTrace();
 						}
@@ -481,13 +481,14 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				Log.e(TAG, "startMeasurement...");
 				int onOff = call.argument("onOff");
 				int type = call.argument("type");
+				Log.e(TAG, "onOff = " + onOff + " type = " + type);
 				YCBTClient.appStartMeasurement(onOff, type, new BleDataResponse() {
 					@Override
 					public void onDataResponse(int i, float v, HashMap hashMap) {
 						try {
 							String responseString
 											= mapper.writeValueAsString(hashMap);
-							Log.e("qob", "onRealDataResponse " + i + " " + v + " " + " dataType " + responseString);
+							Log.e("qob", "onRealDataResponse " + i + " " + v + " dataType " + responseString);
 						} catch (JsonProcessingException e) {
 							e.printStackTrace();
 						}
