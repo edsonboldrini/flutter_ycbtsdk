@@ -27,7 +27,7 @@ class FlutterYcbtsdk {
   /// Singleton boilerplate
   FlutterYcbtsdk._() {
     methodChannel.setMethodCallHandler((MethodCall call) async {
-      log(call.toString());
+      // log(call.toString());
       methodStreamController.add(call);
       switch (call.method) {
         case 'onScanResult':
@@ -62,9 +62,9 @@ class FlutterYcbtsdk {
 
   Stream<List<ScanResult>> get scanResults => _scanResults.stream;
 
-  final BehaviorSubject<RealData?> _realData = BehaviorSubject.seeded(null);
+  final BehaviorSubject<Map?> _realData = BehaviorSubject.seeded(null);
 
-  Stream<RealData?> get realData => _realData.stream;
+  Stream<Map?> get realData => _realData.stream;
 
   Future<String?> getPlatformVersion() async {
     final version =
@@ -111,8 +111,9 @@ class FlutterYcbtsdk {
     await methodChannel.invokeMethod<String>('stopScan');
   }
 
-  Future<void> connectDevice(String deviceMacAddress) async {
-    await methodChannel.invokeMethod<String>('connectDevice', deviceMacAddress);
+  Future connectDevice(String deviceMacAddress) async {
+    return await methodChannel.invokeMethod<String>(
+        'connectDevice', deviceMacAddress);
   }
 
   Future<void> disconnectDevice() async {
@@ -156,27 +157,8 @@ class FlutterYcbtsdk {
 
   onRealDataResponse(payload) {
     try {
-      log(payload.toString());
       Map map = json.decode(payload);
-      for (var element in map.keys) {
-        switch (element) {
-          case "heartValue":
-            _realData.add(RealData(
-              type: 'heartRate',
-              value: map['heartValue'].toString(),
-            ));
-            break;
-          case "bloodSBP":
-          case "bloodDBP":
-            _realData.add(RealData(
-              type: 'heartRate',
-              value:
-                  "${map['bloodSBP'].toString()}x${map['bloodDBP'].toString()}}",
-            ));
-            break;
-          default:
-        }
-      }
+      _realData.add(map);
     } catch (e) {
       log(e.toString());
     }
@@ -191,53 +173,53 @@ class FlutterYcbtsdk {
 //   temperature,
 // }
 
-class RealData {
-  final String type;
-  final String value;
+// class RealData {
+//   final String type;
+//   final String value;
 
-  RealData({
-    required this.type,
-    required this.value,
-  });
+//   RealData({
+//     required this.type,
+//     required this.value,
+//   });
 
-  RealData copyWith({
-    String? type,
-    String? value,
-  }) {
-    return RealData(
-      type: type ?? this.type,
-      value: value ?? this.value,
-    );
-  }
+//   RealData copyWith({
+//     String? type,
+//     String? value,
+//   }) {
+//     return RealData(
+//       type: type ?? this.type,
+//       value: value ?? this.value,
+//     );
+//   }
 
-  Map<String, dynamic> toMap() {
-    return {
-      'type': type,
-      'value': value,
-    };
-  }
+//   Map<String, dynamic> toMap() {
+//     return {
+//       'type': type,
+//       'value': value,
+//     };
+//   }
 
-  factory RealData.fromMap(Map<String, dynamic> map) {
-    return RealData(
-      type: map['type'],
-      value: map['value'],
-    );
-  }
-  String toJson() => json.encode(toMap());
-  factory RealData.fromJson(String source) =>
-      RealData.fromMap(json.decode(source));
-  @override
-  String toString() => 'RealData(type: $type, value: $value)';
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
+//   factory RealData.fromMap(Map<String, dynamic> map) {
+//     return RealData(
+//       type: map['type'],
+//       value: map['value'],
+//     );
+//   }
+//   String toJson() => json.encode(toMap());
+//   factory RealData.fromJson(String source) =>
+//       RealData.fromMap(json.decode(source));
+//   @override
+//   String toString() => 'RealData(type: $type, value: $value)';
+//   @override
+//   bool operator ==(Object other) {
+//     if (identical(this, other)) return true;
 
-    return other is RealData && other.type == type && other.value == value;
-  }
+//     return other is RealData && other.type == type && other.value == value;
+//   }
 
-  @override
-  int get hashCode => type.hashCode ^ value.hashCode;
-}
+//   @override
+//   int get hashCode => type.hashCode ^ value.hashCode;
+// }
 
 class ScanResult {
   final String mac;

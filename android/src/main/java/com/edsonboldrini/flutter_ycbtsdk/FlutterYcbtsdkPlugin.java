@@ -131,7 +131,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			}
 			case "checkPermissions": {
 				checkPermissions();
-				
+
 				break;
 			}
 			case "initPlugin": {
@@ -141,7 +141,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				 * YCBTClient.registerBleStateChange(bleConnectResponse);
 				 * YCBTClient.deviceToApp(toAppDataResponse);
 				 */
-				
+
 				break;
 			}
 			case "startScan": {
@@ -173,13 +173,13 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 						}
 					}
 				}, timeout);
-				
+
 				break;
 			}
 			case "stopScan": {
 				Log.e(TAG, "stopScan...");
 				YCBTClient.stopScanBle();
-				
+
 				break;
 			}
 			case "connectDevice": {
@@ -196,7 +196,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 					}
 				});
 			}
-			
+			result.success(null);
 			break;
 			case "disconnectDevice": {
 				Log.e(TAG, "disconnectDevice...");
@@ -209,7 +209,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				// (context, 0, null, PendingIntent.FLAG_ONE_SHOT);
 				// }
 				YCBTClient.disconnectBle();
-				
+
 				break;
 			}
 			case "startEcgTest": {
@@ -254,7 +254,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 						}
 					}
 				});
-				
+
 				break;
 			}
 			case "stopEcgTest": {
@@ -302,7 +302,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 						 */
 					}
 				});
-				
+
 				break;
 			}
 			case "startMeasurement": {
@@ -320,7 +320,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 						}
 					}
 				});
-				
+
 				break;
 			}
 			case "healthHistoryData": {
