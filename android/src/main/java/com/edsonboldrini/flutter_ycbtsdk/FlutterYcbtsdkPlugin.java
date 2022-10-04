@@ -51,8 +51,10 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 // import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -156,8 +158,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 								deviceAdapter.addModel(scanDeviceBean);
 							}
 
-							Log.e(TAG, "mac = " + scanDeviceBean.getDeviceMac() + "; name = " + scanDeviceBean.getDeviceName()
-											+ "; rssi = " + scanDeviceBean.getDeviceRssi());
+							Log.e(TAG, "mac = " + scanDeviceBean.getDeviceMac() + "; name = " + scanDeviceBean.getDeviceName() + "; rssi = " + scanDeviceBean.getDeviceRssi());
 							HashMap scanData = new HashMap<>();
 							scanData.put("mac", scanDeviceBean.getDeviceMac());
 							scanData.put("name", scanDeviceBean.getDeviceName());
@@ -322,6 +323,46 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				result.success(null);
 				break;
 			}
+			case "healthHistoryData": {
+				YCBTClient.healthHistoryData(0x0509, new BleDataResponse() {
+					@Override
+					public void onDataResponse(int i, float v, HashMap hashMap) {
+						// Log.e("qob", "onDataResponse dataType: " + i + " " + v + " data: " + hashMap);
+						if (hashMap != null) {
+							ArrayList<HashMap> lists = (ArrayList) hashMap.get("data");
+							for (HashMap map : lists) {
+								long startTime = (long) map.get("startTime");
+								String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(startTime));
+								int heartRate = (int) map.get("heartValue");
+								int SBPValue = (int) map.get("SBPValue");
+								int DBPValue = (int) map.get("DBPValue");
+								int bloodOxygen = (int) map.get("OOValue"); // if (blood_oxygen == 0)  no value
+								int hrv = (int) map.get("hrvValue"); // if (hrv == 0)  no value
+								int cvrr = (int) map.get("cvrrValue"); // if (cvrr == 0)  no value
+								int respiratoryRateValue = (int) map.get("respiratoryRateValue"); // if (respiratoryRateValue == 0)  no value
+								int stepValue = (int) map.get("stepValue");
+
+								int tempIntValue = (int) map.get("tempIntValue"); // Temp int value
+								int tempFloatValue = (int) map.get("tempFloatValue"); // if (tempFloatValue == 15) the result is error
+								double tempValue = 0.0;
+								if (tempFloatValue != 15) {
+									tempValue = Double.parseDouble(tempIntValue + "." + tempFloatValue);
+								} else {
+									tempValue = new Double(tempIntValue);
+								}
+
+								Log.e("qob", "time1: " + time + " heartRate: " + heartRate + " SBPValue: " + SBPValue + " DBPValue: " + DBPValue + " bloodOxygen: " + bloodOxygen + " hrv: " + hrv + " cvrr: " + cvrr + " respiratoryRateValue: " + respiratoryRateValue + " steps: " + stepValue + " temperature: " + tempValue);
+								try {
+									String dataString = mapper.writeValueAsString(hashMap);
+									invokeMethodUIThread("onRealDataResponse", dataString);
+								} catch (JsonProcessingException e) {
+									e.printStackTrace();
+								}
+							}
+						}
+					}
+				});
+			}
 			default: {
 				result.notImplemented();
 				break;
@@ -347,15 +388,8 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 		}
 	}
 
-	private static String[] PERMISSIONS_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE,
-					Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION,
-					Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
-					Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT,
-					Manifest.permission.BLUETOOTH_PRIVILEGED};
-	private static String[] PERMISSIONS_LOCATION = {Manifest.permission.ACCESS_FINE_LOCATION,
-					Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS,
-					Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT,
-					Manifest.permission.BLUETOOTH_PRIVILEGED};
+	private static String[] PERMISSIONS_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_PRIVILEGED};
+	private static String[] PERMISSIONS_LOCATION = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_PRIVILEGED};
 
 	private void checkPermissions() {
 		Log.e(TAG, "checking permissions...");

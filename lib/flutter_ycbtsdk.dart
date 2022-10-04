@@ -139,6 +139,11 @@ class FlutterYcbtsdk {
         'startMeasurement', {"onOff": onOff, "type": type});
   }
 
+  Future<void> healthHistoryData() async {
+    await FlutterYcbtsdk.instance.methodChannel
+        .invokeMethod<String>('healthHistoryData');
+  }
+
   onScanResult(payload) async {
     try {
       log(payload.toString());
