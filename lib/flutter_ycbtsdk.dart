@@ -67,19 +67,17 @@ class FlutterYcbtsdk {
   Stream<RealData?> get realData => _realData.stream;
 
   Future<String?> getPlatformVersion() async {
-    final version = await FlutterYcbtsdk.instance.methodChannel
-        .invokeMethod<String>('getPlatformVersion');
+    final version =
+        await methodChannel.invokeMethod<String>('getPlatformVersion');
     return version;
   }
 
   Future<void> checkPermissions() async {
-    await FlutterYcbtsdk.instance.methodChannel
-        .invokeMethod<String>('checkPermissions');
+    await methodChannel.invokeMethod<String>('checkPermissions');
   }
 
   Future<void> initPlugin() async {
-    await FlutterYcbtsdk.instance.methodChannel
-        .invokeMethod<String>('initPlugin');
+    await methodChannel.invokeMethod<String>('initPlugin');
   }
 
   Future startScan(int timeout) async {
@@ -110,38 +108,32 @@ class FlutterYcbtsdk {
   }
 
   Future<void> stopScan() async {
-    await FlutterYcbtsdk.instance.methodChannel
-        .invokeMethod<String>('stopScan');
+    await methodChannel.invokeMethod<String>('stopScan');
   }
 
   Future<void> connectDevice(String deviceMacAddress) async {
-    await FlutterYcbtsdk.instance.methodChannel
-        .invokeMethod<String>('connectDevice', deviceMacAddress);
+    await methodChannel.invokeMethod<String>('connectDevice', deviceMacAddress);
   }
 
   Future<void> disconnectDevice() async {
-    await FlutterYcbtsdk.instance.methodChannel
-        .invokeMethod<String>('disconnectDevice');
+    await methodChannel.invokeMethod<String>('disconnectDevice');
   }
 
   Future<void> startEcgTest() async {
-    await FlutterYcbtsdk.instance.methodChannel
-        .invokeMethod<String>('startEcgTest');
+    await methodChannel.invokeMethod<String>('startEcgTest');
   }
 
   Future<void> stopEcgTest() async {
-    await FlutterYcbtsdk.instance.methodChannel
-        .invokeMethod<String>('stopEcgTest');
+    await methodChannel.invokeMethod<String>('stopEcgTest');
   }
 
   Future<void> startMeasurement(int onOff, int type) async {
-    await FlutterYcbtsdk.instance.methodChannel.invokeMethod<String>(
+    await methodChannel.invokeMethod<String>(
         'startMeasurement', {"onOff": onOff, "type": type});
   }
 
   Future<void> healthHistoryData() async {
-    await FlutterYcbtsdk.instance.methodChannel
-        .invokeMethod<String>('healthHistoryData');
+    await methodChannel.invokeMethod<String>('healthHistoryData');
   }
 
   onScanResult(payload) async {
