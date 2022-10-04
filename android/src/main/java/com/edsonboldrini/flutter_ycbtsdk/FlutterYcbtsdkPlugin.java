@@ -131,7 +131,6 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			}
 			case "checkPermissions": {
 				checkPermissions();
-
 				break;
 			}
 			case "initPlugin": {
@@ -141,7 +140,6 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				 * YCBTClient.registerBleStateChange(bleConnectResponse);
 				 * YCBTClient.deviceToApp(toAppDataResponse);
 				 */
-
 				break;
 			}
 			case "startScan": {
@@ -159,27 +157,28 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 							}
 
 							Log.e(TAG, "mac = " + scanDeviceBean.getDeviceMac() + "; name = " + scanDeviceBean.getDeviceName() + "; rssi = " + scanDeviceBean.getDeviceRssi());
-							HashMap scanData = new HashMap<>();
-							scanData.put("mac", scanDeviceBean.getDeviceMac());
-							scanData.put("name", scanDeviceBean.getDeviceName());
-							scanData.put("rssi", scanDeviceBean.getDeviceRssi());
+							HashMap map = new HashMap<String, Object>() {{
+								put("mac", scanDeviceBean.getDeviceMac());
+								put("name", scanDeviceBean.getDeviceName());
+								put("rssi", scanDeviceBean.getDeviceRssi());
+							}};
 
-							try {
-								String dataString = mapper.writeValueAsString(scanData);
-								invokeMethodUIThread("onScanResult", dataString);
-							} catch (JsonProcessingException e) {
-								e.printStackTrace();
-							}
+							String mapString = hashMapToStringJson(map);
+							invokeMethodUIThread("onScanResult", mapString);
 						}
 					}
 				}, timeout);
-
+				result.success(null);
 				break;
 			}
 			case "stopScan": {
 				Log.e(TAG, "stopScan...");
-				YCBTClient.stopScanBle();
-
+				try {
+					YCBTClient.stopScanBle();
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+				result.success(null);
 				break;
 			}
 			case "connectDevice": {
@@ -193,10 +192,17 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 					@Override
 					public void onConnectResponse(final int i) {
 						Log.e(TAG, "onConnectResponse... " + i);
+						if (i == 0) {
+							HashMap map = new HashMap<String, String>() {{
+								put(deviceMacAddress, "connected");
+							}};
+
+							String mapString = hashMapToStringJson(map);
+							result.success(mapString);
+						}
 					}
 				});
 			}
-			result.success(null);
 			break;
 			case "disconnectDevice": {
 				Log.e(TAG, "disconnectDevice...");
@@ -209,7 +215,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				// (context, 0, null, PendingIntent.FLAG_ONE_SHOT);
 				// }
 				YCBTClient.disconnectBle();
-
+				result.success(null);
 				break;
 			}
 			case "startEcgTest": {
@@ -244,17 +250,12 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 					}
 				}, new BleRealDataResponse() {
 					@Override
-					public void onRealDataResponse(int dataType, HashMap dataMap) {
-						Log.e("qob", "onRealDataResponse dataType: " + dataType + " data: " + dataMap);
-						try {
-							String dataString = mapper.writeValueAsString(dataMap);
-							invokeMethodUIThread("onRealDataResponse", dataString);
-						} catch (JsonProcessingException e) {
-							e.printStackTrace();
-						}
+					public void onRealDataResponse(int dataType, HashMap map) {
+						Log.e("qob", "onRealDataResponse dataType: " + dataType + " data: " + map);
+						String mapString = hashMapToStringJson(map);
+						invokeMethodUIThread("onRealDataResponse", mapString);
 					}
 				});
-
 				break;
 			}
 			case "stopEcgTest": {
@@ -302,7 +303,6 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 						 */
 					}
 				});
-
 				break;
 			}
 			case "startMeasurement": {
@@ -320,7 +320,6 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 						}
 					}
 				});
-
 				break;
 			}
 			case "healthHistoryData": {
@@ -341,7 +340,6 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 								int cvrr = (int) map.get("cvrrValue"); // if (cvrr == 0)  no value
 								int respiratoryRateValue = (int) map.get("respiratoryRateValue"); // if (respiratoryRateValue == 0)  no value
 								int stepValue = (int) map.get("stepValue");
-
 								int tempIntValue = (int) map.get("tempIntValue"); // Temp int value
 								int tempFloatValue = (int) map.get("tempFloatValue"); // if (tempFloatValue == 15) the result is error
 								double tempValue = 0.0;
@@ -352,12 +350,8 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 								}
 
 								Log.e("qob", "time1: " + time + " heartRate: " + heartRate + " SBPValue: " + SBPValue + " DBPValue: " + DBPValue + " bloodOxygen: " + bloodOxygen + " hrv: " + hrv + " cvrr: " + cvrr + " respiratoryRateValue: " + respiratoryRateValue + " steps: " + stepValue + " temperature: " + tempValue);
-								try {
-									String dataString = mapper.writeValueAsString(hashMap);
-									invokeMethodUIThread("onRealDataResponse", dataString);
-								} catch (JsonProcessingException e) {
-									e.printStackTrace();
-								}
+								String mapString = hashMapToStringJson(map);
+								invokeMethodUIThread("onRealDataResponse", mapString);
 							}
 						}
 					}
@@ -369,6 +363,17 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				break;
 			}
 		}
+	}
+
+	private String hashMapToStringJson(HashMap data) {
+		String resultString = null;
+		try {
+			resultString = mapper.writeValueAsString(data);
+		} catch (JsonProcessingException e) {
+			e.printStackTrace();
+		}
+
+		return resultString;
 	}
 
 	private void setup(final BinaryMessenger messenger, final Application application) {
@@ -437,6 +442,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			methodChannel = null;
 			eventChannel.setStreamHandler(null);
 			eventChannel = null;
+			YCBTClient.unRegisterBleStateChange(bleConnectResponse);
 			EventBus.getDefault().unregister(this);
 		}
 	}
@@ -490,23 +496,32 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 		}
 	};
 
-	boolean isActiveDisconnect = false;
 	BleConnectResponse bleConnectResponse = new BleConnectResponse() {
 		@Override
 		public void onConnectResponse(int code) {
-			Log.e(TAG, "onConnectResponse = " + code);
+			Log.e(TAG, deviceMacAddress + " - onConnectResponse = " + code);
+			String status = "unknown";
 
 			if (code <= Constants.BLEState.Disconnecting) {
-				Log.e(TAG, "Disconnected! " + code);
+				status = "disconnected";
 			} else if (code == Constants.BLEState.Disconnecting) {
-				Log.e(TAG, "Disconnecting... " + code);
+				status = "disconnecting";
 			} else if (code == Constants.BLEState.Connecting) {
-				Log.e(TAG, "Connecting... " + code);
+				status = "connecting";
 			} else if (code >= com.yucheng.ycbtsdk.Constants.BLEState.Connected) {
-				Log.e(TAG, "Connected! " + code);
+				Log.e(TAG, deviceMacAddress + " - Connected! " + code);
+				status = "connected";
 			} else {
-				Log.e(TAG, "Unknown status " + code);
+				status = "unknown";
 			}
+
+			String finalStatus = status;
+			Log.e(TAG, "onConnectResponse - " + deviceMacAddress + " " + finalStatus + " " + code);
+			HashMap map = new HashMap<String, String>() {{
+				put(deviceMacAddress, finalStatus);
+			}};
+			String mapString = hashMapToStringJson(map);
+			invokeMethodUIThread("onConnectResponse", mapString);
 		}
 	};
 }
