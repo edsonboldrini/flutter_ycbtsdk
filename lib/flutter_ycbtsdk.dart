@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -32,6 +33,9 @@ class FlutterYcbtsdk {
       switch (call.method) {
         case 'onScanResult':
           await onScanResult(call.arguments);
+          break;
+        case 'onConnectResponse':
+          await onConnectResponse(call.arguments);
           break;
         case 'onRealDataResponse':
           await onRealDataResponse(call.arguments);
@@ -155,8 +159,17 @@ class FlutterYcbtsdk {
     }
   }
 
+  onConnectResponse(payload) {
+    try {
+      log(payload.toString());
+    } catch (e) {
+      log(e.toString());
+    }
+  }
+
   onRealDataResponse(payload) {
     try {
+      log(payload.toString());
       Map map = json.decode(payload);
       _realData.add(map);
     } catch (e) {

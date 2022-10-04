@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_ycbtsdk/flutter_ycbtsdk.dart';
@@ -50,7 +51,8 @@ class _MyAppState extends State<MyApp> {
                 ElevatedButton(
                   onPressed: () async {
                     try {
-                      await _flutterYcbtsdkPlugin.startScan(30);
+                      await _flutterYcbtsdkPlugin.disconnectDevice();
+                      await _flutterYcbtsdkPlugin.startScan(60);
                     } catch (e) {
                       // log(e.toString());
                     }
@@ -87,7 +89,7 @@ class _MyAppState extends State<MyApp> {
                     return ListView.builder(
                       itemCount: scanResults.length,
                       itemBuilder: (context, index) {
-                        ScanResult scanResult = scanResults[index];
+                        ScanResult? scanResult = scanResults[index];
 
                         return ListTile(
                           title: Row(
@@ -100,8 +102,10 @@ class _MyAppState extends State<MyApp> {
                                   IconButton(
                                     icon: const Icon(Icons.bluetooth),
                                     onPressed: () async {
-                                      await _flutterYcbtsdkPlugin
-                                          .connectDevice(scanResult.mac);
+                                      var connectionResponse =
+                                          await _flutterYcbtsdkPlugin
+                                              .connectDevice(scanResult.mac);
+                                      log(connectionResponse.toString());
                                     },
                                   ),
                                   IconButton(
