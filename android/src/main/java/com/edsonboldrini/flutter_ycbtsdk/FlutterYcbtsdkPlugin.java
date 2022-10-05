@@ -147,42 +147,24 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				result.success(null);
 				break;
 			}
+			/*
 			case "initPlugin": {
 				Log.e(TAG, "initPlugin...");
-				/*
-				 * YCBTClient.initClient(context, true);
-				 * YCBTClient.registerBleStateChange(bleConnectResponse);
-				 * YCBTClient.deviceToApp(toAppDataResponse);
-				 */
+
+				YCBTClient.initClient(context, true);
+				YCBTClient.registerBleStateChange(bleConnectResponse);
+				YCBTClient.deviceToApp(toAppDataResponse);
+
 				result.success(null);
 				break;
 			}
+			*/
 			case "startScan": {
 				Log.e(TAG, "startScan...");
 				macAddressList = new ArrayList<>();
 				deviceAdapter.setScanDevicesList(new ArrayList<>());
-				int timeout = (int) call.arguments;
-				YCBTClient.startScanBle(new BleScanResponse() {
-					@Override
-					public void onScanResponse(int i, ScanDeviceBean scanDeviceBean) {
-						if (scanDeviceBean != null) {
-							if (!macAddressList.contains(scanDeviceBean.getDeviceMac())) {
-								macAddressList.add(scanDeviceBean.getDeviceMac());
-								deviceAdapter.addModel(scanDeviceBean);
-							}
-
-							Log.e(TAG, "mac = " + scanDeviceBean.getDeviceMac() + "; name = " + scanDeviceBean.getDeviceName() + "; rssi = " + scanDeviceBean.getDeviceRssi());
-							HashMap map = new HashMap<String, Object>() {{
-								put("mac", scanDeviceBean.getDeviceMac());
-								put("name", scanDeviceBean.getDeviceName());
-								put("rssi", scanDeviceBean.getDeviceRssi());
-							}};
-
-							String mapString = hashMapToStringJson(map);
-							invokeMethodUIThread("onScanResult", mapString);
-						}
-					}
-				}, timeout);
+				int timeoutInSeconds = (int) call.arguments;
+				YCBTClient.startScanBle(bleScanResponse, timeoutInSeconds);
 				result.success(null);
 				break;
 			}
@@ -200,14 +182,12 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			case "connectDevice": {
 				Log.e(TAG, "connectDevice...");
 				Log.e(TAG, call.arguments.toString());
-				YCBTClient.stopScanBle();
-
 				deviceMacAddress = call.arguments.toString();
 
 				YCBTClient.connectBle(deviceMacAddress, new BleConnectResponse() {
 					@Override
 					public void onConnectResponse(final int i) {
-						Log.e(TAG, "onConnectResponse... " + i);
+						// Log.e(TAG, "onConnectResponse... " + i);
 						if (i == 0) {
 							HashMap map = new HashMap<String, String>() {{
 								put(deviceMacAddress, "connected");
@@ -215,6 +195,13 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 
 							String mapString = hashMapToStringJson(map);
 							result.success(mapString);
+						} else {
+							HashMap map = new HashMap<String, String>() {{
+								put(deviceMacAddress, "error");
+							}};
+
+							String mapString = hashMapToStringJson(map);
+							result.error("unableConnectDevice error", "error", null);
 						}
 					}
 				});
@@ -246,138 +233,24 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			}
 			case "startEcgTest": {
 				Log.e(TAG, "startEcgTest...");
-				// 0x0200080047436FEC
-				/*
-				 * AITools.getInstance().init();
-				 * AITools.getInstance().setAIDiagnosisHRVNormResponse(new
-				 * BleAIDiagnosisHRVNormResponse() {
-				 *
-				 * @Override
-				 * public void onAIDiagnosisResponse(HRVNormBean hrvNormBean) {
-				 *
-				 * float heavy_load = bean.heavy_load; // Load index (the bigger the better the
-				 * outgoing)
-				 * float pressure = bean.pressure; // Pressure index (the bigger the better the
-				 * outgoing)
-				 * float HRV_norm = bean.HRV_norm; // HRV index (the bigger the better the
-				 * outgoing)
-				 * float body = bean.body; // body index (the bigger the better the outgoing)
-				 * int flag = -1; // 0 normal -1 error
-				 *
-				 * System.out.println("AIDiagnosis");
-				 * }
-				 * });
-				 */
-
-				YCBTClient.appEcgTestStart(new BleDataResponse() {
-					@Override
-					public void onDataResponse(int code, float value, HashMap hashMap) {
-						Log.e("qob", "onDataResponse - code: " + code + " value: " + value + " data: " + hashMap);
-					}
-				}, new BleRealDataResponse() {
-					@Override
-					public void onRealDataResponse(int dataType, HashMap map) {
-						Log.e("qob", "onRealDataResponse dataType: " + dataType + " data: " + map);
-						String mapString = hashMapToStringJson(map);
-						invokeMethodUIThread("onDataResponse", mapString);
-					}
-				});
+				YCBTClient.appEcgTestStart(bleDataResponse, bleRealDataResponse);
 				result.success(null);
 				break;
 			}
 			case "stopEcgTest": {
 				Log.e(TAG, "stopEcgTest...");
-				YCBTClient.appEcgTestEnd(new BleDataResponse() {
-					@Override
-					public void onDataResponse(int code, float value, HashMap hashMap) {
-						Log.e("qob", "onDataResponse - code: " + code + " value: " + value + " data: " + hashMap);
-
-						if (code == 0) {
-							// success
-						}
-
-						/*
-						 * HRVNormBean bean = AITools.getInstance().getHrvNorm();
-						 * if (bean != null) {
-						 * if (bean.flag == -1) {
-						 * //错误
-						 * } else {//正常
-						 * float heavy_load = bean.heavy_load; // Load index (the bigger the better the
-						 * outgoing)
-						 * float pressure = bean.pressure; // Pressure index (the bigger the better the
-						 * outgoing)
-						 * float HRV_norm = bean.HRV_norm; // HRV index (the bigger the better the
-						 * outgoing)
-						 * float body = bean.body; // body index (the bigger the better the outgoing)
-						 * }
-						 * }
-						 *
-						 * AITools.getInstance().getAIDiagnosisResult(new BleAIDiagnosisResponse() {
-						 *
-						 * @Override
-						 * public void onAIDiagnosisResponse(AIDataBean aiDataBean) {
-						 * if (aiDataBean != null) {
-						 * short heart = aiDataBean.heart; // heart rate
-						 * int qrstype = aiDataBean.qrstype; // Type 1 normal heart beat 5 atrial
-						 * premature beat 9 atrial premature beat 14 noise
-						 * boolean is_atrial_fibrillation = aiDataBean.is_atrial_fibrillation; // atrial
-						 * fibrillation
-						 * System.out.println("heart = " + heart + " qrstype = " + qrstype +
-						 * " is_atrial_fibrillation = " + is_atrial_fibrillation);
-						 * }
-						 * }
-						 * });
-						 */
-					}
-				});
+				YCBTClient.appEcgTestEnd(bleDataResponse);
 				result.success(null);
 				break;
 			}
 			case "healthHistoryData": {
-				YCBTClient.healthHistoryData(0x0509, new BleDataResponse() {
-					@Override
-					public void onDataResponse(int code, float value, HashMap hashMap) {
-						// Log.e("qob", "onDataResponse - code: " + code + " value: " + value + " data: " + hashMap);
-						if (hashMap != null) {
-							ArrayList<HashMap> lists = (ArrayList) hashMap.get("data");
-							for (HashMap map : lists) {
-								long startTime = (long) map.get("startTime");
-								String time = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date(startTime));
-								int heartRate = (int) map.get("heartValue");
-								int SBPValue = (int) map.get("SBPValue");
-								int DBPValue = (int) map.get("DBPValue");
-								int bloodOxygen = (int) map.get("OOValue"); // if (blood_oxygen == 0)  no value
-								int hrv = (int) map.get("hrvValue"); // if (hrv == 0)  no value
-								int cvrr = (int) map.get("cvrrValue"); // if (cvrr == 0)  no value
-								int respiratoryRateValue = (int) map.get("respiratoryRateValue"); // if (respiratoryRateValue == 0)  no value
-								int stepValue = (int) map.get("stepValue");
-								int tempIntValue = (int) map.get("tempIntValue"); // Temp int value
-								int tempFloatValue = (int) map.get("tempFloatValue"); // if (tempFloatValue == 15) the result is error
-								double tempValue = 0.0;
-								if (tempFloatValue != 15) {
-									tempValue = Double.parseDouble(tempIntValue + "." + tempFloatValue);
-								} else {
-									tempValue = new Double(tempIntValue);
-								}
-
-								Log.e("qob", "time1: " + time + " heartRate: " + heartRate + " SBPValue: " + SBPValue + " DBPValue: " + DBPValue + " bloodOxygen: " + bloodOxygen + " hrv: " + hrv + " cvrr: " + cvrr + " respiratoryRateValue: " + respiratoryRateValue + " steps: " + stepValue + " temperature: " + tempValue);
-								String mapString = hashMapToStringJson(map);
-								invokeMethodUIThread("onDataResponse", mapString);
-							}
-						}
-					}
-				});
+				YCBTClient.healthHistoryData(0x0509, bleDataResponse);
 				result.success(null);
 				break;
 			}
 			case "test": {
 				Log.e(TAG, "test...");
-				YCBTClient.appRealAllDataFromDevice(0x02, 0x01,new BleDataResponse() {
-					@Override
-					public void onDataResponse(int code, float value, HashMap hashMap) {
-						Log.e("qob", "onDataResponse - code: " + code + " value: " + value + " data: " + hashMap);
-					}
-				});
+
 				result.success(null);
 				break;
 			}
@@ -387,6 +260,101 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			}
 		}
 	}
+
+	BleScanResponse bleScanResponse = new BleScanResponse() {
+		@Override
+		public void onScanResponse(int i, ScanDeviceBean scanDeviceBean) {
+			if (scanDeviceBean != null) {
+				if (!macAddressList.contains(scanDeviceBean.getDeviceMac())) {
+					macAddressList.add(scanDeviceBean.getDeviceMac());
+					deviceAdapter.addModel(scanDeviceBean);
+				}
+
+				Log.e(TAG, "mac = " + scanDeviceBean.getDeviceMac() + "; name = " + scanDeviceBean.getDeviceName() + "; rssi = " + scanDeviceBean.getDeviceRssi());
+				HashMap map = new HashMap<String, Object>() {{
+					put("mac", scanDeviceBean.getDeviceMac());
+					put("name", scanDeviceBean.getDeviceName());
+					put("rssi", scanDeviceBean.getDeviceRssi());
+				}};
+
+				String mapString = hashMapToStringJson(map);
+				invokeMethodUIThread("onScanResult", mapString);
+			}
+		}
+	};
+
+	BleConnectResponse bleConnectResponse = new BleConnectResponse() {
+		@Override
+		public void onConnectResponse(int code) {
+			String status = "unknown";
+
+			if (code <= Constants.BLEState.Disconnecting) {
+				status = "disconnected";
+			} else if (code == Constants.BLEState.Disconnecting) {
+				status = "disconnecting";
+			} else if (code == Constants.BLEState.Connecting) {
+				status = "connecting";
+			} else if (code >= com.yucheng.ycbtsdk.Constants.BLEState.Connected) {
+				Log.e(TAG, deviceMacAddress + " - Connected! " + code);
+				status = "connected";
+			} else {
+				status = "unknown";
+			}
+
+			String finalStatus = status;
+			Log.e(TAG, "onConnectResponse - " + deviceMacAddress + " " + finalStatus + " " + code);
+
+			HashMap map = null;
+			if (deviceMacAddress != null) {
+				map = new HashMap<String, String>() {{
+					put(deviceMacAddress, finalStatus);
+				}};
+			} else {
+				map = new HashMap<String, String>() {{
+					put("all", finalStatus);
+				}};
+			}
+
+			String mapString = hashMapToStringJson(map);
+			invokeMethodUIThread("onConnectResponse", mapString);
+		}
+	};
+
+	BleDataResponse bleDataResponse = new BleDataResponse() {
+		@Override
+		public void onDataResponse(int code, float value, HashMap hashMap) {
+			Log.e("qob", "onDataResponse - code: " + code + " value: " + value + " data: " + hashMap);
+
+			if (hashMap != null) {
+				if (hashMap.containsKey("data")) {
+					Object data = hashMap.get("data");
+					if (data instanceof  ArrayList<?>) {
+						ArrayList<HashMap> lists = (ArrayList<HashMap>) hashMap.get("data");
+						for (HashMap map : lists) {
+							String mapString = hashMapToStringJson(map);
+							invokeMethodUIThread("onDataResponse", mapString);
+						}
+					} else {
+						String mapString = hashMapToStringJson(hashMap);
+						invokeMethodUIThread("onDataResponse", mapString);
+					}
+				} else {
+					String mapString = hashMapToStringJson(hashMap);
+					invokeMethodUIThread("onDataResponse", mapString);
+				}
+
+			}
+		}
+	};
+
+	BleRealDataResponse bleRealDataResponse = new BleRealDataResponse() {
+		@Override
+		public void onRealDataResponse(int dataType, HashMap map) {
+			Log.e("qob", "onRealDataResponse dataType: " + dataType + " data: " + map);
+			String mapString = hashMapToStringJson(map);
+			invokeMethodUIThread("onDataResponse", mapString);
+		}
+	};
 
 	private String hashMapToStringJson(HashMap data) {
 		String resultString = null;
@@ -449,12 +417,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 		public boolean handleMessage(@NonNull Message msg) {
 			if (msg.what == 0) {
 				handler.sendEmptyMessageDelayed(0, 1000);
-				YCBTClient.getAllRealDataFromDevice(new BleDataResponse() {
-					@Override
-					public void onDataResponse(int code, float v, HashMap hashMap) {
-						Log.e(TAG, hashMap.toString());
-					}
-				});
+				YCBTClient.getAllRealDataFromDevice(bleDataResponse);
 			} else if (msg.what == 1) {
 				Log.e(TAG, "1");
 			} else if (msg.what == 2) {
@@ -494,7 +457,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 		});
 	}
 
-	private final StreamHandler stateHandler = new EventChannel.StreamHandler() {
+	private final StreamHandler stateHandler = new StreamHandler() {
 		private EventSink sink;
 
 		private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
@@ -527,43 +490,6 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 		@Override
 		public void onDataResponse(int dataType, HashMap dataMap) {
 			Log.e(TAG, "Passive return data = " + dataMap);
-		}
-	};
-
-	BleConnectResponse bleConnectResponse = new BleConnectResponse() {
-		@Override
-		public void onConnectResponse(int code) {
-			String status = "unknown";
-
-			if (code <= Constants.BLEState.Disconnecting) {
-				status = "disconnected";
-			} else if (code == Constants.BLEState.Disconnecting) {
-				status = "disconnecting";
-			} else if (code == Constants.BLEState.Connecting) {
-				status = "connecting";
-			} else if (code >= com.yucheng.ycbtsdk.Constants.BLEState.Connected) {
-				Log.e(TAG, deviceMacAddress + " - Connected! " + code);
-				status = "connected";
-			} else {
-				status = "unknown";
-			}
-
-			String finalStatus = status;
-			Log.e(TAG, "onConnectResponse - " + deviceMacAddress + " " + finalStatus + " " + code);
-
-			HashMap map = null;
-			if (deviceMacAddress != null) {
-				map = new HashMap<String, String>() {{
-					put(deviceMacAddress, finalStatus);
-				}};
-			} else {
-				map = new HashMap<String, String>() {{
-					put("all", finalStatus);
-				}};
-			}
-
-			String mapString = hashMapToStringJson(map);
-			invokeMethodUIThread("onConnectResponse", mapString);
 		}
 	};
 }
