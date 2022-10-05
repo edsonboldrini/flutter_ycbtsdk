@@ -94,6 +94,8 @@ class _MyAppState extends State<MyApp> {
                   iconSize: 20,
                   icon: const Icon(Icons.bluetooth),
                   onPressed: () async {
+                    scanResultsList.clear();
+                    setState(() {});
                     await _flutterYcbtsdkPlugin.disconnectDevice();
                     var connectionResponse = await _flutterYcbtsdkPlugin
                         .connectDevice('E0:6F:A7:A3:D9:D1');
@@ -144,6 +146,8 @@ class _MyAppState extends State<MyApp> {
                               icon: const Icon(Icons.bluetooth_disabled),
                               onPressed: () async {
                                 await _flutterYcbtsdkPlugin.disconnectDevice();
+                                scanResultsList.clear();
+                                setState(() {});
                               },
                             ),
                             IconButton(
