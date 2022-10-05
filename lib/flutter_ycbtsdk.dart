@@ -132,13 +132,12 @@ class FlutterYcbtsdk {
     await methodChannel.invokeMethod<String>('stopEcgTest');
   }
 
-  Future<void> startMeasurement(int onOff, int type) async {
-    await methodChannel.invokeMethod<String>(
-        'startMeasurement', {"onOff": onOff, "type": type});
-  }
-
   Future<void> healthHistoryData() async {
     await methodChannel.invokeMethod<String>('healthHistoryData');
+  }
+
+  Future<void> test() async {
+    await methodChannel.invokeMethod<String>('test');
   }
 
   onScanResult(payload) async {

@@ -3,13 +3,14 @@ package com.edsonboldrini.flutter_ycbtsdk;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Application;
-// import android.app.PendingIntent;
+import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -119,6 +120,18 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 	public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
 		Log.d(TAG, "onAttachedToEngine");
 		pluginBinding = flutterPluginBinding;
+//		PendingIntent pendingIntent;
+//		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+//			pendingIntent = PendingIntent.getActivity(pluginBinding.getApplicationContext(),
+//							0, new Intent(pluginBinding.getApplicationContext(), getClass()).addFlags(
+//											Intent.FLAG_ACTIVITY_SINGLE_TOP),
+//							PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT);
+//		} else {
+//			pendingIntent = PendingIntent.getActivity(pluginBinding.getApplicationContext(),
+//							0, new Intent(pluginBinding.getApplicationContext(), getClass()).addFlags(
+//											Intent.FLAG_ACTIVITY_SINGLE_TOP),
+//							PendingIntent.FLAG_ONE_SHOT);
+//		}
 		setup(pluginBinding.getBinaryMessenger(), (Application) pluginBinding.getApplicationContext());
 	}
 
@@ -177,10 +190,11 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				Log.e(TAG, "stopScan...");
 				try {
 					YCBTClient.stopScanBle();
+					result.success(null);
 				} catch (Exception e) {
 					e.printStackTrace();
+					result.error("stopScan error", e.getMessage(), e);
 				}
-				result.success(null);
 				break;
 			}
 			case "connectDevice": {
@@ -208,16 +222,13 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			break;
 			case "disconnectDevice": {
 				Log.e(TAG, "disconnectDevice...");
-				// PendingIntent pendingIntent = null;
-				// if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-				// pendingIntent = PendingIntent.getActivity
-				// (context, 0, null, PendingIntent.FLAG_MUTABLE);
-				// } else {
-				// pendingIntent = PendingIntent.getActivity
-				// (context, 0, null, PendingIntent.FLAG_ONE_SHOT);
-				// }
-				YCBTClient.disconnectBle();
-				result.success(null);
+				try {
+					YCBTClient.disconnectBle();
+					result.success(null);
+				} catch (Exception e) {
+					e.printStackTrace();
+					result.error("disconnectDevice error", e.getMessage(), e);
+				}
 				break;
 			}
 			case "startEcgTest": {
@@ -247,8 +258,8 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 
 				YCBTClient.appEcgTestStart(new BleDataResponse() {
 					@Override
-					public void onDataResponse(int i, float v, HashMap hashMap) {
-						Log.e("qob", "onDataResponse dataType: " + i + " " + v + " data: " + hashMap);
+					public void onDataResponse(int code, float value, HashMap hashMap) {
+						Log.e("qob", "onDataResponse - code: " + code + " value: " + value + " data: " + hashMap);
 					}
 				}, new BleRealDataResponse() {
 					@Override
@@ -265,10 +276,10 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				Log.e(TAG, "stopEcgTest...");
 				YCBTClient.appEcgTestEnd(new BleDataResponse() {
 					@Override
-					public void onDataResponse(int i, float v, HashMap hashMap) {
-						Log.e("qob", "onDataResponse dataType: " + i + " " + v + " data: " + hashMap);
+					public void onDataResponse(int code, float value, HashMap hashMap) {
+						Log.e("qob", "onDataResponse - code: " + code + " value: " + value + " data: " + hashMap);
 
-						if (i == 0) {
+						if (code == 0) {
 							// success
 						}
 
@@ -309,39 +320,11 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				result.success(null);
 				break;
 			}
-			case "startMeasurement": {
-				Log.e(TAG, "startMeasurement...");
-				int onOff = call.argument("onOff");
-				int type = call.argument("type");
-				Log.e(TAG, "onOff = " + onOff + " type = " + type);
-//				YCBTClient.appStartMeasurement(0x01, 0x04, new BleDataResponse() {
-//					@Override
-//					public void onDataResponse(int i, float v, HashMap hashMap) {
-//						Log.e("qob", "onDataResponse dataType: " + i + " " + v + " data: " + hashMap);
-//
-//						if (i == 0) {
-//							// success
-//						}
-//					}
-//				});
-				Log.e(TAG, "getRealTemp...");
-				YCBTClient.appTemperatureMeasure( 0x02,new BleDataResponse() {
-					@Override
-					public void onDataResponse(int i, float v, HashMap hashMap) {
-						Log.e("qob", "onDataResponse dataType: " + i + " " + v + " data: " + hashMap);
-						if (i == 0) {
-							String temp = (String) hashMap.get("tempValue");
-						}
-					}
-				});
-				result.success(null);
-				break;
-			}
 			case "healthHistoryData": {
 				YCBTClient.healthHistoryData(0x0509, new BleDataResponse() {
 					@Override
-					public void onDataResponse(int i, float v, HashMap hashMap) {
-						// Log.e("qob", "onDataResponse dataType: " + i + " " + v + " data: " + hashMap);
+					public void onDataResponse(int code, float value, HashMap hashMap) {
+//						Log.e("qob", "onDataResponse - code: " + code + " value: " + value + " data: " + hashMap);
 						if (hashMap != null) {
 							ArrayList<HashMap> lists = (ArrayList) hashMap.get("data");
 							for (HashMap map : lists) {
@@ -374,6 +357,11 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				result.success(null);
 				break;
 			}
+			case "test": {
+				Log.e(TAG, "test...");
+				result.success(null);
+				break;
+			}
 			default: {
 				result.notImplemented();
 				break;
@@ -394,7 +382,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 
 	private void setup(final BinaryMessenger messenger, final Application application) {
 		synchronized (initializationLock) {
-			Log.d(TAG, "setup");
+			Log.d(TAG, "setup...");
 			context = application;
 			methodChannel = new MethodChannel(messenger, NAMESPACE + "/methods");
 			methodChannel.setMethodCallHandler(this);
@@ -410,19 +398,30 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 		}
 	}
 
-	private static String[] PERMISSIONS_STORAGE = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_PRIVILEGED};
-	private static String[] PERMISSIONS_LOCATION = {Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_PRIVILEGED};
+//  SDK >= 31
+//	private static String[] PERMISSIONS = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS, Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_PRIVILEGED};
+//
+//	private void checkPermissions() {
+//		Log.e(TAG, "checking permissions...");
+//
+//		int permission1 = ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+//		int permission2 = ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN);
+//		if (permission1 != PackageManager.PERMISSION_GRANTED || permission2 != PackageManager.PERMISSION_GRANTED) {
+//			// We don't have permission so prompt the user
+//			ActivityCompat.requestPermissions(activity, PERMISSIONS, 1);
+//		}
+//	}
+
+	private static String[] PERMISSIONS = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS, Manifest.permission.BLUETOOTH_PRIVILEGED};
 
 	private void checkPermissions() {
 		Log.e(TAG, "checking permissions...");
 
 		int permission1 = ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
-		int permission2 = ActivityCompat.checkSelfPermission(context, Manifest.permission.BLUETOOTH_SCAN);
-		if (permission1 != PackageManager.PERMISSION_GRANTED) {
+		int permission2 = ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
+		if (permission1 != PackageManager.PERMISSION_GRANTED || permission2 != PackageManager.PERMISSION_GRANTED) {
 			// We don't have permission so prompt the user
-			ActivityCompat.requestPermissions(activity, PERMISSIONS_STORAGE, 1);
-		} else if (permission2 != PackageManager.PERMISSION_GRANTED) {
-			ActivityCompat.requestPermissions(activity, PERMISSIONS_LOCATION, 1);
+			ActivityCompat.requestPermissions(activity, PERMISSIONS, 1);
 		}
 	}
 
@@ -433,7 +432,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				handler.sendEmptyMessageDelayed(0, 1000);
 				YCBTClient.getAllRealDataFromDevice(new BleDataResponse() {
 					@Override
-					public void onDataResponse(int i, float v, HashMap hashMap) {
+					public void onDataResponse(int code, float v, HashMap hashMap) {
 						Log.e(TAG, hashMap.toString());
 					}
 				});
@@ -533,9 +532,18 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 
 			String finalStatus = status;
 			Log.e(TAG, "onConnectResponse - " + deviceMacAddress + " " + finalStatus + " " + code);
-			HashMap map = new HashMap<String, String>() {{
-				put(deviceMacAddress, finalStatus);
-			}};
+
+			HashMap map = null;
+			if (deviceMacAddress != null) {
+				map = new HashMap<String, String>() {{
+					put(deviceMacAddress, finalStatus);
+				}};
+			} else {
+				map = new HashMap<String, String>() {{
+					put("all", finalStatus);
+				}};
+			}
+
 			String mapString = hashMapToStringJson(map);
 			invokeMethodUIThread("onConnectResponse", mapString);
 		}

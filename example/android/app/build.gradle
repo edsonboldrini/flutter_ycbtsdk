@@ -40,7 +40,7 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-build-configuration.
         minSdkVersion 19
-        targetSdkVersion flutter.targetSdkVersion
+        targetSdkVersion 30
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
@@ -53,9 +53,17 @@ android {
         }
     }
 
+    ext {
+        work_version = "2.7.1"
+    }
+
     dependencies {
         implementation project(':flutter_ycbtsdk');
-        implementation 'androidx.work:work-runtime-ktx:2.7.1'
+
+        // (Java only)
+        implementation("androidx.work:work-runtime:$work_version")
+        // optional - RxJava2 support
+        implementation("androidx.work:work-rxjava2:$work_version")   
     }
 }
 
