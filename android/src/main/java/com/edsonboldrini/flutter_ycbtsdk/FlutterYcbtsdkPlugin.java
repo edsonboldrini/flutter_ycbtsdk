@@ -224,7 +224,20 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				Log.e(TAG, "disconnectDevice...");
 				try {
 					YCBTClient.disconnectBle();
-					result.success(null);
+					HashMap map = null;
+					if (deviceMacAddress != null) {
+						map = new HashMap<String, String>() {{
+							put(deviceMacAddress, "disconnected");
+						}};
+					} else {
+						map = new HashMap<String, String>() {{
+							put("all", "disconnected");
+						}};
+					}
+
+					String mapString = hashMapToStringJson(map);
+					deviceMacAddress = null;
+					result.success(mapString);
 				} catch (Exception e) {
 					e.printStackTrace();
 					result.error("disconnectDevice error", e.getMessage(), e);
@@ -514,7 +527,6 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 	BleConnectResponse bleConnectResponse = new BleConnectResponse() {
 		@Override
 		public void onConnectResponse(int code) {
-			Log.e(TAG, deviceMacAddress + " - onConnectResponse = " + code);
 			String status = "unknown";
 
 			if (code <= Constants.BLEState.Disconnecting) {
