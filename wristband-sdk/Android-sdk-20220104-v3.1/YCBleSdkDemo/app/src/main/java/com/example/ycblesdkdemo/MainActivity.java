@@ -235,7 +235,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 				YCBTClient.disconnectBle();
 				break;
 			case R.id.bt_start_scan: {
-
 				YCBTClient.startScanBle(new BleScanResponse() {
 					@Override
 					public void onScanResponse(int i, ScanDeviceBean scanDeviceBean) {
@@ -250,8 +249,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 						}
 					}
-				}, 6);
-
+				}, 60);
 				break;
 			}
 			case R.id.bt_stop_scan: {
