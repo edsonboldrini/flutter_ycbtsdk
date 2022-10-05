@@ -827,9 +827,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 	 * After opening, the bracelet will be black. This is normal.
 	 */
 	private void openRealTemp() {
-		YCBTClient.appTemperatureMeasure(0x01, new BleDataResponse() {
+		YCBTClient.appTemperatureMeasure(0x02, new BleDataResponse() {
 			@Override
 			public void onDataResponse(int i, float v, HashMap hashMap) {
+				Log.e("qob", "onDataResponse - " + i + " " + v + " " + hashMap);
 				if (i == 0) {
 					//success
 				}
@@ -845,6 +846,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 		YCBTClient.getRealTemp(new BleDataResponse() {
 			@Override
 			public void onDataResponse(int i, float v, HashMap hashMap) {
+				Log.e("qob", "onDataResponse - " + i + " " + v + " " + hashMap);
 				if (i == 0) {
 					String temp = (String) hashMap.get("tempValue");
 				}
@@ -860,6 +862,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 		YCBTClient.appTemperatureMeasure(0x00, new BleDataResponse() {
 			@Override
 			public void onDataResponse(int i, float v, HashMap hashMap) {
+				Log.e("qob", "onDataResponse - " + i + " " + v + " " + hashMap);
 				if (i == 0) {
 					//success
 				}

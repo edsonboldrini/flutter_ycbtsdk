@@ -37,8 +37,8 @@ class FlutterYcbtsdk {
         case 'onConnectResponse':
           await onConnectResponse(call.arguments);
           break;
-        case 'onRealDataResponse':
-          await onRealDataResponse(call.arguments);
+        case 'onDataResponse':
+          await onDataResponse(call.arguments);
           break;
         default:
           throw UnimplementedError('${call.method} has not been implemented.');
@@ -64,11 +64,11 @@ class FlutterYcbtsdk {
   final BehaviorSubject<List<ScanResult>> _scanResults =
       BehaviorSubject.seeded([]);
 
-  Stream<List<ScanResult>> get scanResults => _scanResults.stream;
+  Stream<List<ScanResult>> get scanResultsStream => _scanResults.stream;
 
-  final BehaviorSubject<Map?> _realData = BehaviorSubject.seeded(null);
+  final BehaviorSubject<Map<String, dynamic>> _data = BehaviorSubject();
 
-  Stream<Map?> get realData => _realData.stream;
+  Stream<Map<String, dynamic>> get dataStream => _data.stream;
 
   Future<String?> getPlatformVersion() async {
     final version =
@@ -132,13 +132,12 @@ class FlutterYcbtsdk {
     await methodChannel.invokeMethod<String>('stopEcgTest');
   }
 
-  Future<void> startMeasurement(int onOff, int type) async {
-    await methodChannel.invokeMethod<String>(
-        'startMeasurement', {"onOff": onOff, "type": type});
-  }
-
   Future<void> healthHistoryData() async {
     await methodChannel.invokeMethod<String>('healthHistoryData');
+  }
+
+  Future<void> test() async {
+    await methodChannel.invokeMethod<String>('test');
   }
 
   onScanResult(payload) async {
@@ -167,11 +166,12 @@ class FlutterYcbtsdk {
     }
   }
 
-  onRealDataResponse(payload) {
+  onDataResponse(payload) {
     try {
       log(payload.toString());
-      Map map = json.decode(payload);
-      _realData.add(map);
+      Map<String, dynamic> map = json.decode(payload);
+      _data.add(map);
+      return map;
     } catch (e) {
       log(e.toString());
     }

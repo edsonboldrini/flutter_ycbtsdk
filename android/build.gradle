@@ -26,7 +26,7 @@ rootProject.allprojects {
 apply plugin: 'com.android.library'
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 30
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -38,9 +38,17 @@ android {
     }
 }
 
+ ext {
+     work_version = "2.7.1"
+ }
+
 dependencies {
-    implementation (name: 'ycbtsdk', ext: 'aar')
+    implementation (name: 'ycbtsdk-release', ext: 'aar')
     implementation 'org.greenrobot:eventbus:3.3.1'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.11.1'
-    implementation 'androidx.work:work-runtime-ktx:2.7.1'
+
+    // (Java only)
+    implementation("androidx.work:work-runtime:$work_version")
+    // optional - RxJava2 support
+    implementation("androidx.work:work-rxjava2:$work_version")   
 }
