@@ -250,7 +250,6 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			}
 			case "test": {
 				Log.e(TAG, "test...");
-
 				result.success(null);
 				break;
 			}
