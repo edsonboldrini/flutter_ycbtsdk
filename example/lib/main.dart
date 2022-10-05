@@ -24,13 +24,32 @@ class _MyAppState extends State<MyApp> {
     setup();
   }
 
+  StreamSubscription<List<ScanResult>>? _scanSubscription;
+  StreamSubscription<Map>? _dataSubscription;
+  List<Map> dataList = [];
+
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> setup() async {
     try {
       await _flutterYcbtsdkPlugin.checkPermissions();
+      startSubscriptions();
     } catch (e) {
-      // log(e.toString());
+      log(e.toString());
     }
+  }
+
+  startSubscriptions() {
+    _scanSubscription =
+        _flutterYcbtsdkPlugin.scanResultsStream.listen((scanResults) {
+      // print(scanResults.toString());
+    });
+  }
+
+  @override
+  void dispose() {
+    _scanSubscription?.cancel();
+    _dataSubscription?.cancel();
+    super.dispose();
   }
 
   @override
@@ -54,7 +73,7 @@ class _MyAppState extends State<MyApp> {
                       await _flutterYcbtsdkPlugin.disconnectDevice();
                       await _flutterYcbtsdkPlugin.startScan(60);
                     } catch (e) {
-                      // log(e.toString());
+                      log(e.toString());
                     }
                   },
                   child: const Text('startScan BLE'),
@@ -64,10 +83,20 @@ class _MyAppState extends State<MyApp> {
                     try {
                       await _flutterYcbtsdkPlugin.stopScan();
                     } catch (e) {
-                      // log(e.toString());
+                      log(e.toString());
                     }
                   },
                   child: const Text('stopScan BLE'),
+                ),
+                IconButton(
+                  iconSize: 20,
+                  icon: const Icon(Icons.bluetooth),
+                  onPressed: () async {
+                    var connectionResponse = await _flutterYcbtsdkPlugin
+                        .connectDevice('E0:6F:A7:A3:D9:D1');
+                    log(connectionResponse.toString());
+                    
+                  },
                 ),
               ],
             ),
@@ -80,7 +109,7 @@ class _MyAppState extends State<MyApp> {
             ),
             Expanded(
               child: StreamBuilder<List<ScanResult>>(
-                stream: _flutterYcbtsdkPlugin.scanResults,
+                stream: _flutterYcbtsdkPlugin.scanResultsStream,
                 initialData: const [],
                 builder: (c, snapshot) {
                   if (snapshot.hasData) {
@@ -100,6 +129,7 @@ class _MyAppState extends State<MyApp> {
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   IconButton(
+                                    iconSize: 20,
                                     icon: const Icon(Icons.bluetooth),
                                     onPressed: () async {
                                       var connectionResponse =
@@ -109,10 +139,33 @@ class _MyAppState extends State<MyApp> {
                                     },
                                   ),
                                   IconButton(
+                                    iconSize: 20,
                                     icon: const Icon(Icons.arrow_forward),
                                     onPressed: () async {
                                       await _flutterYcbtsdkPlugin
                                           .healthHistoryData();
+                                      _dataSubscription = _flutterYcbtsdkPlugin
+                                          .dataStream
+                                          .listen((data) {
+                                        // print(data.toString());
+                                        dataList.add(data);
+                                        setState(() {});
+                                      });
+                                    },
+                                  ),
+                                  IconButton(
+                                    iconSize: 20,
+                                    icon: const Icon(Icons.arrow_forward),
+                                    onPressed: () async {
+                                      await _flutterYcbtsdkPlugin
+                                          .startMeasurement(0x02, 0x04);
+                                      _dataSubscription = _flutterYcbtsdkPlugin
+                                          .dataStream
+                                          .listen((data) {
+                                        // print(data.toString());
+                                        dataList.add(data);
+                                        setState(() {});
+                                      });
                                     },
                                   ),
                                   // IconButton(
@@ -122,6 +175,7 @@ class _MyAppState extends State<MyApp> {
                                   //   },
                                   // ),
                                   IconButton(
+                                    iconSize: 20,
                                     icon: const Icon(Icons.close),
                                     onPressed: () async {
                                       await _flutterYcbtsdkPlugin
@@ -140,6 +194,18 @@ class _MyAppState extends State<MyApp> {
                   }
 
                   return const SizedBox();
+                },
+              ),
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: dataList.length,
+                itemBuilder: (context, index) {
+                  Map? map = dataList[index];
+
+                  return ListTile(
+                    title: Text(map.toString()),
+                  );
                 },
               ),
             ),

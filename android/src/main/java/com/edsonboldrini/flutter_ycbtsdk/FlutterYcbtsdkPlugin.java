@@ -131,6 +131,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			}
 			case "checkPermissions": {
 				checkPermissions();
+				result.success(null);
 				break;
 			}
 			case "initPlugin": {
@@ -140,6 +141,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				 * YCBTClient.registerBleStateChange(bleConnectResponse);
 				 * YCBTClient.deviceToApp(toAppDataResponse);
 				 */
+				result.success(null);
 				break;
 			}
 			case "startScan": {
@@ -253,9 +255,10 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 					public void onRealDataResponse(int dataType, HashMap map) {
 						Log.e("qob", "onRealDataResponse dataType: " + dataType + " data: " + map);
 						String mapString = hashMapToStringJson(map);
-						invokeMethodUIThread("onRealDataResponse", mapString);
+						invokeMethodUIThread("onDataResponse", mapString);
 					}
 				});
+				result.success(null);
 				break;
 			}
 			case "stopEcgTest": {
@@ -303,6 +306,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 						 */
 					}
 				});
+				result.success(null);
 				break;
 			}
 			case "startMeasurement": {
@@ -310,16 +314,27 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				int onOff = call.argument("onOff");
 				int type = call.argument("type");
 				Log.e(TAG, "onOff = " + onOff + " type = " + type);
-				YCBTClient.appStartMeasurement(onOff, type, new BleDataResponse() {
+//				YCBTClient.appStartMeasurement(0x01, 0x04, new BleDataResponse() {
+//					@Override
+//					public void onDataResponse(int i, float v, HashMap hashMap) {
+//						Log.e("qob", "onDataResponse dataType: " + i + " " + v + " data: " + hashMap);
+//
+//						if (i == 0) {
+//							// success
+//						}
+//					}
+//				});
+				Log.e(TAG, "getRealTemp...");
+				YCBTClient.appTemperatureMeasure( 0x02,new BleDataResponse() {
 					@Override
 					public void onDataResponse(int i, float v, HashMap hashMap) {
 						Log.e("qob", "onDataResponse dataType: " + i + " " + v + " data: " + hashMap);
-
 						if (i == 0) {
-							// success
+							String temp = (String) hashMap.get("tempValue");
 						}
 					}
 				});
+				result.success(null);
 				break;
 			}
 			case "healthHistoryData": {
@@ -351,11 +366,12 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 
 								Log.e("qob", "time1: " + time + " heartRate: " + heartRate + " SBPValue: " + SBPValue + " DBPValue: " + DBPValue + " bloodOxygen: " + bloodOxygen + " hrv: " + hrv + " cvrr: " + cvrr + " respiratoryRateValue: " + respiratoryRateValue + " steps: " + stepValue + " temperature: " + tempValue);
 								String mapString = hashMapToStringJson(map);
-								invokeMethodUIThread("onRealDataResponse", mapString);
+								invokeMethodUIThread("onDataResponse", mapString);
 							}
 						}
 					}
 				});
+				result.success(null);
 				break;
 			}
 			default: {
