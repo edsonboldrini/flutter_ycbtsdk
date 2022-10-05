@@ -337,7 +337,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				YCBTClient.healthHistoryData(0x0509, new BleDataResponse() {
 					@Override
 					public void onDataResponse(int code, float value, HashMap hashMap) {
-//						Log.e("qob", "onDataResponse - code: " + code + " value: " + value + " data: " + hashMap);
+						// Log.e("qob", "onDataResponse - code: " + code + " value: " + value + " data: " + hashMap);
 						if (hashMap != null) {
 							ArrayList<HashMap> lists = (ArrayList) hashMap.get("data");
 							for (HashMap map : lists) {
@@ -372,6 +372,12 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			}
 			case "test": {
 				Log.e(TAG, "test...");
+				YCBTClient.appRealAllDataFromDevice(0x02, 0x01,new BleDataResponse() {
+					@Override
+					public void onDataResponse(int code, float value, HashMap hashMap) {
+						Log.e("qob", "onDataResponse - code: " + code + " value: " + value + " data: " + hashMap);
+					}
+				});
 				result.success(null);
 				break;
 			}
