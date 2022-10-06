@@ -30,7 +30,7 @@ public class BatteryStreamHandler implements StreamHandler {
 		receiver = null;
 	}
 
-	private BroadcastReceiver initReceiver(final EventChannel.EventSink events) {
+	private BroadcastReceiver initReceiver(final EventSink events) {
 		return new BroadcastReceiver() {
 			@Override
 			public void onReceive(Context context, Intent intent) {

@@ -84,15 +84,15 @@ class FlutterYcbtsdk {
     await methodChannel.invokeMethod<String>('initPlugin');
   }
 
-  Future startScan(int timeout) async {
-    await startScanStream(timeout).drain();
+  Future startScan(int timeoutInSeconds) async {
+    await startScanStream(timeoutInSeconds).drain();
     return _scanResults.value;
   }
 
-  Stream<ScanResult> startScanStream(int timeout) async* {
+  Stream<ScanResult> startScanStream(int timeoutInSeconds) async* {
     // Clear scan results list
     _scanResults.add(<ScanResult>[]);
-    await methodChannel.invokeMethod<String>('startScan', timeout);
+    await methodChannel.invokeMethod<String>('startScan', timeoutInSeconds);
 
     // yield* methodStream
     //     .where((m) => m.method == 'ScanResult')
