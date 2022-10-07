@@ -244,17 +244,12 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				break;
 			}
 			case "healthHistoryData": {
-				YCBTClient.healthHistoryData(0x0509, bleDataResponse);
-				YCBTClient.healthHistoryData(0x0502, bleDataResponse);
+				YCBTClient.healthHistoryData(Constants.DATATYPE.Health_HistoryAll, bleDataResponse);
 				result.success(null);
 				break;
 			}
 			case "deleteHealthHistoryData": {
-				YCBTClient.deleteHealthHistoryData(0x0540, bleDataResponse);
-				YCBTClient.deleteHealthHistoryData(0x0541, bleDataResponse);
-				YCBTClient.deleteHealthHistoryData(0x0542, bleDataResponse);
-				YCBTClient.deleteHealthHistoryData(0x0543, bleDataResponse);
-				YCBTClient.deleteHealthHistoryData(0x0544, bleDataResponse);
+				YCBTClient.deleteHealthHistoryData(Constants.DATATYPE.Health_DeleteAll, bleDataResponse);
 				result.success(null);
 				break;
 			}
