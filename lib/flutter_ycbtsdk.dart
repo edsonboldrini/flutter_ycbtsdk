@@ -169,6 +169,20 @@ class FlutterYcbtsdk {
     }
   }
 
+  // Dados virão em lote porém um de cada vez, posso ajustar o plugin depois caso queiramos receber
+  // receber uma lista. Fiz assim para poder reutilizar a subscription de dados.
+  // Cada objeto terá o formato:
+  // {"heartValue":0,"hrvValue":21,"cvrrValue":5,"stepValue":0,"DBPValue":73,"bodyFatFloatValue":0,"OOValue":98,"bodyFatIntValue":0,"tempIntValue":36,"tempFloatValue":4,"startTime":1664680207000,"SBPValue":109,"respiratoryRateValue":17}
+
+  // DBPValue ⬆️ e bloodDBP ⬇️ são a mesma coisa, assim como SBPValue e bloodSBP
+
+  // Dados virão um de cada vez a cada 1 segundo um novo dado, teste em tempo real.
+  // Cada objeto terá o formato:
+  // {"bloodDBP":77,"heartValue":94,"code":0,"dataType":1539,"bloodSBP":118}
+
+  // Sport data:
+  // {"sportEndTime"=1665151200000, "sportStep"=26, "sportDistance"=18, "sportStartTime"=1665149400000, "sportCalorie"=1}
+
   onDataResponse(payload) {
     try {
       log(payload.toString());
@@ -194,19 +208,6 @@ class FlutterYcbtsdk {
               dataType: dataType,
               rawValue: map[key],
               formattedValue: "${map[key]} bpm",
-            );
-            _data.add(data);
-            break;
-          case 'stepValue':
-            const dataType = WristbandDataType.steps;
-            if (dataAlreadyParsed.contains(dataType)) break;
-            dataAlreadyParsed.add(dataType);
-
-            var data = WristbandData(
-              dateTime: dateTime,
-              dataType: dataType,
-              rawValue: map[key],
-              formattedValue: "${map[key]} steps",
             );
             _data.add(data);
             break;
@@ -268,6 +269,30 @@ class FlutterYcbtsdk {
                 'diastolic': dbpValue,
               },
               formattedValue: "$sbpValue x $dbpValue",
+            );
+            _data.add(data);
+            break;
+          case 'sportStep':
+          case 'sportCalorie':
+          case 'sportDistance':
+            const dataType = WristbandDataType.sport;
+            if (dataAlreadyParsed.contains(dataType)) break;
+            dataAlreadyParsed.add(dataType);
+
+            final stepsValue = map['sportStep'];
+            final caloriesValue = map['sportCalorie'];
+            final distanceValue = map['sportDistance'];
+
+            var data = WristbandData(
+              dateTime: dateTime,
+              dataType: dataType,
+              rawValue: {
+                'steps': stepsValue,
+                'calories': caloriesValue,
+                'distance': distanceValue,
+              },
+              formattedValue:
+                  "$stepsValue steps - $distanceValue meters - $caloriesValue kcal",
             );
             _data.add(data);
             break;
@@ -364,7 +389,7 @@ enum WristbandDataType {
   bloodPressure,
   heartRate,
   respiratoryRate,
-  steps,
+  sport,
   temperature,
 }
 

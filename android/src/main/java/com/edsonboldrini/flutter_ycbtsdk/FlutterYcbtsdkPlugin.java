@@ -245,6 +245,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			}
 			case "healthHistoryData": {
 				YCBTClient.healthHistoryData(0x0509, bleDataResponse);
+				YCBTClient.healthHistoryData(0x0502, bleDataResponse);
 				result.success(null);
 				break;
 			}
@@ -336,9 +337,9 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			if (hashMap != null) {
 				if (hashMap.containsKey("data")) {
 					Object data = hashMap.get("data");
-					if (data instanceof  ArrayList<?>) {
-						ArrayList<HashMap> lists = (ArrayList<HashMap>) hashMap.get("data");
-						for (HashMap map : lists) {
+					if (data instanceof ArrayList<?>) {
+						ArrayList<HashMap> list = (ArrayList<HashMap>) hashMap.get("data");
+						for (HashMap map : list) {
 							String mapString = hashMapToStringJson(map);
 							invokeMethodUIThread("onDataResponse", mapString);
 						}
