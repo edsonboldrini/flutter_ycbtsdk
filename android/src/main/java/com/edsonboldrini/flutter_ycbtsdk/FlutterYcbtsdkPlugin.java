@@ -248,6 +248,15 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				result.success(null);
 				break;
 			}
+			case "deleteHealthHistoryData": {
+				YCBTClient.deleteHealthHistoryData(0x0540, bleDataResponse);
+				YCBTClient.deleteHealthHistoryData(0x0541, bleDataResponse);
+				YCBTClient.deleteHealthHistoryData(0x0542, bleDataResponse);
+				YCBTClient.deleteHealthHistoryData(0x0543, bleDataResponse);
+				YCBTClient.deleteHealthHistoryData(0x0544, bleDataResponse);
+				result.success(null);
+				break;
+			}
 			case "test": {
 				Log.e(TAG, "test...");
 				result.success(null);

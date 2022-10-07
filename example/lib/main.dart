@@ -129,6 +129,7 @@ class _HomePageState extends State<HomePage> {
                             backgroundColor: MaterialStateColor.resolveWith(
                                 (states) => Colors.red),
                           ),
+                          child: const Text("forceConnectDevice"),
                           onPressed: () async {
                             final scanResult = ScanResult(
                               mac: 'E0:6F:A7:A3:D9:D1',
@@ -148,17 +149,16 @@ class _HomePageState extends State<HomePage> {
                               ),
                             );
                           },
-                          child: const Text("forceConnectDevice"),
                         ),
                         ElevatedButton(
                           style: ButtonStyle(
                             backgroundColor: MaterialStateColor.resolveWith(
                                 (states) => Colors.red),
                           ),
+                          child: const Text("forceDisconnectDevice"),
                           onPressed: () async {
                             await _forceDisconnect();
                           },
-                          child: const Text("forceDisconnectDevice"),
                         ),
                       ],
                     ),
@@ -286,32 +286,42 @@ class DeviceDetailsStatePage extends State<DeviceDetailsPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     ElevatedButton(
-                      child: const Text('getHealthHistoryData'),
+                      child: const Text('getHealthHistory'),
                       onPressed: () async {
                         await _flutterYcbtsdkPlugin.healthHistoryData();
                       },
                     ),
                     ElevatedButton(
-                      child: const Text('test'),
+                      child: const Text('deleteHealthHistory'),
                       onPressed: () async {
-                        await _flutterYcbtsdkPlugin.test();
+                        await _flutterYcbtsdkPlugin.deleteHealthHistoryData();
                       },
                     ),
                   ],
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     ElevatedButton(
                       style: ButtonStyle(
                         backgroundColor: MaterialStateColor.resolveWith(
                             (states) => Colors.red),
                       ),
+                      child: const Text('test'),
+                      onPressed: () async {
+                        await _flutterYcbtsdkPlugin.test();
+                      },
+                    ),
+                    ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateColor.resolveWith(
+                            (states) => Colors.red),
+                      ),
+                      child: const Text('clearDataStreamed'),
                       onPressed: () async {
                         _dataList.clear();
                         setState(() {});
                       },
-                      child: const Text('clearDataStreamed'),
                     ),
                   ],
                 ),

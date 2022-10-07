@@ -136,6 +136,10 @@ class FlutterYcbtsdk {
     await methodChannel.invokeMethod<String>('healthHistoryData');
   }
 
+  Future<void> deleteHealthHistoryData() async {
+    await methodChannel.invokeMethod<String>('deleteHealthHistoryData');
+  }
+
   Future<void> test() async {
     await methodChannel.invokeMethod<String>('test');
   }
@@ -177,62 +181,6 @@ class FlutterYcbtsdk {
     }
   }
 }
-
-// enum RealDataType {
-//   heartRate,
-//   bloodPressure,
-//   bloodOxygen,
-//   steps,
-//   temperature,
-// }
-
-// class RealData {
-//   final String type;
-//   final String value;
-
-//   RealData({
-//     required this.type,
-//     required this.value,
-//   });
-
-//   RealData copyWith({
-//     String? type,
-//     String? value,
-//   }) {
-//     return RealData(
-//       type: type ?? this.type,
-//       value: value ?? this.value,
-//     );
-//   }
-
-//   Map<String, dynamic> toMap() {
-//     return {
-//       'type': type,
-//       'value': value,
-//     };
-//   }
-
-//   factory RealData.fromMap(Map<String, dynamic> map) {
-//     return RealData(
-//       type: map['type'],
-//       value: map['value'],
-//     );
-//   }
-//   String toJson() => json.encode(toMap());
-//   factory RealData.fromJson(String source) =>
-//       RealData.fromMap(json.decode(source));
-//   @override
-//   String toString() => 'RealData(type: $type, value: $value)';
-//   @override
-//   bool operator ==(Object other) {
-//     if (identical(this, other)) return true;
-
-//     return other is RealData && other.type == type && other.value == value;
-//   }
-
-//   @override
-//   int get hashCode => type.hashCode ^ value.hashCode;
-// }
 
 class ScanResult {
   final String mac;
@@ -291,4 +239,60 @@ class ScanResult {
 
   @override
   int get hashCode => mac.hashCode ^ name.hashCode ^ rssi.hashCode;
+}
+
+enum WristbandDataType {
+  bloodOxygen,
+  bloodPressure,
+  heartRate,
+  steps,
+  temperature,
+}
+
+class WristbandData {
+  final String type;
+  final String value;
+
+  WristbandData({
+    required this.type,
+    required this.value,
+  });
+
+  WristbandData copyWith({
+    String? type,
+    String? value,
+  }) {
+    return WristbandData(
+      type: type ?? this.type,
+      value: value ?? this.value,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'type': type,
+      'value': value,
+    };
+  }
+
+  factory WristbandData.fromMap(Map<String, dynamic> map) {
+    return WristbandData(
+      type: map['type'],
+      value: map['value'],
+    );
+  }
+  String toJson() => json.encode(toMap());
+  factory WristbandData.fromJson(String source) =>
+      WristbandData.fromMap(json.decode(source));
+  @override
+  String toString() => 'RealData(type: $type, value: $value)';
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is WristbandData && other.type == type && other.value == value;
+  }
+
+  @override
+  int get hashCode => type.hashCode ^ value.hashCode;
 }
