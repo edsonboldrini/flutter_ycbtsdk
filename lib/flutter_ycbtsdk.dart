@@ -191,7 +191,7 @@ class FlutterYcbtsdk {
 
             var data = WristbandData(
               dateTime: dateTime,
-              type: dataType,
+              dataType: dataType,
               rawValue: map[key],
               formattedValue: "${map[key]} bpm",
             );
@@ -204,7 +204,7 @@ class FlutterYcbtsdk {
 
             var data = WristbandData(
               dateTime: dateTime,
-              type: dataType,
+              dataType: dataType,
               rawValue: map[key],
               formattedValue: "${map[key]} steps",
             );
@@ -217,7 +217,7 @@ class FlutterYcbtsdk {
 
             var data = WristbandData(
               dateTime: dateTime,
-              type: dataType,
+              dataType: dataType,
               rawValue: map[key],
               formattedValue: "${map[key]} SpO²",
             );
@@ -230,7 +230,7 @@ class FlutterYcbtsdk {
 
             var data = WristbandData(
               dateTime: dateTime,
-              type: dataType,
+              dataType: dataType,
               rawValue: map[key],
               formattedValue: "${map[key]} rpm",
             );
@@ -246,7 +246,7 @@ class FlutterYcbtsdk {
             final tempFloatValue = map['tempFloatValue'];
             var data = WristbandData(
               dateTime: dateTime,
-              type: dataType,
+              dataType: dataType,
               rawValue: double.parse("$tempIntValue.$tempFloatValue"),
               formattedValue: "$tempIntValue.$tempFloatValue ºC",
             );
@@ -262,7 +262,7 @@ class FlutterYcbtsdk {
             final dbpValue = map['DBPValue'];
             var data = WristbandData(
               dateTime: dateTime,
-              type: dataType,
+              dataType: dataType,
               rawValue: {
                 'systolic': sbpValue,
                 'diastolic': dbpValue,
@@ -281,7 +281,7 @@ class FlutterYcbtsdk {
               final dbpValue = map['bloodDBP'];
               var data = WristbandData(
                 dateTime: dateTime,
-                type: dataType,
+                dataType: dataType,
                 rawValue: {
                   'systolic': sbpValue,
                   'diastolic': dbpValue,
@@ -370,13 +370,13 @@ enum WristbandDataType {
 
 class WristbandData {
   final DateTime dateTime;
-  final WristbandDataType type;
+  final WristbandDataType dataType;
   final String formattedValue;
   final dynamic rawValue;
 
   WristbandData({
     required this.dateTime,
-    required this.type,
+    required this.dataType,
     required this.formattedValue,
     required this.rawValue,
   });
@@ -389,7 +389,7 @@ class WristbandData {
   }) {
     return WristbandData(
       dateTime: dateTime ?? this.dateTime,
-      type: type ?? this.type,
+      dataType: type ?? dataType,
       formattedValue: formattedValue ?? this.formattedValue,
       rawValue: rawValue ?? this.rawValue,
     );
@@ -398,7 +398,7 @@ class WristbandData {
   Map<String, dynamic> toMap() {
     return {
       'dateTime': dateTime.millisecondsSinceEpoch,
-      'type': type.toString(),
+      'type': dataType.toString(),
       'formattedValue': formattedValue,
       'rawValue': rawValue,
     };
@@ -407,7 +407,7 @@ class WristbandData {
   factory WristbandData.fromMap(Map<String, dynamic> map) {
     return WristbandData(
       dateTime: DateTime.fromMillisecondsSinceEpoch(map['dateTime']),
-      type: map['type'],
+      dataType: map['type'],
       formattedValue: map['formattedValue'],
       rawValue: map['rawValue'],
     );
@@ -420,7 +420,7 @@ class WristbandData {
 
   @override
   String toString() {
-    return 'WristbandData(dateTime: $dateTime, type: $type, formattedValue: $formattedValue, rawValue: $rawValue)';
+    return 'WristbandData(dateTime: $dateTime, type: $dataType, formattedValue: $formattedValue, rawValue: $rawValue)';
   }
 
   @override
@@ -429,7 +429,7 @@ class WristbandData {
 
     return other is WristbandData &&
         other.dateTime == dateTime &&
-        other.type == type &&
+        other.dataType == dataType &&
         other.formattedValue == formattedValue &&
         other.rawValue == rawValue;
   }
@@ -437,7 +437,7 @@ class WristbandData {
   @override
   int get hashCode {
     return dateTime.hashCode ^
-        type.hashCode ^
+        dataType.hashCode ^
         formattedValue.hashCode ^
         rawValue.hashCode;
   }
