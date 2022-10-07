@@ -192,7 +192,8 @@ class FlutterYcbtsdk {
             var data = WristbandData(
               dateTime: dateTime,
               type: dataType,
-              value: map[key],
+              rawValue: map[key],
+              formattedValue: "${map[key]} bpm",
             );
             _data.add(data);
             break;
@@ -204,7 +205,8 @@ class FlutterYcbtsdk {
             var data = WristbandData(
               dateTime: dateTime,
               type: dataType,
-              value: map[key],
+              rawValue: map[key],
+              formattedValue: "${map[key]} steps",
             );
             _data.add(data);
             break;
@@ -216,7 +218,8 @@ class FlutterYcbtsdk {
             var data = WristbandData(
               dateTime: dateTime,
               type: dataType,
-              value: map[key],
+              rawValue: map[key],
+              formattedValue: "${map[key]} SpO²",
             );
             _data.add(data);
             break;
@@ -228,7 +231,8 @@ class FlutterYcbtsdk {
             var data = WristbandData(
               dateTime: dateTime,
               type: dataType,
-              value: map[key],
+              rawValue: map[key],
+              formattedValue: "${map[key]} rpm",
             );
             _data.add(data);
             break;
@@ -243,7 +247,8 @@ class FlutterYcbtsdk {
             var data = WristbandData(
               dateTime: dateTime,
               type: dataType,
-              value: double.parse("$tempIntValue.$tempFloatValue"),
+              rawValue: double.parse("$tempIntValue.$tempFloatValue"),
+              formattedValue: "$tempIntValue.$tempFloatValue ºC",
             );
             _data.add(data);
             break;
@@ -253,12 +258,16 @@ class FlutterYcbtsdk {
             if (dataAlreadyParsed.contains(dataType)) break;
             dataAlreadyParsed.add(dataType);
 
-            final dbpValue = map['DBPValue'];
             final sbpValue = map['SBPValue'];
+            final dbpValue = map['DBPValue'];
             var data = WristbandData(
               dateTime: dateTime,
               type: dataType,
-              value: "$dbpValue x $sbpValue",
+              rawValue: {
+                'systolic': sbpValue,
+                'diastolic': dbpValue,
+              },
+              formattedValue: "$sbpValue x $dbpValue",
             );
             _data.add(data);
             break;
@@ -268,12 +277,16 @@ class FlutterYcbtsdk {
               if (dataAlreadyParsed.contains(dataType)) break;
               dataAlreadyParsed.add(dataType);
 
-              final dbpValue = map['bloodDBP'];
               final sbpValue = map['bloodSBP'];
+              final dbpValue = map['bloodDBP'];
               var data = WristbandData(
                 dateTime: dateTime,
                 type: dataType,
-                value: "$dbpValue x $sbpValue",
+                rawValue: {
+                  'systolic': sbpValue,
+                  'diastolic': dbpValue,
+                },
+                formattedValue: "$sbpValue x $dbpValue",
               );
               _data.add(data);
             }
@@ -358,23 +371,27 @@ enum WristbandDataType {
 class WristbandData {
   final DateTime dateTime;
   final WristbandDataType type;
-  final dynamic value;
+  final String formattedValue;
+  final dynamic rawValue;
 
   WristbandData({
     required this.dateTime,
     required this.type,
-    required this.value,
+    required this.formattedValue,
+    required this.rawValue,
   });
 
   WristbandData copyWith({
     DateTime? dateTime,
     WristbandDataType? type,
-    dynamic? value,
+    String? formattedValue,
+    dynamic? rawValue,
   }) {
     return WristbandData(
       dateTime: dateTime ?? this.dateTime,
       type: type ?? this.type,
-      value: value ?? this.value,
+      formattedValue: formattedValue ?? this.formattedValue,
+      rawValue: rawValue ?? this.rawValue,
     );
   }
 
@@ -382,7 +399,8 @@ class WristbandData {
     return {
       'dateTime': dateTime.millisecondsSinceEpoch,
       'type': type.toString(),
-      'value': value,
+      'formattedValue': formattedValue,
+      'rawValue': rawValue,
     };
   }
 
@@ -390,7 +408,8 @@ class WristbandData {
     return WristbandData(
       dateTime: DateTime.fromMillisecondsSinceEpoch(map['dateTime']),
       type: map['type'],
-      value: map['value'],
+      formattedValue: map['formattedValue'],
+      rawValue: map['rawValue'],
     );
   }
 
@@ -400,8 +419,9 @@ class WristbandData {
       WristbandData.fromMap(json.decode(source));
 
   @override
-  String toString() =>
-      'WristbandData(dateTime: $dateTime, type: $type, value: $value)';
+  String toString() {
+    return 'WristbandData(dateTime: $dateTime, type: $type, formattedValue: $formattedValue, rawValue: $rawValue)';
+  }
 
   @override
   bool operator ==(Object other) {
@@ -410,9 +430,15 @@ class WristbandData {
     return other is WristbandData &&
         other.dateTime == dateTime &&
         other.type == type &&
-        other.value == value;
+        other.formattedValue == formattedValue &&
+        other.rawValue == rawValue;
   }
 
   @override
-  int get hashCode => dateTime.hashCode ^ type.hashCode ^ value.hashCode;
+  int get hashCode {
+    return dateTime.hashCode ^
+        type.hashCode ^
+        formattedValue.hashCode ^
+        rawValue.hashCode;
+  }
 }
