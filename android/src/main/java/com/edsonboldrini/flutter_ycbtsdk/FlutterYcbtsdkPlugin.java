@@ -188,7 +188,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 					@Override
 					public void onConnectResponse(final int i) {
 						// Log.e(TAG, "onConnectResponse... " + i);
-						if (i == 0) {
+						if (i == Constants.CODE.Code_OK) {
 							HashMap map = new HashMap<String, String>() {{
 								put(deviceMacAddress, "connected");
 							}};
@@ -245,11 +245,13 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			}
 			case "healthHistoryData": {
 				YCBTClient.healthHistoryData(Constants.DATATYPE.Health_HistoryAll, bleDataResponse);
+				YCBTClient.healthHistoryData(Constants.DATATYPE.Health_HistorySport, bleDataResponse);
 				result.success(null);
 				break;
 			}
 			case "deleteHealthHistoryData": {
 				YCBTClient.deleteHealthHistoryData(Constants.DATATYPE.Health_DeleteAll, bleDataResponse);
+				YCBTClient.deleteHealthHistoryData(Constants.DATATYPE.Health_DeleteSport, bleDataResponse);
 				result.success(null);
 				break;
 			}
