@@ -269,6 +269,23 @@ class DeviceDetailsStatePage extends State<DeviceDetailsPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     ElevatedButton(
+                      child: const Text('connectState'),
+                      onPressed: () async {
+                        await _flutterYcbtsdkPlugin.connectState();
+                      },
+                    ),
+                    ElevatedButton(
+                      child: const Text('resetQueue'),
+                      onPressed: () async {
+                        await _flutterYcbtsdkPlugin.resetQueue();
+                      },
+                    ),
+                  ],
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    ElevatedButton(
                       child: const Text('startEcgTest'),
                       onPressed: () async {
                         await _flutterYcbtsdkPlugin.startEcgTest();

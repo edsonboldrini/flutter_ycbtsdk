@@ -124,6 +124,14 @@ class FlutterYcbtsdk {
     await methodChannel.invokeMethod<String>('disconnectDevice');
   }
 
+  Future<void> connectState() async {
+    await methodChannel.invokeMethod<String>('connectState');
+  }
+
+  Future<void> resetQueue() async {
+    await methodChannel.invokeMethod<String>('resetQueue');
+  }
+
   Future<void> startEcgTest() async {
     await methodChannel.invokeMethod<String>('startEcgTest');
   }
@@ -334,26 +342,6 @@ class FlutterYcbtsdk {
             );
             _data.add(data);
             break;
-          case 'dataType':
-          // if (map[key] == 1539) {
-          //   const dataType = WristbandDataType.bloodPressure;
-          //   if (dataAlreadyParsed.contains(dataType)) break;
-          //   dataAlreadyParsed.add(dataType);
-
-          //   final sbpValue = map['bloodSBP'];
-          //   final dbpValue = map['bloodDBP'];
-          //   var data = WristbandData(
-          //     dateTime: dateTime,
-          //     dataType: dataType,
-          //     rawValue: {
-          //       'systolic': sbpValue,
-          //       'diastolic': dbpValue,
-          //     },
-          //     formattedValue: "$sbpValue x $dbpValue",
-          //   );
-          //   _data.add(data);
-          // }
-          // break;
           default:
         }
       }

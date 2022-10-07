@@ -143,6 +143,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				break;
 			}
 			case "checkPermissions": {
+				Log.e(TAG, "checking permissions...");
 				checkPermissions();
 				result.success(null);
 				break;
@@ -164,6 +165,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				macAddressList = new ArrayList<>();
 				deviceAdapter.setScanDevicesList(new ArrayList<>());
 				int timeoutInSeconds = (int) call.arguments;
+
 				YCBTClient.startScanBle(bleScanResponse, timeoutInSeconds);
 				result.success(null);
 				break;
@@ -231,6 +233,19 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				}
 				break;
 			}
+			case "connectState": {
+				Log.e(TAG, "connectState...");
+				int code = YCBTClient.connectState();
+				String response = connectionHandler(code);
+				result.success(response);
+				break;
+			}
+			case "resetQueue": {
+				Log.e(TAG, "resetQueue...");
+				YCBTClient.resetQueue();
+				result.success(null);
+				break;
+			}
 			case "startEcgTest": {
 				Log.e(TAG, "startEcgTest...");
 				YCBTClient.appEcgTestStart(bleDataResponse, bleRealDataResponse);
@@ -276,7 +291,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 					deviceAdapter.addModel(scanDeviceBean);
 				}
 
-				Log.e(TAG, "mac = " + scanDeviceBean.getDeviceMac() + "; name = " + scanDeviceBean.getDeviceName() + "; rssi = " + scanDeviceBean.getDeviceRssi());
+				Log.e(TAG, "mac: " + scanDeviceBean.getDeviceMac() + "; name: " + scanDeviceBean.getDeviceName() + "; rssi: " + scanDeviceBean.getDeviceRssi());
 				HashMap map = new HashMap<String, Object>() {{
 					put("mac", scanDeviceBean.getDeviceMac());
 					put("name", scanDeviceBean.getDeviceName());
@@ -292,39 +307,44 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 	BleConnectResponse bleConnectResponse = new BleConnectResponse() {
 		@Override
 		public void onConnectResponse(int code) {
-			String status = "unknown";
-
-			if (code <= Constants.BLEState.Disconnecting) {
-				status = "disconnected";
-			} else if (code == Constants.BLEState.Disconnecting) {
-				status = "disconnecting";
-			} else if (code == Constants.BLEState.Connecting) {
-				status = "connecting";
-			} else if (code >= com.yucheng.ycbtsdk.Constants.BLEState.Connected) {
-				Log.e(TAG, deviceMacAddress + " - Connected! " + code);
-				status = "connected";
-			} else {
-				status = "unknown";
-			}
-
-			String finalStatus = status;
-			Log.e(TAG, "onConnectResponse - " + deviceMacAddress + " " + finalStatus + " " + code);
-
-			HashMap map = null;
-			if (deviceMacAddress != null) {
-				map = new HashMap<String, String>() {{
-					put(deviceMacAddress, finalStatus);
-				}};
-			} else {
-				map = new HashMap<String, String>() {{
-					put("all", finalStatus);
-				}};
-			}
-
-			String mapString = hashMapToStringJson(map);
-			invokeMethodUIThread("onConnectResponse", mapString);
+			connectionHandler(code);
 		}
 	};
+
+	private String connectionHandler(int code) {
+		String status = "unknown";
+
+		if (code <= Constants.BLEState.Disconnecting) {
+			status = "disconnected";
+		} else if (code == Constants.BLEState.Disconnecting) {
+			status = "disconnecting";
+		} else if (code == Constants.BLEState.Connecting) {
+			status = "connecting";
+		} else if (code >= com.yucheng.ycbtsdk.Constants.BLEState.Connected) {
+			Log.e(TAG, deviceMacAddress + " - Connected! " + code);
+			status = "connected";
+		} else {
+			status = "unknown";
+		}
+
+		String finalStatus = status;
+		Log.e(TAG, "onConnectResponse - " + deviceMacAddress + " " + finalStatus + " " + code);
+
+		HashMap map = null;
+		if (deviceMacAddress != null) {
+			map = new HashMap<String, String>() {{
+				put(deviceMacAddress, finalStatus);
+			}};
+		} else {
+			map = new HashMap<String, String>() {{
+				put("all", finalStatus);
+			}};
+		}
+
+		String mapString = hashMapToStringJson(map);
+		invokeMethodUIThread("onConnectResponse", mapString);
+		return mapString;
+	}
 
 	BleDataResponse bleDataResponse = new BleDataResponse() {
 		@Override
@@ -409,8 +429,6 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 	private static String[] PERMISSIONS = {Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_LOCATION_EXTRA_COMMANDS, Manifest.permission.BLUETOOTH_PRIVILEGED};
 
 	private void checkPermissions() {
-		Log.e(TAG, "checking permissions...");
-
 		int permission1 = ActivityCompat.checkSelfPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 		int permission2 = ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION);
 		if (permission1 != PackageManager.PERMISSION_GRANTED || permission2 != PackageManager.PERMISSION_GRANTED) {
@@ -496,7 +514,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 	BleDeviceToAppDataResponse toAppDataResponse = new BleDeviceToAppDataResponse() {
 		@Override
 		public void onDataResponse(int dataType, HashMap dataMap) {
-			Log.e(TAG, "Passive return dataType " + dataType + " = " + dataMap);
+			Log.e(TAG, "Passive return dataType: " + dataType + " data: " + dataMap);
 		}
 	};
 }
