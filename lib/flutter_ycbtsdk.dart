@@ -66,9 +66,9 @@ class FlutterYcbtsdk {
 
   Stream<List<ScanResult>> get scanResultsStream => _scanResults.stream;
 
-  final BehaviorSubject<Map<String, dynamic>> _data = BehaviorSubject();
+  final BehaviorSubject<WristbandData> _data = BehaviorSubject();
 
-  Stream<Map<String, dynamic>> get dataStream => _data.stream;
+  Stream<WristbandData> get dataStream => _data.stream;
 
   Future<String?> getPlatformVersion() async {
     final version =
@@ -156,7 +156,6 @@ class FlutterYcbtsdk {
         list.add(result);
       }
       _scanResults.add(list);
-      return result;
     } catch (e) {
       log(e.toString());
     }
@@ -174,8 +173,114 @@ class FlutterYcbtsdk {
     try {
       log(payload.toString());
       Map<String, dynamic> map = json.decode(payload);
-      _data.add(map);
-      return map;
+      final mapKeys = map.keys;
+      final dataAlreadyParsed = [];
+
+      for (String key in mapKeys) {
+        var dateTime = DateTime.now().toUtc();
+        if (mapKeys.contains('startTime')) {
+          dateTime =
+              DateTime.fromMillisecondsSinceEpoch(map['startTime']).toUtc();
+        }
+
+        switch (key) {
+          case 'heartValue':
+            const dataType = WristbandDataType.heartRate;
+            if (dataAlreadyParsed.contains(dataType)) break;
+            dataAlreadyParsed.add(dataType);
+
+            var data = WristbandData(
+              dateTime: dateTime,
+              type: dataType,
+              value: map[key],
+            );
+            _data.add(data);
+            break;
+          case 'stepValue':
+            const dataType = WristbandDataType.steps;
+            if (dataAlreadyParsed.contains(dataType)) break;
+            dataAlreadyParsed.add(dataType);
+
+            var data = WristbandData(
+              dateTime: dateTime,
+              type: dataType,
+              value: map[key],
+            );
+            _data.add(data);
+            break;
+          case 'OOValue':
+            const dataType = WristbandDataType.bloodOxygen;
+            if (dataAlreadyParsed.contains(dataType)) break;
+            dataAlreadyParsed.add(dataType);
+
+            var data = WristbandData(
+              dateTime: dateTime,
+              type: dataType,
+              value: map[key],
+            );
+            _data.add(data);
+            break;
+          case 'respiratoryRateValue':
+            const dataType = WristbandDataType.respiratoryRate;
+            if (dataAlreadyParsed.contains(dataType)) break;
+            dataAlreadyParsed.add(dataType);
+
+            var data = WristbandData(
+              dateTime: dateTime,
+              type: dataType,
+              value: map[key],
+            );
+            _data.add(data);
+            break;
+          case 'tempIntValue':
+          case 'tempFloatValue':
+            const dataType = WristbandDataType.temperature;
+            if (dataAlreadyParsed.contains(dataType)) break;
+            dataAlreadyParsed.add(dataType);
+
+            final tempIntValue = map['tempIntValue'];
+            final tempFloatValue = map['tempFloatValue'];
+            var data = WristbandData(
+              dateTime: dateTime,
+              type: dataType,
+              value: double.parse("$tempIntValue.$tempFloatValue"),
+            );
+            _data.add(data);
+            break;
+          case 'DBPValue':
+          case 'SBPValue':
+            const dataType = WristbandDataType.bloodPressure;
+            if (dataAlreadyParsed.contains(dataType)) break;
+            dataAlreadyParsed.add(dataType);
+
+            final dbpValue = map['DBPValue'];
+            final sbpValue = map['SBPValue'];
+            var data = WristbandData(
+              dateTime: dateTime,
+              type: dataType,
+              value: "$dbpValue x $sbpValue",
+            );
+            _data.add(data);
+            break;
+          case 'dataType':
+            if (map[key] == 1539) {
+              const dataType = WristbandDataType.bloodPressure;
+              if (dataAlreadyParsed.contains(dataType)) break;
+              dataAlreadyParsed.add(dataType);
+
+              final dbpValue = map['bloodDBP'];
+              final sbpValue = map['bloodSBP'];
+              var data = WristbandData(
+                dateTime: dateTime,
+                type: dataType,
+                value: "$dbpValue x $sbpValue",
+              );
+              _data.add(data);
+            }
+            break;
+          default:
+        }
+      }
     } catch (e) {
       log(e.toString());
     }
@@ -245,24 +350,29 @@ enum WristbandDataType {
   bloodOxygen,
   bloodPressure,
   heartRate,
+  respiratoryRate,
   steps,
   temperature,
 }
 
 class WristbandData {
-  final String type;
-  final String value;
+  final DateTime dateTime;
+  final WristbandDataType type;
+  final dynamic value;
 
   WristbandData({
+    required this.dateTime,
     required this.type,
     required this.value,
   });
 
   WristbandData copyWith({
-    String? type,
-    String? value,
+    DateTime? dateTime,
+    WristbandDataType? type,
+    dynamic? value,
   }) {
     return WristbandData(
+      dateTime: dateTime ?? this.dateTime,
       type: type ?? this.type,
       value: value ?? this.value,
     );
@@ -270,29 +380,39 @@ class WristbandData {
 
   Map<String, dynamic> toMap() {
     return {
-      'type': type,
+      'dateTime': dateTime.millisecondsSinceEpoch,
+      'type': type.toString(),
       'value': value,
     };
   }
 
   factory WristbandData.fromMap(Map<String, dynamic> map) {
     return WristbandData(
+      dateTime: DateTime.fromMillisecondsSinceEpoch(map['dateTime']),
       type: map['type'],
       value: map['value'],
     );
   }
+
   String toJson() => json.encode(toMap());
+
   factory WristbandData.fromJson(String source) =>
       WristbandData.fromMap(json.decode(source));
+
   @override
-  String toString() => 'RealData(type: $type, value: $value)';
+  String toString() =>
+      'WristbandData(dateTime: $dateTime, type: $type, value: $value)';
+
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
 
-    return other is WristbandData && other.type == type && other.value == value;
+    return other is WristbandData &&
+        other.dateTime == dateTime &&
+        other.type == type &&
+        other.value == value;
   }
 
   @override
-  int get hashCode => type.hashCode ^ value.hashCode;
+  int get hashCode => dateTime.hashCode ^ type.hashCode ^ value.hashCode;
 }

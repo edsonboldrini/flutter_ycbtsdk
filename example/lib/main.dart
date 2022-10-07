@@ -216,8 +216,8 @@ class DeviceDetailsPage extends StatefulWidget {
 class DeviceDetailsStatePage extends State<DeviceDetailsPage> {
   final _flutterYcbtsdkPlugin = FlutterYcbtsdk.instance;
 
-  StreamSubscription<Map>? _dataSubscription;
-  final List<Map> _dataList = [];
+  StreamSubscription<WristbandData>? _dataSubscription;
+  final List<WristbandData> _dataList = [];
 
   @override
   void initState() {
@@ -336,10 +336,10 @@ class DeviceDetailsStatePage extends State<DeviceDetailsPage> {
             child: ListView.builder(
               itemCount: _dataList.length,
               itemBuilder: (context, index) {
-                Map? map = _dataList[index];
+                WristbandData? data = _dataList[index];
 
                 return ListTile(
-                  title: Text(map.toString()),
+                  title: Text(data.toString()),
                 );
               },
             ),
