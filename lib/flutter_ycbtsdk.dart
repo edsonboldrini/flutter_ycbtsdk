@@ -196,6 +196,10 @@ class FlutterYcbtsdk {
           dateTime =
               DateTime.fromMillisecondsSinceEpoch(map['startTime']).toUtc();
         }
+        if (mapKeys.contains('sportEndTime')) {
+          dateTime =
+              DateTime.fromMillisecondsSinceEpoch(map['sportEndTime']).toUtc();
+        }
 
         switch (key) {
           case 'heartValue':
@@ -272,6 +276,25 @@ class FlutterYcbtsdk {
             );
             _data.add(data);
             break;
+          case 'bloodSBP':
+          case 'bloodDBP':
+            const dataType = WristbandDataType.bloodPressure;
+            if (dataAlreadyParsed.contains(dataType)) break;
+            dataAlreadyParsed.add(dataType);
+
+            final sbpValue = map['bloodSBP'];
+            final dbpValue = map['bloodDBP'];
+            var data = WristbandData(
+              dateTime: dateTime,
+              dataType: dataType,
+              rawValue: {
+                'systolic': sbpValue,
+                'diastolic': dbpValue,
+              },
+              formattedValue: "$sbpValue x $dbpValue",
+            );
+            _data.add(data);
+            break;
           case 'sportStep':
           case 'sportCalorie':
           case 'sportDistance':
@@ -297,25 +320,25 @@ class FlutterYcbtsdk {
             _data.add(data);
             break;
           case 'dataType':
-            if (map[key] == 1539) {
-              const dataType = WristbandDataType.bloodPressure;
-              if (dataAlreadyParsed.contains(dataType)) break;
-              dataAlreadyParsed.add(dataType);
+          // if (map[key] == 1539) {
+          //   const dataType = WristbandDataType.bloodPressure;
+          //   if (dataAlreadyParsed.contains(dataType)) break;
+          //   dataAlreadyParsed.add(dataType);
 
-              final sbpValue = map['bloodSBP'];
-              final dbpValue = map['bloodDBP'];
-              var data = WristbandData(
-                dateTime: dateTime,
-                dataType: dataType,
-                rawValue: {
-                  'systolic': sbpValue,
-                  'diastolic': dbpValue,
-                },
-                formattedValue: "$sbpValue x $dbpValue",
-              );
-              _data.add(data);
-            }
-            break;
+          //   final sbpValue = map['bloodSBP'];
+          //   final dbpValue = map['bloodDBP'];
+          //   var data = WristbandData(
+          //     dateTime: dateTime,
+          //     dataType: dataType,
+          //     rawValue: {
+          //       'systolic': sbpValue,
+          //       'diastolic': dbpValue,
+          //     },
+          //     formattedValue: "$sbpValue x $dbpValue",
+          //   );
+          //   _data.add(data);
+          // }
+          // break;
           default:
         }
       }
