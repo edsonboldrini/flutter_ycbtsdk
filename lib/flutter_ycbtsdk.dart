@@ -295,27 +295,42 @@ class FlutterYcbtsdk {
             );
             _data.add(data);
             break;
-          case 'sportStep':
-          case 'sportCalorie':
-          case 'sportDistance':
-            const dataType = WristbandDataType.sport;
+          case 'stepValue':
+            const dataType = WristbandDataType.steps;
             if (dataAlreadyParsed.contains(dataType)) break;
             dataAlreadyParsed.add(dataType);
-
-            final stepsValue = map['sportStep'];
-            final caloriesValue = map['sportCalorie'];
-            final distanceValue = map['sportDistance'];
 
             var data = WristbandData(
               dateTime: dateTime,
               dataType: dataType,
-              rawValue: {
-                'steps': stepsValue,
-                'calories': caloriesValue,
-                'distance': distanceValue,
-              },
-              formattedValue:
-                  "$stepsValue steps - $distanceValue meters - $caloriesValue kcal",
+              rawValue: map[key],
+              formattedValue: "${map[key]} steps",
+            );
+            _data.add(data);
+            break;
+          case 'sportDistance':
+            const dataType = WristbandDataType.distance;
+            if (dataAlreadyParsed.contains(dataType)) break;
+            dataAlreadyParsed.add(dataType);
+
+            var data = WristbandData(
+              dateTime: dateTime,
+              dataType: dataType,
+              rawValue: map[key],
+              formattedValue: "${map[key]} meters",
+            );
+            _data.add(data);
+            break;
+          case 'sportCalorie':
+            const dataType = WristbandDataType.calories;
+            if (dataAlreadyParsed.contains(dataType)) break;
+            dataAlreadyParsed.add(dataType);
+
+            var data = WristbandData(
+              dateTime: dateTime,
+              dataType: dataType,
+              rawValue: map[key],
+              formattedValue: "${map[key]} kcal",
             );
             _data.add(data);
             break;
@@ -410,9 +425,11 @@ class ScanResult {
 enum WristbandDataType {
   bloodOxygen,
   bloodPressure,
+  calories,
+  distance,
   heartRate,
   respiratoryRate,
-  sport,
+  steps,
   temperature,
 }
 

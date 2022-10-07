@@ -385,6 +385,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			YCBTClient.initClient(context, true);
 			YCBTClient.registerBleStateChange(bleConnectResponse);
 			YCBTClient.deviceToApp(toAppDataResponse);
+			YCBTClient.appRegisterRealDataCallBack(bleRealDataResponse);
 
 			EventBus.getDefault().register(this);
 			// startService(new Intent(this, MyBleService.class));
@@ -495,7 +496,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 	BleDeviceToAppDataResponse toAppDataResponse = new BleDeviceToAppDataResponse() {
 		@Override
 		public void onDataResponse(int dataType, HashMap dataMap) {
-			Log.e(TAG, "Passive return data = " + dataMap);
+			Log.e(TAG, "Passive return dataType " + dataType + " = " + dataMap);
 		}
 	};
 }
