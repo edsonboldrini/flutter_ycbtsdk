@@ -124,8 +124,8 @@ class FlutterYcbtsdk {
     await methodChannel.invokeMethod<String>('disconnectDevice');
   }
 
-  Future<void> connectState() async {
-    await methodChannel.invokeMethod<String>('connectState');
+  Future connectState() async {
+    return await methodChannel.invokeMethod<String>('connectState');
   }
 
   Future<void> resetQueue() async {
