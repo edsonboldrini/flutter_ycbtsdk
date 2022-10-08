@@ -24,7 +24,7 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
     case "getPlatformVersion":
         result("iOS " + UIDevice.current.systemVersion)
     default:
-        result("Unimplemented method")
+        result("Not implemented method")
     }
   }
 }
