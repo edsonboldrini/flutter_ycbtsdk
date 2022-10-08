@@ -2,10 +2,16 @@ PODS:
   - Flutter (1.0.0)
   - flutter_ycbtsdk (0.0.1):
     - Flutter
+    - SwiftyJSON
+  - SwiftyJSON (5.0.1)
 
 DEPENDENCIES:
   - Flutter (from `Flutter`)
   - flutter_ycbtsdk (from `.symlinks/plugins/flutter_ycbtsdk/ios`)
+
+SPEC REPOS:
+  trunk:
+    - SwiftyJSON
 
 EXTERNAL SOURCES:
   Flutter:
@@ -15,7 +21,8 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
-  flutter_ycbtsdk: 6ee894d048ed2e5f24e7dddf6c777a6cf3768b22
+  flutter_ycbtsdk: 068b225d59ae80326a988b4858585ce42025cace
+  SwiftyJSON: 2f33a42c6fbc52764d96f13368585094bfd8aa5e
 
 PODFILE CHECKSUM: ef19549a9bc3046e7bb7d2fab4d021637c0c58a3
 

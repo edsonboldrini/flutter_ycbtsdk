@@ -8,6 +8,6 @@ class ScanBLEResponse : Codable {
     init(name: String, mac: String, rssi: Int) {
         self.Name = name
         self.Mac = mac
-        self.rssi = rssi
+        self.Rssi = rssi
     }
 }
