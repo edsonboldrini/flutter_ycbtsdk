@@ -121,13 +121,10 @@ class _HomePageState extends State<HomePage> {
           return Column(
             children: [
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(10.0),
                 child: Column(
                   children: [
                     Text('Running on: $_platformVersion\n'),
-                    const SizedBox(
-                      height: 10,
-                    ),
                     ElevatedButton(
                       child: const Text('startScan BLE'),
                       onPressed: () async {
@@ -269,16 +266,13 @@ class DeviceDetailsStatePage extends State<DeviceDetailsPage> {
       ),
       body: Center(
         child: Column(children: [
-          const SizedBox(
-            height: 10,
-          ),
-          Text('name: ${widget.device.name}'),
-          Text('mac: ${widget.device.mac}'),
-          Text('rssi: ${widget.device.rssi}'),
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(10.0),
             child: Column(
               children: [
+                Text('name: ${widget.device.name}'),
+                Text('mac: ${widget.device.mac}'),
+                Text('rssi: ${widget.device.rssi}'),
                 ElevatedButton(
                   child: const Text('connectState'),
                   onPressed: () async {
