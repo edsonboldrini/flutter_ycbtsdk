@@ -104,63 +104,53 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        ElevatedButton(
-                          child: const Text('startScan BLE'),
-                          onPressed: () async {
-                            await _startScan();
-                          },
-                        ),
-                        ElevatedButton(
-                          child: const Text('stopScan BLE'),
-                          onPressed: () async {
-                            await _stopScan();
-                          },
-                        ),
-                      ],
+                    ElevatedButton(
+                      child: const Text('startScan BLE'),
+                      onPressed: () async {
+                        await _startScan();
+                      },
                     ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        ElevatedButton(
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateColor.resolveWith(
-                                (states) => Colors.red),
-                          ),
-                          child: const Text("forceConnectDevice"),
-                          onPressed: () async {
-                            final scanResult = ScanResult(
-                              mac: 'E0:6F:A7:A3:D9:D1',
-                              name: 'P 11',
-                              rssi: -70,
-                            );
+                    ElevatedButton(
+                      child: const Text('stopScan BLE'),
+                      onPressed: () async {
+                        await _stopScan();
+                      },
+                    ),
+                    ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateColor.resolveWith(
+                            (states) => Colors.red),
+                      ),
+                      child: const Text("forceConnectDevice"),
+                      onPressed: () async {
+                        final scanResult = ScanResult(
+                          mac: 'E0:6F:A7:A3:D9:D1',
+                          name: 'P 11',
+                          rssi: -70,
+                        );
 
-                            await _forceConnect(scanResult);
+                        await _forceConnect(scanResult);
 
-                            if (!mounted) return;
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    DeviceDetailsPage(
-                                  device: scanResult,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                        ElevatedButton(
-                          style: ButtonStyle(
-                            backgroundColor: MaterialStateColor.resolveWith(
-                                (states) => Colors.red),
+                        if (!mounted) return;
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                DeviceDetailsPage(
+                              device: scanResult,
+                            ),
                           ),
-                          child: const Text("forceDisconnectDevice"),
-                          onPressed: () async {
-                            await _forceDisconnect();
-                          },
-                        ),
-                      ],
+                        );
+                      },
+                    ),
+                    ElevatedButton(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateColor.resolveWith(
+                            (states) => Colors.red),
+                      ),
+                      child: const Text("forceDisconnectDevice"),
+                      onPressed: () async {
+                        await _forceDisconnect();
+                      },
                     ),
                   ],
                 ),
@@ -265,56 +255,41 @@ class DeviceDetailsStatePage extends State<DeviceDetailsPage> {
             padding: const EdgeInsets.all(16.0),
             child: Column(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton(
-                      child: const Text('connectState'),
-                      onPressed: () async {
-                        await _flutterYcbtsdkPlugin.connectState();
-                      },
-                    ),
-                    ElevatedButton(
-                      child: const Text('resetQueue'),
-                      onPressed: () async {
-                        await _flutterYcbtsdkPlugin.resetQueue();
-                      },
-                    ),
-                  ],
+                ElevatedButton(
+                  child: const Text('connectState'),
+                  onPressed: () async {
+                    await _flutterYcbtsdkPlugin.connectState();
+                  },
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton(
-                      child: const Text('startEcgTest'),
-                      onPressed: () async {
-                        await _flutterYcbtsdkPlugin.startEcgTest();
-                      },
-                    ),
-                    ElevatedButton(
-                      child: const Text('stopEcgTest'),
-                      onPressed: () async {
-                        await _flutterYcbtsdkPlugin.stopEcgTest();
-                      },
-                    ),
-                  ],
+                ElevatedButton(
+                  child: const Text('resetQueue'),
+                  onPressed: () async {
+                    await _flutterYcbtsdkPlugin.resetQueue();
+                  },
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton(
-                      child: const Text('getHealthHistory'),
-                      onPressed: () async {
-                        await _flutterYcbtsdkPlugin.healthHistoryData();
-                      },
-                    ),
-                    ElevatedButton(
-                      child: const Text('deleteHealthHistory'),
-                      onPressed: () async {
-                        await _flutterYcbtsdkPlugin.deleteHealthHistoryData();
-                      },
-                    ),
-                  ],
+                ElevatedButton(
+                  child: const Text('startEcgTest'),
+                  onPressed: () async {
+                    await _flutterYcbtsdkPlugin.startEcgTest();
+                  },
+                ),
+                ElevatedButton(
+                  child: const Text('stopEcgTest'),
+                  onPressed: () async {
+                    await _flutterYcbtsdkPlugin.stopEcgTest();
+                  },
+                ),
+                ElevatedButton(
+                  child: const Text('getHealthHistory'),
+                  onPressed: () async {
+                    await _flutterYcbtsdkPlugin.healthHistoryData();
+                  },
+                ),
+                ElevatedButton(
+                  child: const Text('deleteHealthHistory'),
+                  onPressed: () async {
+                    await _flutterYcbtsdkPlugin.deleteHealthHistoryData();
+                  },
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
