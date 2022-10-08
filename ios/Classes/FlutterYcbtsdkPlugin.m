@@ -1,20 +1,15 @@
 #import "FlutterYcbtsdkPlugin.h"
+#if __has_include(<flutter_ycbtsdk/flutter_ycbtsdk-Swift.h>)
+#import <flutter_ycbtsdk/flutter_ycbtsdk-Swift.h>
+#else
+// Support project import fallback if the generated compatibility header
+// is not copied when this plugin is created as a library.
+// https://forums.swift.org/t/swift-static-libraries-dont-copy-generated-objective-c-header/19816
+#import "flutter_ycbtsdk-Swift.h"
+#endif
 
 @implementation FlutterYcbtsdkPlugin
 + (void)registerWithRegistrar:(NSObject<FlutterPluginRegistrar>*)registrar {
-  FlutterMethodChannel* channel = [FlutterMethodChannel
-      methodChannelWithName:@"flutter_ycbtsdk"
-            binaryMessenger:[registrar messenger]];
-  FlutterYcbtsdkPlugin* instance = [[FlutterYcbtsdkPlugin alloc] init];
-  [registrar addMethodCallDelegate:instance channel:channel];
+  [SwiftFlutterYcbtsdkPlugin registerWithRegistrar:registrar];
 }
-
-- (void)handleMethodCall:(FlutterMethodCall*)call result:(FlutterResult)result {
-  if ([@"getPlatformVersion" isEqualToString:call.method]) {
-    result([@"iOS " stringByAppendingString:[[UIDevice currentDevice] systemVersion]]);
-  } else {
-    result(FlutterMethodNotImplemented);
-  }
-}
-
 @end

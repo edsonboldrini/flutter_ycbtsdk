@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_ycbtsdk/flutter_ycbtsdk.dart';
 
 void main() {
@@ -16,10 +17,11 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  String _platformVersion = 'Unknown';
   final _flutterYcbtsdkPlugin = FlutterYcbtsdk.instance;
 
   StreamSubscription<List<ScanResult>>? _scanSubscription;
-  List<ScanResult> _scanResultsList = [];
+  List<ScanResult> _scanResults = [];
 
   @override
   void initState() {
@@ -29,6 +31,24 @@ class _HomePageState extends State<HomePage> {
 
   // Platform messages are asynchronous, so we initialize in an async method.
   Future<void> init() async {
+    String platformVersion;
+
+    try {
+      platformVersion = await _flutterYcbtsdkPlugin.getPlatformVersion() ??
+          'Unknown platform version';
+    } on PlatformException {
+      platformVersion = 'Failed to get platform version.';
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      _platformVersion = platformVersion;
+    });
+
     try {
       await _flutterYcbtsdkPlugin.checkPermissions();
       startSubscriptions();
@@ -40,7 +60,7 @@ class _HomePageState extends State<HomePage> {
   startSubscriptions() {
     _scanSubscription =
         _flutterYcbtsdkPlugin.scanResultsStream.listen((scanResults) {
-      _scanResultsList = scanResults;
+      _scanResults = scanResults;
       setState(() {});
     });
   }
@@ -67,12 +87,12 @@ class _HomePageState extends State<HomePage> {
     var connectionResponse =
         await _flutterYcbtsdkPlugin.connectDevice('E0:6F:A7:A3:D9:D1');
     log(connectionResponse.toString());
-    _scanResultsList.add(scanResult);
+    _scanResults.add(scanResult);
     setState(() {});
   }
 
   Future _forceDisconnect() async {
-    _scanResultsList.clear();
+    _scanResults.clear();
     setState(() {});
     await _flutterYcbtsdkPlugin.disconnectDevice();
   }
@@ -104,6 +124,10 @@ class _HomePageState extends State<HomePage> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   children: [
+                    Text('Running on: $_platformVersion\n'),
+                    const SizedBox(
+                      height: 10,
+                    ),
                     ElevatedButton(
                       child: const Text('startScan BLE'),
                       onPressed: () async {
@@ -161,9 +185,9 @@ class _HomePageState extends State<HomePage> {
               ),
               Expanded(
                 child: ListView.builder(
-                  itemCount: _scanResultsList.length,
+                  itemCount: _scanResults.length,
                   itemBuilder: (_, index) {
-                    ScanResult scanResult = _scanResultsList[index];
+                    ScanResult scanResult = _scanResults[index];
 
                     return ListTile(
                       leading: const Icon(Icons.bluetooth),
