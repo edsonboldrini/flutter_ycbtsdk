@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/bgview"
+    android:layout_width="fill_parent"
+    android:layout_height="50dp"
+    android:background="@color/white_color">
+
+    <ImageButton
+        android:id="@+id/nav_btn_left"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:background="#00000000"
+        android:contentDescription="@string/app_name"
+        android:padding="10dp"
+        android:scaleType="fitStart"
+        android:src="@mipmap/title_back_btn_icon" />
+
+    <Button
+        android:id="@+id/nav_btn_left2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="10dp"
+        android:background="#00000000"
+        android:textColor="@color/white_color"
+        android:textSize="14sp" />
+
+    <TextView
+        android:id="@+id/nav_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginLeft="70dp"
+        android:layout_marginRight="70dp"
+        android:fontFamily="sans-serif-light"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:singleLine="true"
+        android:textColor="@color/text_color"
+        android:textSize="18dp" />
+
+    <Button
+        android:id="@+id/nav_btn_right1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="24dp"
+        android:background="#00000000"
+        android:gravity="end|center_vertical"
+        android:textAllCaps="false"
+        android:textColor="@color/text_color"
+        android:textSize="14dp" />
+
+    <Button
+        android:id="@+id/nav_btn_right3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="24dp"
+        android:background="#00000000"
+        android:textAllCaps="false"
+        android:textColor="@color/white_color"
+        android:textSize="14dp" />
+
+    <ImageView
+        android:id="@+id/nav_btn_right2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="24dp"
+        android:contentDescription="@string/app_name"
+        android:padding="5dp"
+        android:scaleType="fitEnd"
+        android:src="@mipmap/fenxiang" />
+
+    <View
+        android:id="@+id/bgline"
+        android:layout_width="fill_parent"
+        android:layout_height="1px"
+        android:layout_alignParentBottom="true"
+        android:background="@color/lightgray" />
+
+</RelativeLayout>

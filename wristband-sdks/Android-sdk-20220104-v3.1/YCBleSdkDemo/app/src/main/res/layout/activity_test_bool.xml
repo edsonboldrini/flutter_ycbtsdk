@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#ffffff"
+    android:orientation="vertical"
+    android:padding="15dp">
+
+    <EditText
+        android:id="@+id/height"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginTop="15dp"
+        android:background="#ffffff"
+        android:hint="height(cm)"
+        android:inputType="number"
+        android:textColor="#000000"
+        android:textColorHint="@color/colorPrimary" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorPrimary" />
+
+    <EditText
+        android:id="@+id/weight"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginTop="15dp"
+        android:background="#ffffff"
+        android:hint="body weight(kg)"
+        android:inputType="number"
+        android:textColor="#000000"
+        android:textColorHint="@color/colorPrimary" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorPrimary" />
+
+    <EditText
+        android:id="@+id/sex"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginTop="15dp"
+        android:background="#ffffff"
+        android:hint="Gender 0 male 1 female"
+        android:inputType="number"
+        android:textColor="#000000"
+        android:textColorHint="@color/colorPrimary" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorPrimary" />
+
+    <EditText
+        android:id="@+id/age"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginTop="15dp"
+        android:background="#ffffff"
+        android:hint="age"
+        android:inputType="number"
+        android:textColor="#000000"
+        android:textColorHint="@color/colorPrimary" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorPrimary" />
+
+    <EditText
+        android:id="@+id/bool_high"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginTop="15dp"
+        android:background="#ffffff"
+        android:hint="blood pressure - high"
+        android:inputType="number"
+        android:textColor="#000000"
+        android:textColorHint="@color/colorPrimary" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorPrimary" />
+
+    <EditText
+        android:id="@+id/bool_low"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginTop="15dp"
+        android:background="#ffffff"
+        android:hint="Low blood pressure"
+        android:inputType="number"
+        android:textColor="#000000"
+        android:textColorHint="@color/colorPrimary" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorPrimary" />
+
+    <EditText
+        android:id="@+id/heart"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginTop="15dp"
+        android:background="#ffffff"
+        android:hint="heart rate"
+        android:inputType="number"
+        android:textColor="#000000"
+        android:textColorHint="@color/colorPrimary" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorPrimary" />
+
+    <Button
+        android:id="@+id/start"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_marginTop="15dp"
+        android:background="@color/colorPrimary"
+        android:text="start measuring"
+        android:textColor="#ffffff" />
+</LinearLayout>
