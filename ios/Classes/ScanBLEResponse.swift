@@ -1,13 +1,13 @@
 import Foundation
 
 class ScanBLEResponse : Codable {
-    var Name:String
-    var Mac:String
-    var Rssi:Int
+    var name:String
+    var mac:String
+    var rssi:Int
 
     init(name: String, mac: String, rssi: Int) {
-        self.Name = name
-        self.Mac = mac
-        self.Rssi = rssi
+        self.name = name
+        self.mac = mac
+        self.rssi = rssi
     }
 }

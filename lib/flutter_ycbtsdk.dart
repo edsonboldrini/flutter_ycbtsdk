@@ -45,17 +45,19 @@ class FlutterYcbtsdk {
       }
     });
 
-    // onStreamBatteryStatus();
+    startSubscriptions();
   }
 
-  late StreamSubscription _streamSubscription;
+  StreamSubscription? _streamSubscription;
 
-  String batteryStatus = 'Streaming';
-  onStreamBatteryStatus() {
+  startSubscriptions() {
     _streamSubscription = eventChannel.receiveBroadcastStream().listen((event) {
-      print('$event');
-      batteryStatus = event;
+      print('stream subscription event: $event');
     });
+  }
+
+  dispose() {
+    _streamSubscription?.cancel();
   }
 
   static final FlutterYcbtsdk _instance = FlutterYcbtsdk._();

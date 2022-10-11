@@ -3,14 +3,14 @@ package com.edsonboldrini.flutter_ycbtsdk;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Application;
-import android.app.PendingIntent;
+// import android.app.PendingIntent;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.os.Build;
+// import android.os.Build;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -52,10 +52,10 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
-import java.text.SimpleDateFormat;
+// import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 // import java.util.Arrays;
-import java.util.Date;
+// import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -299,7 +299,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				}};
 
 				String mapString = hashMapToStringJson(map);
-				invokeMethodUIThread("onScanResult", mapString);
+				invokeFlutterMethodChannel("onScanResult", mapString);
 			}
 		}
 	};
@@ -342,7 +342,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 		}
 
 		String mapString = hashMapToStringJson(map);
-		invokeMethodUIThread("onConnectResponse", mapString);
+		invokeFlutterMethodChannel("onConnectResponse", mapString);
 		return mapString;
 	}
 
@@ -358,15 +358,15 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 						ArrayList<HashMap> list = (ArrayList<HashMap>) hashMap.get("data");
 						for (HashMap map : list) {
 							String mapString = hashMapToStringJson(map);
-							invokeMethodUIThread("onDataResponse", mapString);
+							invokeFlutterMethodChannel("onDataResponse", mapString);
 						}
 					} else {
 						String mapString = hashMapToStringJson(hashMap);
-						invokeMethodUIThread("onDataResponse", mapString);
+						invokeFlutterMethodChannel("onDataResponse", mapString);
 					}
 				} else {
 					String mapString = hashMapToStringJson(hashMap);
-					invokeMethodUIThread("onDataResponse", mapString);
+					invokeFlutterMethodChannel("onDataResponse", mapString);
 				}
 
 			}
@@ -378,7 +378,7 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 		public void onRealDataResponse(int dataType, HashMap map) {
 			Log.e("qob", "onRealDataResponse dataType: " + dataType + " data: " + map);
 			String mapString = hashMapToStringJson(map);
-			invokeMethodUIThread("onDataResponse", mapString);
+			invokeFlutterMethodChannel("onDataResponse", mapString);
 		}
 	};
 
@@ -469,10 +469,9 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 		}
 	}
 
-	private void invokeMethodUIThread(final String name, final Object arguments) {
+	private void invokeFlutterMethodChannel(final String name, final Object arguments) {
 		new Handler(Looper.getMainLooper()).post(() -> {
 			synchronized (tearDownLock) {
-				// Could already be teared down at this moment
 				if (methodChannel != null) {
 					methodChannel.invokeMethod(name, arguments);
 				} else {

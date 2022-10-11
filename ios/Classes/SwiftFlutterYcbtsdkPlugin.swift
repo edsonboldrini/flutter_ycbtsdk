@@ -4,24 +4,32 @@ import YCProductSDK
 import CoreBluetooth
 import SwiftyJSON
 
+public let NAMESPACE: String = "flutter_ycbtsdk"
 public var devicesList = [CBPeripheral]()
 
 public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
+	public static var instance: SwiftFlutterYcbtsdkPlugin?
+	public static var methodChannel: FlutterMethodChannel?
+	public static var eventChannel: FlutterEventChannel?
+	
   public static func register(with registrar: FlutterPluginRegistrar) {
-    let namespace: String = "flutter_ycbtsdk"
+		SwiftFlutterYcbtsdkPlugin.methodChannel = FlutterMethodChannel(name: "\(NAMESPACE)/methods", binaryMessenger: registrar.messenger())
+		SwiftFlutterYcbtsdkPlugin.instance = SwiftFlutterYcbtsdkPlugin()
+		registrar.addMethodCallDelegate(SwiftFlutterYcbtsdkPlugin.instance!, channel: SwiftFlutterYcbtsdkPlugin.methodChannel!)
 
-    let methodChannel = FlutterMethodChannel(name: "\(namespace)/methods", binaryMessenger: registrar.messenger())
-    let instance: SwiftFlutterYcbtsdkPlugin = SwiftFlutterYcbtsdkPlugin()
-    registrar.addMethodCallDelegate(instance, channel: methodChannel)
-
-    let eventChannel = FlutterEventChannel(name: "\(namespace)/events", binaryMessenger: registrar.messenger())
-    eventChannel.setStreamHandler(SwiftStreamHandler())
+		SwiftFlutterYcbtsdkPlugin.eventChannel = FlutterEventChannel(name: "\(NAMESPACE)/events", binaryMessenger: registrar.messenger())
+		SwiftFlutterYcbtsdkPlugin.eventChannel?.setStreamHandler(SwiftStreamHandler())
 
     YCProduct.setLogLevel(.normal)
     _ = YCProduct.shared
   }
-
-  public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+	
+	public func invokeFlutterMethodChannel(method: String, arguments: String) {
+		print("invokeFlutterMethodChannel:", method, arguments)
+		SwiftFlutterYcbtsdkPlugin.methodChannel?.invokeMethod(method, arguments: arguments)
+	}
+	
+	public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
 		print("\(call.method)...")
 		
     switch call.method {
@@ -33,16 +41,15 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 			break
     case "startScan":
 			let scanTimeout: Double = call.arguments as! Double
+			print("scanTimeout: \(scanTimeout) seconds")
 			YCProduct.scanningDevice(delayTime: scanTimeout) { devices, error in
 				for device in devices {
-					var scanBLEResponse : [ScanBLEResponse] = [ScanBLEResponse]()
 					print("name: \(device.name ?? ""); mac: \(device.macAddress); rssi: \(device.rssiValue)")
-					let BLEObject : ScanBLEResponse = ScanBLEResponse(name: device.name ?? "", mac: device.macAddress, rssi: device.rssiValue)
-					scanBLEResponse.append(BLEObject)
+					let BLEObject: ScanBLEResponse = ScanBLEResponse(name: device.name ?? "", mac: device.macAddress, rssi: device.rssiValue)
 					do {
-						let jsonData = try JSONEncoder().encode(scanBLEResponse)
+						let jsonData = try JSONEncoder().encode(BLEObject)
 						let jsonString = String(data: jsonData, encoding: .utf8)!
-						result(nil)
+						self.invokeFlutterMethodChannel(method: "onScanResult", arguments: jsonString)
 					} catch {
 						print(error)
 					}
@@ -63,21 +70,23 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 
 class SwiftStreamHandler: NSObject, FlutterStreamHandler {
 	public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+		print("onListen:", arguments ?? "nil")
+		
+		if arguments == nil { return nil }
+		
 		if arguments as! String == "startScan"{
 			YCProduct.scanningDevice { devices, error in
-			var scanBLEResponse : [ScanBLEResponse] = [ScanBLEResponse]()
 			devicesList = devices
 				for device in devices {
 					print(device.name ?? "", device.macAddress)
 					let BLEObject : ScanBLEResponse = ScanBLEResponse(name: device.name ?? "", mac: device.macAddress, rssi: device.rssiValue)
-					scanBLEResponse.append(BLEObject)
-				}
-				do {
-					let jsonData = try JSONEncoder().encode(scanBLEResponse)
-					let jsonString = String(data: jsonData, encoding: .utf8)!
-					events(jsonString)
-				} catch {
-					print(error)
+					do {
+						let jsonData = try JSONEncoder().encode(BLEObject)
+						let jsonString = String(data: jsonData, encoding: .utf8)!
+						events(jsonString)
+					} catch {
+						print(error)
+					}
 				}
 				// let jsonData = self.json(from: scanBLEResponse)
 				// events(jsonData)
