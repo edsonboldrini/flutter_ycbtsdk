@@ -150,11 +150,53 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 			}
 			break
 		case "healthHistoryData":
-			YCProduct.queryHealthData(datatType: YCQueryHealthDataType.combinedData) { state, response in
-				if state == .succeed, let data = response as? [YCHealthDataCombinedData] {
+			YCProduct.queryHealthData(datatType: YCQueryHealthDataType.heartRate) { state, response in
+				if state == .succeed, let data = response as? [YCHealthDataHeartRate] {
 					for info in data {
 						do {
-							let healthData: DataResponse = DataResponse(startTimestamp: info.startTimeStamp, heartValue: info.heartRate, OOValue: info.bloodOxygen, respiratoryRateValue: info.respirationRate, temperatureValue: info.temperature, DBPValue: info.diastolicBloodPressure, SBPValue: info.systolicBloodPressure)
+							let healthData: DataResponse = DataResponse(startTime: info.startTimeStamp, heartValue: info.heartRate)
+							let jsonData = try JSONEncoder().encode(healthData)
+							let jsonString = String(data: jsonData, encoding: .utf8)!
+							self.invokeFlutterMethodChannel(method: "onDataResponse", arguments: jsonString)
+						} catch {
+							print(error)
+						}
+					}
+				}
+			}
+			YCProduct.queryHealthData(datatType: YCQueryHealthDataType.bloodOxygen) { state, response in
+				if state == .succeed, let data = response as? [YCHealthDataBloodOxygen] {
+					for info in data {
+						do {
+							let healthData: DataResponse = DataResponse(startTime: info.startTimeStamp, OOValue: info.bloodOxygen)
+							let jsonData = try JSONEncoder().encode(healthData)
+							let jsonString = String(data: jsonData, encoding: .utf8)!
+							self.invokeFlutterMethodChannel(method: "onDataResponse", arguments: jsonString)
+						} catch {
+							print(error)
+						}
+					}
+				}
+			}
+			YCProduct.queryHealthData(datatType: YCQueryHealthDataType.bodyTemperature) { state, response in
+				if state == .succeed, let data = response as? [YCHealthDataBodyTemperature] {
+					for info in data {
+						do {
+							let healthData: DataResponse = DataResponse(startTime: info.startTimeStamp, temperatureValue: info.temperature)
+							let jsonData = try JSONEncoder().encode(healthData)
+							let jsonString = String(data: jsonData, encoding: .utf8)!
+							self.invokeFlutterMethodChannel(method: "onDataResponse", arguments: jsonString)
+						} catch {
+							print(error)
+						}
+					}
+				}
+			}
+			YCProduct.queryHealthData(datatType: YCQueryHealthDataType.bloodPressure) { state, response in
+				if state == .succeed, let data = response as? [YCHealthDataBloodPressure] {
+					for info in data {
+						do {
+							let healthData: DataResponse = DataResponse(startTime: info.startTimeStamp, DBPValue: info.diastolicBloodPressure, SBPValue: info.systolicBloodPressure)
 							let jsonData = try JSONEncoder().encode(healthData)
 							let jsonString = String(data: jsonData, encoding: .utf8)!
 							self.invokeFlutterMethodChannel(method: "onDataResponse", arguments: jsonString)

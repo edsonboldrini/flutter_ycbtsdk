@@ -201,163 +201,165 @@ class FlutterYcbtsdk {
       final dataAlreadyParsed = [];
 
       for (String key in mapKeys) {
-        var dateTime = DateTime.now().toUtc();
-        if (mapKeys.contains('startTime')) {
-          dateTime =
-              DateTime.fromMillisecondsSinceEpoch(map['startTime']).toUtc();
-        }
-        if (mapKeys.contains('sportEndTime')) {
-          dateTime =
-              DateTime.fromMillisecondsSinceEpoch(map['sportEndTime']).toUtc();
-        }
+        if (map[key] != null) {
+          var dateTime = DateTime.now().toUtc();
+          if (mapKeys.contains('startTime')) {
+            dateTime =
+                DateTime.fromMillisecondsSinceEpoch(map['startTime']).toUtc();
+          }
+          if (mapKeys.contains('sportEndTime')) {
+            dateTime = DateTime.fromMillisecondsSinceEpoch(map['sportEndTime'])
+                .toUtc();
+          }
 
-        switch (key) {
-          case 'heartValue':
-            const dataType = WristbandDataType.heartRate;
-            if (dataAlreadyParsed.contains(dataType)) break;
-            dataAlreadyParsed.add(dataType);
+          switch (key) {
+            case 'heartValue':
+              const dataType = WristbandDataType.heartRate;
+              if (dataAlreadyParsed.contains(dataType)) break;
+              dataAlreadyParsed.add(dataType);
 
-            var data = WristbandData(
-              dateTime: dateTime,
-              dataType: dataType,
-              rawValue: map[key],
-              formattedValue: "${map[key]} bpm",
-            );
-            _data.add(data);
-            break;
-          case 'OOValue':
-            const dataType = WristbandDataType.bloodOxygen;
-            if (dataAlreadyParsed.contains(dataType)) break;
-            dataAlreadyParsed.add(dataType);
+              var data = WristbandData(
+                dateTime: dateTime,
+                dataType: dataType,
+                rawValue: map[key],
+                formattedValue: "${map[key]} bpm",
+              );
+              _data.add(data);
+              break;
+            case 'OOValue':
+              const dataType = WristbandDataType.bloodOxygen;
+              if (dataAlreadyParsed.contains(dataType)) break;
+              dataAlreadyParsed.add(dataType);
 
-            var data = WristbandData(
-              dateTime: dateTime,
-              dataType: dataType,
-              rawValue: map[key],
-              formattedValue: "${map[key]} SpO²",
-            );
-            _data.add(data);
-            break;
-          case 'respiratoryRateValue':
-            const dataType = WristbandDataType.respiratoryRate;
-            if (dataAlreadyParsed.contains(dataType)) break;
-            dataAlreadyParsed.add(dataType);
+              var data = WristbandData(
+                dateTime: dateTime,
+                dataType: dataType,
+                rawValue: map[key],
+                formattedValue: "${map[key]} SpO²",
+              );
+              _data.add(data);
+              break;
+            case 'respiratoryRateValue':
+              const dataType = WristbandDataType.respiratoryRate;
+              if (dataAlreadyParsed.contains(dataType)) break;
+              dataAlreadyParsed.add(dataType);
 
-            var data = WristbandData(
-              dateTime: dateTime,
-              dataType: dataType,
-              rawValue: map[key],
-              formattedValue: "${map[key]} rpm",
-            );
-            _data.add(data);
-            break;
-          case 'tempIntValue':
-          case 'tempFloatValue':
-            const dataType = WristbandDataType.temperature;
-            if (dataAlreadyParsed.contains(dataType)) break;
-            dataAlreadyParsed.add(dataType);
+              var data = WristbandData(
+                dateTime: dateTime,
+                dataType: dataType,
+                rawValue: map[key],
+                formattedValue: "${map[key]} rpm",
+              );
+              _data.add(data);
+              break;
+            case 'tempIntValue':
+            case 'tempFloatValue':
+              const dataType = WristbandDataType.temperature;
+              if (dataAlreadyParsed.contains(dataType)) break;
+              dataAlreadyParsed.add(dataType);
 
-            final tempIntValue = map['tempIntValue'];
-            final tempFloatValue = map['tempFloatValue'];
-            var data = WristbandData(
-              dateTime: dateTime,
-              dataType: dataType,
-              rawValue: double.parse("$tempIntValue.$tempFloatValue"),
-              formattedValue: "$tempIntValue.$tempFloatValue ºC",
-            );
-            _data.add(data);
-            break;
-          case 'temperatureValue':
-            const dataType = WristbandDataType.temperature;
-            if (dataAlreadyParsed.contains(dataType)) break;
-            dataAlreadyParsed.add(dataType);
+              final tempIntValue = map['tempIntValue'];
+              final tempFloatValue = map['tempFloatValue'];
+              var data = WristbandData(
+                dateTime: dateTime,
+                dataType: dataType,
+                rawValue: double.parse("$tempIntValue.$tempFloatValue"),
+                formattedValue: "$tempIntValue.$tempFloatValue ºC",
+              );
+              _data.add(data);
+              break;
+            case 'temperatureValue':
+              const dataType = WristbandDataType.temperature;
+              if (dataAlreadyParsed.contains(dataType)) break;
+              dataAlreadyParsed.add(dataType);
 
-            var data = WristbandData(
-              dateTime: dateTime,
-              dataType: dataType,
-              rawValue: map[key],
-              formattedValue: "${map[key]} ºC",
-            );
-            _data.add(data);
-            break;
-          case 'DBPValue':
-          case 'SBPValue':
-            const dataType = WristbandDataType.bloodPressure;
-            if (dataAlreadyParsed.contains(dataType)) break;
-            dataAlreadyParsed.add(dataType);
+              var data = WristbandData(
+                dateTime: dateTime,
+                dataType: dataType,
+                rawValue: map[key],
+                formattedValue: "${map[key]} ºC",
+              );
+              _data.add(data);
+              break;
+            case 'DBPValue':
+            case 'SBPValue':
+              const dataType = WristbandDataType.bloodPressure;
+              if (dataAlreadyParsed.contains(dataType)) break;
+              dataAlreadyParsed.add(dataType);
 
-            final sbpValue = map['SBPValue'];
-            final dbpValue = map['DBPValue'];
-            var data = WristbandData(
-              dateTime: dateTime,
-              dataType: dataType,
-              rawValue: {
-                'systolic': sbpValue,
-                'diastolic': dbpValue,
-              },
-              formattedValue: "$sbpValue x $dbpValue",
-            );
-            _data.add(data);
-            break;
-          case 'bloodSBP':
-          case 'bloodDBP':
-            const dataType = WristbandDataType.bloodPressure;
-            if (dataAlreadyParsed.contains(dataType)) break;
-            dataAlreadyParsed.add(dataType);
+              final sbpValue = map['SBPValue'];
+              final dbpValue = map['DBPValue'];
+              var data = WristbandData(
+                dateTime: dateTime,
+                dataType: dataType,
+                rawValue: {
+                  'systolic': sbpValue,
+                  'diastolic': dbpValue,
+                },
+                formattedValue: "$sbpValue x $dbpValue",
+              );
+              _data.add(data);
+              break;
+            case 'bloodSBP':
+            case 'bloodDBP':
+              const dataType = WristbandDataType.bloodPressure;
+              if (dataAlreadyParsed.contains(dataType)) break;
+              dataAlreadyParsed.add(dataType);
 
-            final sbpValue = map['bloodSBP'];
-            final dbpValue = map['bloodDBP'];
-            var data = WristbandData(
-              dateTime: dateTime,
-              dataType: dataType,
-              rawValue: {
-                'systolic': sbpValue,
-                'diastolic': dbpValue,
-              },
-              formattedValue: "$sbpValue x $dbpValue",
-            );
-            _data.add(data);
-            break;
-          case 'stepValue':
-            const dataType = WristbandDataType.steps;
-            if (dataAlreadyParsed.contains(dataType)) break;
-            dataAlreadyParsed.add(dataType);
+              final sbpValue = map['bloodSBP'];
+              final dbpValue = map['bloodDBP'];
+              var data = WristbandData(
+                dateTime: dateTime,
+                dataType: dataType,
+                rawValue: {
+                  'systolic': sbpValue,
+                  'diastolic': dbpValue,
+                },
+                formattedValue: "$sbpValue x $dbpValue",
+              );
+              _data.add(data);
+              break;
+            case 'stepValue':
+              const dataType = WristbandDataType.steps;
+              if (dataAlreadyParsed.contains(dataType)) break;
+              dataAlreadyParsed.add(dataType);
 
-            var data = WristbandData(
-              dateTime: dateTime,
-              dataType: dataType,
-              rawValue: map[key],
-              formattedValue: "${map[key]} steps",
-            );
-            _data.add(data);
-            break;
-          case 'sportDistance':
-            const dataType = WristbandDataType.distance;
-            if (dataAlreadyParsed.contains(dataType)) break;
-            dataAlreadyParsed.add(dataType);
+              var data = WristbandData(
+                dateTime: dateTime,
+                dataType: dataType,
+                rawValue: map[key],
+                formattedValue: "${map[key]} steps",
+              );
+              _data.add(data);
+              break;
+            case 'sportDistance':
+              const dataType = WristbandDataType.distance;
+              if (dataAlreadyParsed.contains(dataType)) break;
+              dataAlreadyParsed.add(dataType);
 
-            var data = WristbandData(
-              dateTime: dateTime,
-              dataType: dataType,
-              rawValue: map[key],
-              formattedValue: "${map[key]} meters",
-            );
-            _data.add(data);
-            break;
-          case 'sportCalorie':
-            const dataType = WristbandDataType.calories;
-            if (dataAlreadyParsed.contains(dataType)) break;
-            dataAlreadyParsed.add(dataType);
+              var data = WristbandData(
+                dateTime: dateTime,
+                dataType: dataType,
+                rawValue: map[key],
+                formattedValue: "${map[key]} meters",
+              );
+              _data.add(data);
+              break;
+            case 'sportCalorie':
+              const dataType = WristbandDataType.calories;
+              if (dataAlreadyParsed.contains(dataType)) break;
+              dataAlreadyParsed.add(dataType);
 
-            var data = WristbandData(
-              dateTime: dateTime,
-              dataType: dataType,
-              rawValue: map[key],
-              formattedValue: "${map[key]} kcal",
-            );
-            _data.add(data);
-            break;
-          default:
+              var data = WristbandData(
+                dateTime: dateTime,
+                dataType: dataType,
+                rawValue: map[key],
+                formattedValue: "${map[key]} kcal",
+              );
+              _data.add(data);
+              break;
+            default:
+          }
         }
       }
     } catch (e) {

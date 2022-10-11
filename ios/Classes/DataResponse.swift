@@ -1,16 +1,16 @@
 import Foundation
 
 class DataResponse : Codable {
-    var startTimestemp: Int
-    var heartValue: Int
-    var OOValue: Int
-    var respiratoryRateValue: Int
-    var temperatureValue: Double
-    var DBPValue: Int
-    var SBPValue: Int
+    var startTime: Int?
+    var heartValue: Int?
+    var OOValue: Int?
+    var respiratoryRateValue: Int?
+    var temperatureValue: Double?
+    var DBPValue: Int?
+    var SBPValue: Int?
 
-    init(startTimestamp: Int, heartValue: Int, OOValue: Int, respiratoryRateValue: Int, temperatureValue: Double, DBPValue: Int, SBPValue: Int) {
-        self.startTimestemp = startTimestamp
+    init(startTime: Int? = nil, heartValue: Int? = nil, OOValue: Int? = nil, respiratoryRateValue: Int? = nil, temperatureValue: Double? = nil, DBPValue: Int? = nil, SBPValue: Int? = nil) {
+        self.startTime = startTime
         self.heartValue = heartValue
         self.OOValue = OOValue
         self.respiratoryRateValue = respiratoryRateValue
