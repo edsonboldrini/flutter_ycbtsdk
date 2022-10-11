@@ -267,6 +267,19 @@ class FlutterYcbtsdk {
             );
             _data.add(data);
             break;
+          case 'temperatureValue':
+            const dataType = WristbandDataType.temperature;
+            if (dataAlreadyParsed.contains(dataType)) break;
+            dataAlreadyParsed.add(dataType);
+
+            var data = WristbandData(
+              dateTime: dateTime,
+              dataType: dataType,
+              rawValue: map[key],
+              formattedValue: "${map[key]} ºC",
+            );
+            _data.add(data);
+            break;
           case 'DBPValue':
           case 'SBPValue':
             const dataType = WristbandDataType.bloodPressure;

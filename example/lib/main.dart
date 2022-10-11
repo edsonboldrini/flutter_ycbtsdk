@@ -85,7 +85,6 @@ class _HomePageState extends State<HomePage> {
 
   Future _connectDevice(ScanResult scanResult) async {
     _stopScan();
-    _forceDisconnect();
     var response = await _flutterYcbtsdkPlugin.connectDevice(scanResult.mac);
     log(response.toString());
     var json = jsonDecode(response);

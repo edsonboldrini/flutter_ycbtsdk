@@ -12,17 +12,17 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 	public static var methodChannel: FlutterMethodChannel?
 	public static var eventChannel: FlutterEventChannel?
 	
-  public static func register(with registrar: FlutterPluginRegistrar) {
+	public static func register(with registrar: FlutterPluginRegistrar) {
 		SwiftFlutterYcbtsdkPlugin.methodChannel = FlutterMethodChannel(name: "\(NAMESPACE)/methods", binaryMessenger: registrar.messenger())
 		SwiftFlutterYcbtsdkPlugin.instance = SwiftFlutterYcbtsdkPlugin()
 		registrar.addMethodCallDelegate(SwiftFlutterYcbtsdkPlugin.instance!, channel: SwiftFlutterYcbtsdkPlugin.methodChannel!)
-
+		
 		SwiftFlutterYcbtsdkPlugin.eventChannel = FlutterEventChannel(name: "\(NAMESPACE)/events", binaryMessenger: registrar.messenger())
 		SwiftFlutterYcbtsdkPlugin.eventChannel?.setStreamHandler(SwiftStreamHandler())
-
-    YCProduct.setLogLevel(.normal)
-    _ = YCProduct.shared
-  }
+		
+		YCProduct.setLogLevel(.normal)
+		_ = YCProduct.shared
+	}
 	
 	public func invokeFlutterMethodChannel(method: String, arguments: String) {
 		print("invokeFlutterMethodChannel: \(method) \(arguments)")
@@ -32,14 +32,14 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 	public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
 		print("\(call.method)...")
 		
-    switch call.method {
-    case "getPlatformVersion":
+		switch call.method {
+		case "getPlatformVersion":
 			result("iOS " + UIDevice.current.systemVersion)
 			break
 		case "checkPermissions":
 			result(nil)
 			break
-    case "startScan":
+		case "startScan":
 			let scanTimeout: Double = (call.arguments as? Double) ?? 10
 			print("scanTimeout: \(scanTimeout) seconds")
 			devicesList.removeAll()
@@ -119,12 +119,29 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 				print(error)
 			}
 			break
-    default:
+		case "healthHistoryData":
+			YCProduct.queryHealthData(datatType: YCQueryHealthDataType.combinedData) { state, response in
+				if state == .succeed, let data = response as? [YCHealthDataCombinedData] {
+					for info in data {
+						do {
+							let healthData: DataResponse = DataResponse(startTimestamp: info.startTimeStamp, heartValue: info.heartRate, OOValue: info.bloodOxygen, respiratoryRateValue: info.respirationRate, temperatureValue: info.temperature, DBPValue: info.diastolicBloodPressure, SBPValue: info.systolicBloodPressure)
+							let jsonData = try JSONEncoder().encode(healthData)
+							let jsonString = String(data: jsonData, encoding: .utf8)!
+							self.invokeFlutterMethodChannel(method: "onDataResponse", arguments: jsonString)
+						} catch {
+							print(error)
+						}
+					}
+				}
+			}
+			result(nil)
+			break
+		default:
 			print("Method not implemented")
 			result(nil)
 			break
-    }
-  }
+		}
+	}
 }
 
 class SwiftStreamHandler: NSObject, FlutterStreamHandler {
@@ -155,14 +172,14 @@ class SwiftStreamHandler: NSObject, FlutterStreamHandler {
 		// events(FlutterEndOfEventStream) // when stream is over
 		return nil
 	}
-    
+	
 	public func onCancel(withArguments arguments: Any?) -> FlutterError? {
 		return nil
 	}
 	
 	func json(from object:Any) -> String? {
 		guard let data = try? JSONSerialization.data(withJSONObject: object, options: []) else {
-				return nil
+			return nil
 		}
 		return String(data: data, encoding: String.Encoding.utf8)
 	}
