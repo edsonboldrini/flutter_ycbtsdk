@@ -87,9 +87,11 @@ class _HomePageState extends State<HomePage> {
     _stopScan();
     var response = await _flutterYcbtsdkPlugin.connectDevice(scanResult.mac);
     log(response.toString());
-    var json = jsonDecode(response);
-    if (json[scanResult.mac] == 'connected') {
-      return true;
+    if (response != null) {
+      var json = jsonDecode(response);
+      if (json != null && json[scanResult.mac] == 'connected') {
+        return true;
+      }
     }
     return false;
   }

@@ -22,6 +22,13 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 		
 		YCProduct.setLogLevel(.normal)
 		_ = YCProduct.shared
+		
+//		NotificationCenter.default.addObserver(
+//		 self,
+//		 selector: #selector(receiveRealTimeData(_:)),
+//		 name: YCProduct.receivedRealTimeNotification,
+//		 object: nil
+//		)
 	}
 	
 	public func invokeFlutterMethodChannel(method: String, arguments: String) {
@@ -72,11 +79,17 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 				break
 			}
 			
+			if devicesList.isEmpty {
+				print("no devices found")
+				result(nil)
+				break
+			}
+			
 			let device = devicesList.first(where: {$0.macAddress == mac})
 			print("device: \(device?.macAddress ?? "nil")")
 			
 			if (device == nil) {
-				print("no device found")
+				print("no device match mac: \(mac!)")
 				result(nil)
 				break
 			}
@@ -117,6 +130,23 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 				result(jsonString)
 			} catch {
 				print(error)
+			}
+			break
+		case "startEcgTest":
+			YCProduct.startECGMeasurement { state, _ in
+				if state == .succeed {
+					print("startedECG")
+					result(nil)
+				}
+			}
+			result(nil)
+			break
+		case "stopEcgTest":
+			YCProduct.stopECGMeasurement { state, _ in
+				if state == .succeed {
+					print("stoppedECG")
+					result(nil)
+				}
 			}
 			break
 		case "healthHistoryData":
