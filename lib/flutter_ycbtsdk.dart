@@ -122,8 +122,8 @@ class FlutterYcbtsdk {
         'connectDevice', deviceMacAddress);
   }
 
-  Future<void> disconnectDevice() async {
-    await methodChannel.invokeMethod<String>('disconnectDevice');
+  Future disconnectDevice() async {
+    return await methodChannel.invokeMethod<String>('disconnectDevice');
   }
 
   Future connectState() async {

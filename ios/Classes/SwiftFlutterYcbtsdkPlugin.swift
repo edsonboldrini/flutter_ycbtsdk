@@ -25,7 +25,7 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
   }
 	
 	public func invokeFlutterMethodChannel(method: String, arguments: String) {
-		print("invokeFlutterMethodChannel:", method, arguments)
+		print("invokeFlutterMethodChannel: \(method) \(arguments)")
 		SwiftFlutterYcbtsdkPlugin.methodChannel?.invokeMethod(method, arguments: arguments)
 	}
 	
@@ -40,11 +40,14 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 			result(nil)
 			break
     case "startScan":
-			let scanTimeout: Double = call.arguments as! Double
+			let scanTimeout: Double = (call.arguments as? Double) ?? 10
 			print("scanTimeout: \(scanTimeout) seconds")
+			devicesList.removeAll()
+			
 			YCProduct.scanningDevice(delayTime: scanTimeout) { devices, error in
 				for device in devices {
 					print("name: \(device.name ?? ""); mac: \(device.macAddress); rssi: \(device.rssiValue)")
+					devicesList.append(device)
 					let BLEObject: ScanBLEResponse = ScanBLEResponse(name: device.name ?? "", mac: device.macAddress, rssi: device.rssiValue)
 					do {
 						let jsonData = try JSONEncoder().encode(BLEObject)
@@ -57,8 +60,64 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 			}
 			result(nil)
 			break
-		case "disconnectDevice":
+		case "stopScan":
 			result(nil)
+			break
+		case "connectDevice":
+			let mac: String? = call.arguments as? String
+			
+			if mac == nil {
+				print("no mac provided")
+				result(nil)
+				break
+			}
+			
+			let device = devicesList.first(where: {$0.macAddress == mac})
+			print("device: \(device?.macAddress ?? "nil")")
+			
+			if (device == nil) {
+				print("no device found")
+				result(nil)
+				break
+			}
+			
+			YCProduct.connectDevice(device!) { state, error in
+				print("state: \(state)")
+				if state == .connected {
+					print("connected")
+					do {
+						let jsonObject: [String: String]  = [mac!: "connected"]
+						let jsonData = try JSONEncoder().encode(jsonObject)
+						let jsonString = String(data: jsonData, encoding: .utf8)!
+						print(jsonString)
+						result(jsonString)
+					} catch {
+						print(error)
+					}
+				}
+			}
+			break
+		case "disconnectDevice":
+			let mac: String? = call.arguments as? String
+			let device = devicesList.first(where: {$0.macAddress == mac})
+			print("device: \(device?.macAddress ?? "nil")")
+			
+			if (device == nil) {
+				YCProduct.disconnectDevice()
+			} else {
+				YCProduct.disconnectDevice(device)
+			}
+			
+			do {
+				print("disconnected")
+				let jsonObject: [String: String]  = [mac ?? "all" : "disconnected"]
+				let jsonData = try JSONEncoder().encode(jsonObject)
+				let jsonString = String(data: jsonData, encoding: .utf8)!
+				print(jsonString)
+				result(jsonString)
+			} catch {
+				print(error)
+			}
 			break
     default:
 			print("Method not implemented")
@@ -70,15 +129,15 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 
 class SwiftStreamHandler: NSObject, FlutterStreamHandler {
 	public func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
-		print("onListen:", arguments ?? "nil")
+		print("onListen: \(arguments ?? "nil")")
 		
 		if arguments == nil { return nil }
 		
 		if arguments as! String == "startScan"{
 			YCProduct.scanningDevice { devices, error in
-			devicesList = devices
 				for device in devices {
 					print(device.name ?? "", device.macAddress)
+					devicesList.append(device)
 					let BLEObject : ScanBLEResponse = ScanBLEResponse(name: device.name ?? "", mac: device.macAddress, rssi: device.rssiValue)
 					do {
 						let jsonData = try JSONEncoder().encode(BLEObject)

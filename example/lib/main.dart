@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -82,26 +83,23 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  Future _forceConnect(ScanResult scanResult) async {
+  Future _connectDevice(ScanResult scanResult) async {
+    _stopScan();
     _forceDisconnect();
-    var connectionResponse =
-        await _flutterYcbtsdkPlugin.connectDevice('E0:6F:A7:A3:D9:D1');
-    log(connectionResponse.toString());
-    _scanResults.add(scanResult);
-    setState(() {});
+    var response = await _flutterYcbtsdkPlugin.connectDevice(scanResult.mac);
+    log(response.toString());
+    var json = jsonDecode(response);
+    if (json[scanResult.mac] == 'connected') {
+      return true;
+    }
+    return false;
   }
 
   Future _forceDisconnect() async {
     _scanResults.clear();
     setState(() {});
-    await _flutterYcbtsdkPlugin.disconnectDevice();
-  }
-
-  Future _connectDevice(ScanResult scanResult) async {
-    _stopScan();
-    var connectionResponse =
-        await _flutterYcbtsdkPlugin.connectDevice(scanResult.mac);
-    log(connectionResponse.toString());
+    var response = await _flutterYcbtsdkPlugin.disconnectDevice();
+    log(response.toString());
   }
 
   @override
@@ -150,9 +148,13 @@ class _HomePageState extends State<HomePage> {
                           rssi: -70,
                         );
 
-                        await _forceConnect(scanResult);
+                        bool result = await _connectDevice(scanResult);
 
-                        if (!mounted) return;
+                        if (!mounted || !result) return;
+
+                        _scanResults.add(scanResult);
+                        setState(() {});
+
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (BuildContext context) =>
@@ -191,9 +193,10 @@ class _HomePageState extends State<HomePage> {
                       title: Text(scanResult.name),
                       subtitle: Text('${scanResult.mac} ${scanResult.rssi}'),
                       onTap: (() async {
-                        await _connectDevice(scanResult);
+                        bool result = await _connectDevice(scanResult);
 
-                        if (!mounted) return;
+                        if (!mounted || !result) return;
+
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (BuildContext context) =>
@@ -264,97 +267,95 @@ class DeviceDetailsStatePage extends State<DeviceDetailsPage> {
       appBar: AppBar(
         title: const Text('Device details page'),
       ),
-      body: Center(
-        child: Column(children: [
-          Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              children: [
-                Text('name: ${widget.device.name}'),
-                Text('mac: ${widget.device.mac}'),
-                Text('rssi: ${widget.device.rssi}'),
-                ElevatedButton(
-                  child: const Text('connectState'),
-                  onPressed: () async {
-                    await _flutterYcbtsdkPlugin.connectState();
-                  },
-                ),
-                ElevatedButton(
-                  child: const Text('resetQueue'),
-                  onPressed: () async {
-                    await _flutterYcbtsdkPlugin.resetQueue();
-                  },
-                ),
-                ElevatedButton(
-                  child: const Text('startEcgTest'),
-                  onPressed: () async {
-                    await _flutterYcbtsdkPlugin.startEcgTest();
-                  },
-                ),
-                ElevatedButton(
-                  child: const Text('stopEcgTest'),
-                  onPressed: () async {
-                    await _flutterYcbtsdkPlugin.stopEcgTest();
-                  },
-                ),
-                ElevatedButton(
-                  child: const Text('getHealthHistory'),
-                  onPressed: () async {
-                    await _flutterYcbtsdkPlugin.healthHistoryData();
-                  },
-                ),
-                ElevatedButton(
-                  child: const Text('deleteHealthHistory'),
-                  onPressed: () async {
-                    await _flutterYcbtsdkPlugin.deleteHealthHistoryData();
-                  },
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ElevatedButton(
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateColor.resolveWith(
-                            (states) => Colors.red),
-                      ),
-                      child: const Text('test'),
-                      onPressed: () async {
-                        await _flutterYcbtsdkPlugin.test();
-                      },
+      body: SingleChildScrollView(
+        child: Center(
+          child: Column(children: [
+            Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                children: [
+                  Text('name: ${widget.device.name}'),
+                  Text('mac: ${widget.device.mac}'),
+                  Text('rssi: ${widget.device.rssi}'),
+                  ElevatedButton(
+                    child: const Text('connectState'),
+                    onPressed: () async {
+                      await _flutterYcbtsdkPlugin.connectState();
+                    },
+                  ),
+                  ElevatedButton(
+                    child: const Text('resetQueue'),
+                    onPressed: () async {
+                      await _flutterYcbtsdkPlugin.resetQueue();
+                    },
+                  ),
+                  ElevatedButton(
+                    child: const Text('startEcgTest'),
+                    onPressed: () async {
+                      await _flutterYcbtsdkPlugin.startEcgTest();
+                    },
+                  ),
+                  ElevatedButton(
+                    child: const Text('stopEcgTest'),
+                    onPressed: () async {
+                      await _flutterYcbtsdkPlugin.stopEcgTest();
+                    },
+                  ),
+                  ElevatedButton(
+                    child: const Text('getHealthHistory'),
+                    onPressed: () async {
+                      await _flutterYcbtsdkPlugin.healthHistoryData();
+                    },
+                  ),
+                  ElevatedButton(
+                    child: const Text('deleteHealthHistory'),
+                    onPressed: () async {
+                      await _flutterYcbtsdkPlugin.deleteHealthHistoryData();
+                    },
+                  ),
+                  ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateColor.resolveWith(
+                          (states) => Colors.red),
                     ),
-                    ElevatedButton(
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateColor.resolveWith(
-                            (states) => Colors.red),
-                      ),
-                      child: const Text('clearDataStreamed'),
-                      onPressed: () async {
-                        _dataList.clear();
-                        setState(() {});
-                      },
+                    child: const Text('test'),
+                    onPressed: () async {
+                      await _flutterYcbtsdkPlugin.test();
+                    },
+                  ),
+                  ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateColor.resolveWith(
+                          (states) => Colors.red),
                     ),
-                  ],
-                ),
-              ],
+                    child: const Text('clearDataStreamed'),
+                    onPressed: () async {
+                      _dataList.clear();
+                      setState(() {});
+                    },
+                  ),
+                ],
+              ),
             ),
-          ),
-          const Text('dataStreamed:'),
-          const SizedBox(
-            height: 10,
-          ),
-          Expanded(
-            child: ListView.builder(
-              itemCount: _dataList.length,
-              itemBuilder: (context, index) {
-                WristbandData? data = _dataList[index];
+            const Text('dataStreamed:'),
+            const SizedBox(
+              height: 10,
+            ),
+            SizedBox(
+              height: 300,
+              child: ListView.builder(
+                itemCount: _dataList.length,
+                itemBuilder: (context, index) {
+                  WristbandData? data = _dataList[index];
 
-                return ListTile(
-                  title: Text(data.toString()),
-                );
-              },
+                  return ListTile(
+                    title: Text(data.toString()),
+                  );
+                },
+              ),
             ),
-          ),
-        ]),
+          ]),
+        ),
       ),
     );
   }
