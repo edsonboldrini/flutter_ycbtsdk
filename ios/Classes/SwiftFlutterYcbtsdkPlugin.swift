@@ -22,9 +22,14 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
   }
 
   public func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
+		print("\(call.method)...")
+		
     switch call.method {
     case "getPlatformVersion":
 			result("iOS " + UIDevice.current.systemVersion)
+			break
+		case "checkPermissions":
+			result(nil)
 			break
     case "startScan":
 			let scanTimeout: Double = call.arguments as! Double
@@ -37,12 +42,15 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 					do {
 						let jsonData = try JSONEncoder().encode(scanBLEResponse)
 						let jsonString = String(data: jsonData, encoding: .utf8)!
-						// self.methodChannel.invokeMethod("nativeCallSomeFlutterMethod", arguments: nil)
+						result(nil)
 					} catch {
 						print(error)
 					}
 				}
 			}
+			result(nil)
+			break
+		case "disconnectDevice":
 			result(nil)
 			break
     default:
