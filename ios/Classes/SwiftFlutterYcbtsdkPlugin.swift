@@ -6,6 +6,7 @@ import SwiftyJSON
 
 public let NAMESPACE: String = "flutter_ycbtsdk"
 public var devicesList = [CBPeripheral]()
+public var currentDevice: CBPeripheral?
 
 public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 	public static var instance: SwiftFlutterYcbtsdkPlugin?
@@ -23,12 +24,12 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 		YCProduct.setLogLevel(.normal)
 		_ = YCProduct.shared
 		
-//		NotificationCenter.default.addObserver(
-//		 self,
-//		 selector: #selector(receiveRealTimeData(_:)),
-//		 name: YCProduct.receivedRealTimeNotification,
-//		 object: nil
-//		)
+		//		NotificationCenter.default.addObserver(
+		//		 self,
+		//		 selector: #selector(receiveRealTimeData(_:)),
+		//		 name: YCProduct.receivedRealTimeNotification,
+		//		 object: nil
+		//		)
 	}
 	
 	public func invokeFlutterMethodChannel(method: String, arguments: String) {
@@ -102,7 +103,7 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 						let jsonObject: [String: String]  = [mac!: "connected"]
 						let jsonData = try JSONEncoder().encode(jsonObject)
 						let jsonString = String(data: jsonData, encoding: .utf8)!
-						print(jsonString)
+						currentDevice = device
 						result(jsonString)
 					} catch {
 						print(error)
@@ -111,22 +112,20 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 			}
 			break
 		case "disconnectDevice":
-			let mac: String? = call.arguments as? String
-			let device = devicesList.first(where: {$0.macAddress == mac})
-			print("device: \(device?.macAddress ?? "nil")")
+			print("device: \(currentDevice?.macAddress ?? "all")")
 			
-			if (device == nil) {
+			if (currentDevice == nil) {
 				YCProduct.disconnectDevice()
 			} else {
-				YCProduct.disconnectDevice(device)
+				YCProduct.disconnectDevice(currentDevice)
 			}
 			
 			do {
 				print("disconnected")
-				let jsonObject: [String: String]  = [mac ?? "all" : "disconnected"]
+				let jsonObject: [String: String]  = [currentDevice?.macAddress ?? "all" : "disconnected"]
 				let jsonData = try JSONEncoder().encode(jsonObject)
 				let jsonString = String(data: jsonData, encoding: .utf8)!
-				print(jsonString)
+				currentDevice = nil
 				result(jsonString)
 			} catch {
 				print(error)
@@ -154,7 +153,7 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 				if state == .succeed, let data = response as? [YCHealthDataHeartRate] {
 					for info in data {
 						do {
-							let healthData: DataResponse = DataResponse(startTime: info.startTimeStamp, heartValue: info.heartRate)
+							let healthData: DataResponse = DataResponse(startTime: info.startTimeStamp * 1000, heartValue: info.heartRate)
 							let jsonData = try JSONEncoder().encode(healthData)
 							let jsonString = String(data: jsonData, encoding: .utf8)!
 							self.invokeFlutterMethodChannel(method: "onDataResponse", arguments: jsonString)
@@ -168,7 +167,7 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 				if state == .succeed, let data = response as? [YCHealthDataBloodOxygen] {
 					for info in data {
 						do {
-							let healthData: DataResponse = DataResponse(startTime: info.startTimeStamp, OOValue: info.bloodOxygen)
+							let healthData: DataResponse = DataResponse(startTime: info.startTimeStamp * 1000, OOValue: info.bloodOxygen)
 							let jsonData = try JSONEncoder().encode(healthData)
 							let jsonString = String(data: jsonData, encoding: .utf8)!
 							self.invokeFlutterMethodChannel(method: "onDataResponse", arguments: jsonString)
@@ -182,7 +181,7 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 				if state == .succeed, let data = response as? [YCHealthDataBodyTemperature] {
 					for info in data {
 						do {
-							let healthData: DataResponse = DataResponse(startTime: info.startTimeStamp, temperatureValue: info.temperature)
+							let healthData: DataResponse = DataResponse(startTime: info.startTimeStamp * 1000, temperatureValue: info.temperature)
 							let jsonData = try JSONEncoder().encode(healthData)
 							let jsonString = String(data: jsonData, encoding: .utf8)!
 							self.invokeFlutterMethodChannel(method: "onDataResponse", arguments: jsonString)
@@ -196,7 +195,21 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 				if state == .succeed, let data = response as? [YCHealthDataBloodPressure] {
 					for info in data {
 						do {
-							let healthData: DataResponse = DataResponse(startTime: info.startTimeStamp, DBPValue: info.diastolicBloodPressure, SBPValue: info.systolicBloodPressure)
+							let healthData: DataResponse = DataResponse(startTime: info.startTimeStamp * 1000, DBPValue: info.diastolicBloodPressure, SBPValue: info.systolicBloodPressure)
+							let jsonData = try JSONEncoder().encode(healthData)
+							let jsonString = String(data: jsonData, encoding: .utf8)!
+							self.invokeFlutterMethodChannel(method: "onDataResponse", arguments: jsonString)
+						} catch {
+							print(error)
+						}
+					}
+				}
+			}
+			YCProduct.queryHealthData(datatType: YCQueryHealthDataType.sportModeHistoryData) { state, response in
+				if state == .succeed, let data = response as? [YCHealthDataSportModeHistory] {
+					for info in data {
+						do {
+							let healthData: DataResponse = DataResponse(sportStartTime: info.startTimeStamp * 1000, sportEndTime: info.endTimeStamp * 1000, sportStep: info.step, sportDistance: info.distance, sportCalorie: info.calories)
 							let jsonData = try JSONEncoder().encode(healthData)
 							let jsonString = String(data: jsonData, encoding: .utf8)!
 							self.invokeFlutterMethodChannel(method: "onDataResponse", arguments: jsonString)

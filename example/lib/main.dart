@@ -281,7 +281,8 @@ class DeviceDetailsStatePage extends State<DeviceDetailsPage> {
                   ElevatedButton(
                     child: const Text('connectState'),
                     onPressed: () async {
-                      await _flutterYcbtsdkPlugin.connectState();
+                      var response = await _flutterYcbtsdkPlugin.connectState();
+                      log(response.toString());
                     },
                   ),
                   ElevatedButton(
@@ -305,7 +306,9 @@ class DeviceDetailsStatePage extends State<DeviceDetailsPage> {
                   ElevatedButton(
                     child: const Text('getHealthHistory'),
                     onPressed: () async {
-                      await _flutterYcbtsdkPlugin.healthHistoryData();
+                      var response =
+                          await _flutterYcbtsdkPlugin.healthHistoryData();
+                      log(response.toString());
                     },
                   ),
                   ElevatedButton(

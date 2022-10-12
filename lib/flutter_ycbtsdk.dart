@@ -142,8 +142,8 @@ class FlutterYcbtsdk {
     await methodChannel.invokeMethod<String>('stopEcgTest');
   }
 
-  Future<void> healthHistoryData() async {
-    await methodChannel.invokeMethod<String>('healthHistoryData');
+  Future healthHistoryData() async {
+    return await methodChannel.invokeMethod<String>('healthHistoryData');
   }
 
   Future<void> deleteHealthHistoryData() async {
@@ -202,13 +202,18 @@ class FlutterYcbtsdk {
 
       for (String key in mapKeys) {
         if (map[key] != null) {
-          var dateTime = DateTime.now().toUtc();
+          DateTime startTime = DateTime.now().toUtc();
+          DateTime? endTime;
           if (mapKeys.contains('startTime')) {
-            dateTime =
+            startTime =
                 DateTime.fromMillisecondsSinceEpoch(map['startTime']).toUtc();
           }
+          if (mapKeys.contains('sportStartTime')) {
+            startTime = DateTime.fromMillisecondsSinceEpoch(map['sportEndTime'])
+                .toUtc();
+          }
           if (mapKeys.contains('sportEndTime')) {
-            dateTime = DateTime.fromMillisecondsSinceEpoch(map['sportEndTime'])
+            endTime = DateTime.fromMillisecondsSinceEpoch(map['sportEndTime'])
                 .toUtc();
           }
 
@@ -219,7 +224,8 @@ class FlutterYcbtsdk {
               dataAlreadyParsed.add(dataType);
 
               var data = WristbandData(
-                dateTime: dateTime,
+                startTime: startTime,
+                endTime: endTime,
                 dataType: dataType,
                 rawValue: map[key],
                 formattedValue: "${map[key]} bpm",
@@ -232,7 +238,8 @@ class FlutterYcbtsdk {
               dataAlreadyParsed.add(dataType);
 
               var data = WristbandData(
-                dateTime: dateTime,
+                startTime: startTime,
+                endTime: endTime,
                 dataType: dataType,
                 rawValue: map[key],
                 formattedValue: "${map[key]} SpO²",
@@ -245,7 +252,8 @@ class FlutterYcbtsdk {
               dataAlreadyParsed.add(dataType);
 
               var data = WristbandData(
-                dateTime: dateTime,
+                startTime: startTime,
+                endTime: endTime,
                 dataType: dataType,
                 rawValue: map[key],
                 formattedValue: "${map[key]} rpm",
@@ -261,7 +269,8 @@ class FlutterYcbtsdk {
               final tempIntValue = map['tempIntValue'];
               final tempFloatValue = map['tempFloatValue'];
               var data = WristbandData(
-                dateTime: dateTime,
+                startTime: startTime,
+                endTime: endTime,
                 dataType: dataType,
                 rawValue: double.parse("$tempIntValue.$tempFloatValue"),
                 formattedValue: "$tempIntValue.$tempFloatValue ºC",
@@ -274,7 +283,8 @@ class FlutterYcbtsdk {
               dataAlreadyParsed.add(dataType);
 
               var data = WristbandData(
-                dateTime: dateTime,
+                startTime: startTime,
+                endTime: endTime,
                 dataType: dataType,
                 rawValue: map[key],
                 formattedValue: "${map[key]} ºC",
@@ -290,7 +300,8 @@ class FlutterYcbtsdk {
               final sbpValue = map['SBPValue'];
               final dbpValue = map['DBPValue'];
               var data = WristbandData(
-                dateTime: dateTime,
+                startTime: startTime,
+                endTime: endTime,
                 dataType: dataType,
                 rawValue: {
                   'systolic': sbpValue,
@@ -309,7 +320,8 @@ class FlutterYcbtsdk {
               final sbpValue = map['bloodSBP'];
               final dbpValue = map['bloodDBP'];
               var data = WristbandData(
-                dateTime: dateTime,
+                startTime: startTime,
+                endTime: endTime,
                 dataType: dataType,
                 rawValue: {
                   'systolic': sbpValue,
@@ -319,13 +331,14 @@ class FlutterYcbtsdk {
               );
               _data.add(data);
               break;
-            case 'stepValue':
+            case 'sportStep':
               const dataType = WristbandDataType.steps;
               if (dataAlreadyParsed.contains(dataType)) break;
               dataAlreadyParsed.add(dataType);
 
               var data = WristbandData(
-                dateTime: dateTime,
+                startTime: startTime,
+                endTime: endTime,
                 dataType: dataType,
                 rawValue: map[key],
                 formattedValue: "${map[key]} steps",
@@ -338,7 +351,8 @@ class FlutterYcbtsdk {
               dataAlreadyParsed.add(dataType);
 
               var data = WristbandData(
-                dateTime: dateTime,
+                startTime: startTime,
+                endTime: endTime,
                 dataType: dataType,
                 rawValue: map[key],
                 formattedValue: "${map[key]} meters",
@@ -351,7 +365,8 @@ class FlutterYcbtsdk {
               dataAlreadyParsed.add(dataType);
 
               var data = WristbandData(
-                dateTime: dateTime,
+                startTime: startTime,
+                endTime: endTime,
                 dataType: dataType,
                 rawValue: map[key],
                 formattedValue: "${map[key]} kcal",
@@ -439,26 +454,30 @@ enum WristbandDataType {
 }
 
 class WristbandData {
-  final DateTime dateTime;
+  final DateTime startTime;
+  final DateTime? endTime;
   final WristbandDataType dataType;
   final String formattedValue;
   final dynamic rawValue;
 
   WristbandData({
-    required this.dateTime,
+    required this.startTime,
+    required this.endTime,
     required this.dataType,
     required this.formattedValue,
     required this.rawValue,
   });
 
   WristbandData copyWith({
-    DateTime? dateTime,
+    DateTime? startTime,
+    DateTime? endTime,
     WristbandDataType? type,
     String? formattedValue,
     dynamic? rawValue,
   }) {
     return WristbandData(
-      dateTime: dateTime ?? this.dateTime,
+      startTime: startTime ?? this.startTime,
+      endTime: endTime ?? this.startTime,
       dataType: type ?? dataType,
       formattedValue: formattedValue ?? this.formattedValue,
       rawValue: rawValue ?? this.rawValue,
@@ -467,7 +486,8 @@ class WristbandData {
 
   Map<String, dynamic> toMap() {
     return {
-      'dateTime': dateTime.millisecondsSinceEpoch,
+      'startTime': startTime.millisecondsSinceEpoch,
+      'endTime': endTime?.millisecondsSinceEpoch,
       'type': dataType.toString(),
       'formattedValue': formattedValue,
       'rawValue': rawValue,
@@ -476,7 +496,8 @@ class WristbandData {
 
   factory WristbandData.fromMap(Map<String, dynamic> map) {
     return WristbandData(
-      dateTime: DateTime.fromMillisecondsSinceEpoch(map['dateTime']),
+      startTime: DateTime.fromMillisecondsSinceEpoch(map['startTime']),
+      endTime: DateTime.fromMillisecondsSinceEpoch(map['endTime']),
       dataType: map['type'],
       formattedValue: map['formattedValue'],
       rawValue: map['rawValue'],
@@ -490,7 +511,7 @@ class WristbandData {
 
   @override
   String toString() {
-    return 'WristbandData(dateTime: $dateTime, type: $dataType, formattedValue: $formattedValue, rawValue: $rawValue)';
+    return 'WristbandData(startTime: $startTime, endTime: $endTime, type: $dataType, formattedValue: $formattedValue, rawValue: $rawValue)';
   }
 
   @override
@@ -498,7 +519,8 @@ class WristbandData {
     if (identical(this, other)) return true;
 
     return other is WristbandData &&
-        other.dateTime == dateTime &&
+        other.startTime == startTime &&
+        other.endTime == endTime &&
         other.dataType == dataType &&
         other.formattedValue == formattedValue &&
         other.rawValue == rawValue;
@@ -506,7 +528,8 @@ class WristbandData {
 
   @override
   int get hashCode {
-    return dateTime.hashCode ^
+    return startTime.hashCode ^
+        endTime.hashCode ^
         dataType.hashCode ^
         formattedValue.hashCode ^
         rawValue.hashCode;
