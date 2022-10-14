@@ -209,7 +209,7 @@ class FlutterYcbtsdk {
                 DateTime.fromMillisecondsSinceEpoch(map['startTime']).toUtc();
           }
           if (mapKeys.contains('sportStartTime')) {
-            startTime = DateTime.fromMillisecondsSinceEpoch(map['sportEndTime'])
+            startTime = DateTime.fromMillisecondsSinceEpoch(map['sportStartTime'])
                 .toUtc();
           }
           if (mapKeys.contains('sportEndTime')) {
