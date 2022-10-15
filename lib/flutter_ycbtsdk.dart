@@ -263,7 +263,7 @@ class FlutterYcbtsdk {
               break;
             case 'tempIntValue':
             case 'tempFloatValue':
-              const dataType = WristbandDataType.temperature;
+              const dataType = WristbandDataType.bodyTemperature;
               if (dataAlreadyParsed.contains(dataType)) break;
               dataAlreadyParsed.add(dataType);
 
@@ -279,7 +279,7 @@ class FlutterYcbtsdk {
               _data.add(data);
               break;
             case 'temperatureValue':
-              const dataType = WristbandDataType.temperature;
+              const dataType = WristbandDataType.bodyTemperature;
               if (dataAlreadyParsed.contains(dataType)) break;
               dataAlreadyParsed.add(dataType);
 
@@ -335,7 +335,7 @@ class FlutterYcbtsdk {
             case 'sportStep':
             case 'sportDistance':
             case 'sportCalorie':
-              const dataType = WristbandDataType.sports;
+              const dataType = WristbandDataType.sport;
               if (dataAlreadyParsed.contains(dataType)) break;
               dataAlreadyParsed.add(dataType);
 
@@ -431,8 +431,8 @@ enum WristbandDataType {
   bloodPressure,
   heartRate,
   respiratoryRate,
-  sports,
-  temperature,
+  sport,
+  bodyTemperature,
 }
 
 class WristbandData {
