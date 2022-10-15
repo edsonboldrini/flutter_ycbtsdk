@@ -368,7 +368,6 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 					String mapString = hashMapToStringJson(hashMap);
 					invokeFlutterMethodChannel("onDataResponse", mapString);
 				}
-
 			}
 		}
 	};
