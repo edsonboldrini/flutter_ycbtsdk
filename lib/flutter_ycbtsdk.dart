@@ -209,8 +209,9 @@ class FlutterYcbtsdk {
                 DateTime.fromMillisecondsSinceEpoch(map['startTime']).toUtc();
           }
           if (mapKeys.contains('sportStartTime')) {
-            startTime = DateTime.fromMillisecondsSinceEpoch(map['sportStartTime'])
-                .toUtc();
+            startTime =
+                DateTime.fromMillisecondsSinceEpoch(map['sportStartTime'])
+                    .toUtc();
           }
           if (mapKeys.contains('sportEndTime')) {
             endTime = DateTime.fromMillisecondsSinceEpoch(map['sportEndTime'])
@@ -332,44 +333,27 @@ class FlutterYcbtsdk {
               _data.add(data);
               break;
             case 'sportStep':
-              const dataType = WristbandDataType.steps;
-              if (dataAlreadyParsed.contains(dataType)) break;
-              dataAlreadyParsed.add(dataType);
-
-              var data = WristbandData(
-                startTime: startTime,
-                endTime: endTime,
-                dataType: dataType,
-                rawValue: map[key],
-                formattedValue: "${map[key]} steps",
-              );
-              _data.add(data);
-              break;
             case 'sportDistance':
-              const dataType = WristbandDataType.distance;
-              if (dataAlreadyParsed.contains(dataType)) break;
-              dataAlreadyParsed.add(dataType);
-
-              var data = WristbandData(
-                startTime: startTime,
-                endTime: endTime,
-                dataType: dataType,
-                rawValue: map[key],
-                formattedValue: "${map[key]} meters",
-              );
-              _data.add(data);
-              break;
             case 'sportCalorie':
-              const dataType = WristbandDataType.calories;
+              const dataType = WristbandDataType.sports;
               if (dataAlreadyParsed.contains(dataType)) break;
               dataAlreadyParsed.add(dataType);
+
+              final sportStep = map['sportStep'];
+              final sportDistance = map['sportDistance'];
+              final sportCalorie = map['sportCalorie'];
 
               var data = WristbandData(
                 startTime: startTime,
                 endTime: endTime,
                 dataType: dataType,
-                rawValue: map[key],
-                formattedValue: "${map[key]} kcal",
+                rawValue: {
+                  'steps': sportStep,
+                  'distance': sportDistance,
+                  'calories': sportCalorie,
+                },
+                formattedValue:
+                    "$sportStep steps ; $sportStep meters ; $sportCalorie kcal",
               );
               _data.add(data);
               break;
@@ -445,11 +429,9 @@ class ScanResult {
 enum WristbandDataType {
   bloodOxygen,
   bloodPressure,
-  calories,
-  distance,
   heartRate,
   respiratoryRate,
-  steps,
+  sports,
   temperature,
 }
 

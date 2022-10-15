@@ -375,9 +375,9 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 
 	BleRealDataResponse bleRealDataResponse = new BleRealDataResponse() {
 		@Override
-		public void onRealDataResponse(int dataType, HashMap map) {
-			Log.e("qob", "onRealDataResponse dataType: " + dataType + " data: " + map);
-			String mapString = hashMapToStringJson(map);
+		public void onRealDataResponse(int dataType, HashMap hashMap) {
+			Log.e("qob", "onRealDataResponse - dataType: " + dataType + " data: " + hashMap);
+			String mapString = hashMapToStringJson(hashMap);
 			invokeFlutterMethodChannel("onDataResponse", mapString);
 		}
 	};
