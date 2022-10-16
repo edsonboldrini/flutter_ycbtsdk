@@ -259,16 +259,57 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 				break;
 			}
 			case "healthHistoryData": {
-				YCBTClient.healthHistoryData(Constants.DATATYPE.Health_HistoryAll, bleDataResponse);
-				YCBTClient.healthHistoryData(Constants.DATATYPE.Health_HistorySport, bleDataResponse);
-				result.success(null);
+				YCBTClient.healthHistoryData(Constants.DATATYPE.Health_HistoryAll, new BleDataResponse() {
+					@Override
+					public void onDataResponse(int code, float value, HashMap hashMap) {
+						Log.e("qob", "onDataResponse - code: " + code + " value: " + value + " data: " + hashMap);
+
+						if (hashMap != null) {
+							if (hashMap.containsKey("data")) {
+								Object data = hashMap.get("data");
+								if (data instanceof ArrayList<?>) {
+									ArrayList<HashMap> list = (ArrayList<HashMap>) hashMap.get("data");
+									for (HashMap map : list) {
+										String mapString = hashMapToStringJson(map);
+										invokeFlutterMethodChannel("onDataResponse", mapString);
+									}
+									result.success(list);
+								}
+							}
+						}
+					}
+				});
 				break;
 			}
 			case "deleteHealthHistoryData": {
 				YCBTClient.deleteHealthHistoryData(Constants.DATATYPE.Health_DeleteAll, bleDataResponse);
-				YCBTClient.deleteHealthHistoryData(Constants.DATATYPE.Health_DeleteSport, bleDataResponse);
 				result.success(null);
 				break;
+			}
+			case "sportHistoryData": {
+				YCBTClient.healthHistoryData(Constants.DATATYPE.Health_HistorySport, new BleDataResponse() {
+					@Override
+					public void onDataResponse(int code, float value, HashMap hashMap) {
+						Log.e("qob", "onDataResponse - code: " + code + " value: " + value + " data: " + hashMap);
+
+						if (hashMap != null) {
+							if (hashMap.containsKey("data")) {
+								Object data = hashMap.get("data");
+								if (data instanceof ArrayList<?>) {
+									ArrayList<HashMap> list = (ArrayList<HashMap>) hashMap.get("data");
+									for (HashMap map : list) {
+										String mapString = hashMapToStringJson(map);
+										invokeFlutterMethodChannel("onDataResponse", mapString);
+									}
+									result.success(list);
+								}
+							}
+						}
+					}
+				});
+			}
+			case "deleteSportHistoryData": {
+				YCBTClient.deleteHealthHistoryData(Constants.DATATYPE.Health_DeleteSport, bleDataResponse);
 			}
 			case "test": {
 				Log.e(TAG, "test...");

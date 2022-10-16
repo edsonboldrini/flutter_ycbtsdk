@@ -318,6 +318,20 @@ class DeviceDetailsStatePage extends State<DeviceDetailsPage> {
                     },
                   ),
                   ElevatedButton(
+                    child: const Text('getSportHistory'),
+                    onPressed: () async {
+                      var response =
+                          await _flutterYcbtsdkPlugin.sportHistoryData();
+                      log(response.toString());
+                    },
+                  ),
+                  ElevatedButton(
+                    child: const Text('deleteSportHistory'),
+                    onPressed: () async {
+                      await _flutterYcbtsdkPlugin.deleteSportHistoryData();
+                    },
+                  ),
+                  ElevatedButton(
                     style: ButtonStyle(
                       backgroundColor: MaterialStateColor.resolveWith(
                           (states) => Colors.red),

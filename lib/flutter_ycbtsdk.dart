@@ -146,8 +146,16 @@ class FlutterYcbtsdk {
     return await methodChannel.invokeMethod<String>('healthHistoryData');
   }
 
-  Future<void> deleteHealthHistoryData() async {
-    await methodChannel.invokeMethod<String>('deleteHealthHistoryData');
+  Future deleteHealthHistoryData() async {
+    return await methodChannel.invokeMethod<String>('deleteHealthHistoryData');
+  }
+
+  Future sportHistoryData() async {
+    return await methodChannel.invokeMethod<String>('sportHistoryData');
+  }
+
+  Future deleteSportHistoryData() async {
+    return await methodChannel.invokeMethod<String>('deleteSportHistoryData');
   }
 
   Future<void> test() async {
