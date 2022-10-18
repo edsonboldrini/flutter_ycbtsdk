@@ -23,13 +23,6 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 		
 		YCProduct.setLogLevel(.normal)
 		_ = YCProduct.shared
-		
-		//	NotificationCenter.default.addObserver(
-		//		self,
-		//		selector: #selector(receiveRealTimeData(_:)),
-		//		name: YCProduct.receivedRealTimeNotification,
-		//		object: nil
-		//	)
 	}
 	
 	public func invokeFlutterMethodChannel(method: String, arguments: String) {
@@ -61,7 +54,7 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 			
 			YCProduct.scanningDevice(delayTime: scanTimeout) { devices, error in
 				for device in devices {
-					appendDeviceToList(device: device)
+					self.appendDeviceToList(device: device)
 				}
 			}
 			result(nil)
@@ -159,6 +152,14 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 			YCProduct.startECGMeasurement { state, _ in
 				if state == .succeed {
 					print("startedECG")
+					
+					NotificationCenter.default.addObserver(
+						self,
+						selector: #selector(self.receiveRealTimeData(_:)),
+						name: YCProduct.receivedRealTimeNotification,
+						object: nil
+					)
+					
 					result(nil)
 				}
 			}
@@ -168,6 +169,9 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 			YCProduct.stopECGMeasurement { state, _ in
 				if state == .succeed {
 					print("stoppedECG")
+					
+					NotificationCenter.default.removeObserver(self)
+					
 					result(nil)
 				}
 			}
@@ -235,18 +239,68 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 			result(nil)
 			break
 		}
+	}
+	
+	private func appendDeviceToList(device: CBPeripheral) {
+		print("name: \(device.name ?? ""); mac: \(device.macAddress); rssi: \(device.rssiValue)")
+		devicesList.append(device)
+		let BLEObject: ScanBLEResponse = ScanBLEResponse(name: device.name ?? "", mac: device.macAddress, rssi: device.rssiValue)
+		do {
+			let jsonData = try JSONEncoder().encode(BLEObject)
+			let jsonString = String(data: jsonData, encoding: .utf8)!
+			self.invokeFlutterMethodChannel(method: "onScanResult", arguments: jsonString)
+		} catch {
+			print(error)
+		}
+	}
+	
+	@objc private func deviceStateChange(_ ntf: Notification) {
+		guard let info = ntf.userInfo as? [String: Any],
+					let state = info[YCProduct.connecteStateKey] as? YCProductState else
+					{
+						return
+					}
+		print("=== stateChange \(state.rawValue)")
+	}
+	
+	@objc private func receiveRealTimeData(_ notification: Notification) {
+		guard let info = notification.userInfo else {
+			return
+		}
 		
-		func appendDeviceToList(device: CBPeripheral) {
-			print("name: \(device.name ?? ""); mac: \(device.macAddress); rssi: \(device.rssiValue)")
-			devicesList.append(device)
-			let BLEObject: ScanBLEResponse = ScanBLEResponse(name: device.name ?? "", mac: device.macAddress, rssi: device.rssiValue)
-			do {
-				let jsonData = try JSONEncoder().encode(BLEObject)
-				let jsonString = String(data: jsonData, encoding: .utf8)!
-				self.invokeFlutterMethodChannel(method: "onScanResult", arguments: jsonString)
-			} catch {
-				print(error)
-			}
+		var healthData: DataResponse = DataResponse()
+		
+		if let response = info[YCReceivedRealTimeDataType.step.string] as? YCReceivedDeviceReportInfo,
+			 let device = response.device,
+			 let sportInfo = response.data as? YCReceivedRealTimeStepInfo {
+			print(device.name ?? "", sportInfo.step, sportInfo.distance, sportInfo.calories)
+			healthData = DataResponse(sportStep: Int(UInt(sportInfo.step)), sportDistance: Int(UInt(sportInfo.distance)), sportCalorie: Int(UInt(sportInfo.calories)))
+		}
+		else if let response = info[YCReceivedRealTimeDataType.heartRate.string] as? YCReceivedDeviceReportInfo,
+						let device = response.device,
+						let heartRate = response.data as? UInt8 {
+			print(device.name ?? "", heartRate)
+			healthData = DataResponse(heartValue: Int(heartRate))
+		}
+		else if let response = info[YCReceivedRealTimeDataType.bloodOxygen.string] as? YCReceivedDeviceReportInfo,
+						let device = response.device,
+						let bloodOxygen = response.data as? UInt8 {
+			print(device.name ?? "", bloodOxygen)
+			healthData = DataResponse(OOValue: Int(bloodOxygen))
+		}
+		else if let response = info[YCReceivedRealTimeDataType.bloodPressure.string] as? YCReceivedDeviceReportInfo,
+						let device = response.device,
+						let bloodPressureInfo = response.data as? YCReceivedRealTimeBloodPressureInfo {
+			print(device.name ?? "", bloodPressureInfo.systolicBloodPressure, bloodPressureInfo.diastolicBloodPressure, bloodPressureInfo.heartRate)
+			healthData = DataResponse(heartValue: bloodPressureInfo.heartRate, SBPValue: bloodPressureInfo.systolicBloodPressure, DBPValue: bloodPressureInfo.diastolicBloodPressure)
+		}
+		
+		do {
+			let jsonData = try JSONEncoder().encode(healthData)
+			let jsonString = String(data: jsonData, encoding: .utf8)!
+			self.invokeFlutterMethodChannel(method: "onDataResponse", arguments: jsonString)
+		} catch {
+			print(error)
 		}
 	}
 }
@@ -291,4 +345,3 @@ class SwiftStreamHandler: NSObject, FlutterStreamHandler {
 		return String(data: data, encoding: String.Encoding.utf8)
 	}
 }
-
