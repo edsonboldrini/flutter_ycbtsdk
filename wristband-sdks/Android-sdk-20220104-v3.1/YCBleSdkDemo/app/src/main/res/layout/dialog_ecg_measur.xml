@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="320dp"
+    android:layout_height="489dp"
+    android:background="@color/white_color"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="320dp"
+        android:layout_height="489dp"
+        android:background="@drawable/ecg_measur_dialog_circle_color">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="25dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="16dp"
+            android:text="@string/ecg_measure_dialog_hint_text"
+            android:textColor="#00C495"
+            android:textSize="18dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="50dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="57dp"
+            android:layout_marginRight="16dp"
+            android:text="@string/ecg_measure_dialog_marked_words_text"
+            android:textColor="@color/ecg_measure_dialog_marked_words_text_color"
+            android:textSize="16dp" />
+
+        <RelativeLayout
+            android:layout_width="288dp"
+            android:layout_height="155dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="115dp"
+            android:background="@mipmap/ecg_tips_bg">
+
+            <ImageView
+                android:id="@+id/iv_tips"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:background="@mipmap/ecg_tips_pic_one" />
+
+        </RelativeLayout>
+
+        <RadioGroup
+            android:id="@+id/radio_group"
+            android:layout_width="wrap_content"
+            android:layout_height="104dp"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="303dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+
+            <RadioButton
+                android:id="@+id/rb_left"
+                android:layout_width="104dp"
+                android:layout_height="104dp"
+                android:layout_gravity="center"
+                android:layout_marginRight="25dp"
+                android:background="@drawable/ecg_measur_dialog_bg"
+                android:button="@null"
+                android:checked="true"
+                android:drawableTop="@drawable/ecg_measur_dialog_left_icon"
+                android:gravity="center"
+                android:paddingTop="13dp" />
+
+            <RadioButton
+                android:id="@+id/rb_right"
+                android:layout_width="104dp"
+                android:layout_height="104dp"
+                android:layout_gravity="center"
+                android:background="@drawable/ecg_measur_dialog_bg"
+                android:button="@null"
+                android:drawableTop="@drawable/ecg_measur_dialog_right_icon"
+                android:gravity="center"
+                android:paddingTop="13dp" />
+
+        </RadioGroup>
+
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="286dp"
+            android:layout_marginRight="16dp"
+            android:background="@color/white_color" />
+
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="16dp"
+            android:layout_marginTop="431dp"
+            android:layout_marginRight="16dp"
+            android:background="@color/white_color" />
+
+        <TextView
+            android:id="@+id/tv_confirm"
+            android:layout_width="320dp"
+            android:layout_height="55dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:gravity="center"
+            android:text="@string/ecg_measure_dialog_confirm_text"
+            android:textColor="@color/ecg_measure_dialog_confirm_text_color"
+            android:textSize="16dp" />
+
+    </RelativeLayout>
+</LinearLayout>

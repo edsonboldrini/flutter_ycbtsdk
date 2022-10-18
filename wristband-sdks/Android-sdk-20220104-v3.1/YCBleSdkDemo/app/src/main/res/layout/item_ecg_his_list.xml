@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white_color"
+    android:descendantFocusability="blocksDescendants"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_marginLeft="15dp"
+            android:src="@mipmap/ico_cycle" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginLeft="8dp"
+                android:ellipsize="end"
+                android:gravity="center_vertical"
+                android:lines="1"
+                android:text="标题"
+                android:textSize="14dp" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:id="@+id/lay_sycn"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:visibility="gone">
+
+                    <TextView
+                        android:id="@+id/btn_sycn"
+                        android:layout_width="match_parent"
+                        android:layout_height="39dp"
+                        android:layout_marginLeft="10dp"
+                        android:layout_marginRight="50dp"
+                        android:background="@drawable/record_btn"
+                        android:gravity="center"
+                        android:lines="1"
+                        android:text="@string/sync"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white_color"
+                        android:textSize="12dp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/tv_jilu"
+                    android:layout_width="130dp"
+                    android:layout_height="37dp"
+                    android:background="@drawable/record_btn"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="visible">
+
+                    <ImageView
+                        android:layout_width="13dp"
+                        android:layout_height="16dp"
+                        android:layout_gravity="center"
+                        android:src="@mipmap/ico_record" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="5dp"
+                        android:background="@null"
+                        android:gravity="center"
+                        android:lines="1"
+                        android:text="@string/record"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white_color"
+                        android:textSize="12dp"
+                        android:visibility="visible" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/tv_jiance"
+                    android:layout_width="130dp"
+                    android:layout_height="37dp"
+                    android:layout_marginLeft="8dp"
+                    android:layout_marginRight="40dp"
+                    android:background="@drawable/ai_btn"
+                    android:gravity="center"
+                    android:orientation="horizontal"
+                    android:visibility="visible">
+
+                    <ImageView
+                        android:layout_width="17dp"
+                        android:layout_height="11dp"
+                        android:layout_gravity="center"
+                        android:src="@mipmap/ico_ai" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:background="@null"
+                        android:gravity="center"
+                        android:lines="1"
+                        android:text="@string/ai_go"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white_color"
+                        android:textSize="12dp"
+                        android:visibility="visible" />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
+    </LinearLayout>
+</LinearLayout>
