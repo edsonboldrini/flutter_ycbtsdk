@@ -137,6 +137,8 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 
 	@Override
 	public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
+//		Log.e(TAG, call.method + "...");
+
 		switch (call.method) {
 			case "getPlatformVersion": {
 				result.success("Android " + android.os.Build.VERSION.RELEASE);
@@ -243,6 +245,18 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 			case "resetQueue": {
 				Log.e(TAG, "resetQueue...");
 				YCBTClient.resetQueue();
+				result.success(null);
+				break;
+			}
+			case "shutdownDevice": {
+				Log.e(TAG, "shutdownDevice...");
+				YCBTClient.appShutDown(0x01, bleDataResponse);
+				result.success(null);
+				break;
+			}
+			case "restoreFactory": {
+				Log.e(TAG, "restoreFactory...");
+				YCBTClient.settingRestoreFactory(bleDataResponse);
 				result.success(null);
 				break;
 			}

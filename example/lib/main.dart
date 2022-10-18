@@ -292,6 +292,26 @@ class DeviceDetailsStatePage extends State<DeviceDetailsPage> {
                     },
                   ),
                   ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateColor.resolveWith(
+                          (states) => Colors.red),
+                    ),
+                    child: const Text('shutdownDevice'),
+                    onPressed: () async {
+                      await _flutterYcbtsdkPlugin.shutdownDevice();
+                    },
+                  ),
+                  ElevatedButton(
+                    style: ButtonStyle(
+                      backgroundColor: MaterialStateColor.resolveWith(
+                          (states) => Colors.red),
+                    ),
+                    child: const Text('restoreFactory'),
+                    onPressed: () async {
+                      await _flutterYcbtsdkPlugin.restoreFactory();
+                    },
+                  ),
+                  ElevatedButton(
                     child: const Text('startEcgTest'),
                     onPressed: () async {
                       await _flutterYcbtsdkPlugin.startEcgTest();

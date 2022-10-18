@@ -134,6 +134,14 @@ class FlutterYcbtsdk {
     await methodChannel.invokeMethod<String>('resetQueue');
   }
 
+  Future<void> shutdownDevice() async {
+    await methodChannel.invokeMethod<String>('shutdownDevice');
+  }
+
+  Future<void> restoreFactory() async {
+    await methodChannel.invokeMethod<String>('restoreFactory');
+  }
+
   Future<void> startEcgTest() async {
     await methodChannel.invokeMethod<String>('startEcgTest');
   }

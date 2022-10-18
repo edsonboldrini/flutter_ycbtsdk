@@ -131,6 +131,32 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 				print(error)
 			}
 			break
+		case "connectState":
+			result(nil)
+			break
+		case "resetQueue":
+			result(nil)
+			break
+		case "shutdownDevice":
+			YCProduct.deviceSystemOperator(mode: .shutDown) { state, response in
+				if state == .succeed {
+					print("succeed")
+				} else {
+					print("failed")
+				}
+				result(nil)
+			}
+			break
+		case "restoreFactory":
+			YCProduct.setDeviceReset() { state, response in
+				if state == .succeed {
+					print("succeed")
+				} else {
+					print("failed")
+				}
+				result(nil)
+			}
+			break
 		case "startEcgTest":
 			YCProduct.startECGMeasurement { state, _ in
 				if state == .succeed {
@@ -149,6 +175,20 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 			}
 			break
 		case "healthHistoryData":
+			YCProduct.queryHealthData(datatType: YCQueryHealthDataType.combinedData) { state, response in
+				if state == .succeed, let data = response as? [YCHealthDataCombinedData] {
+					for info in data {
+						do {
+							let healthData: DataResponse = DataResponse(startTime: info.startTimeStamp * 1000, heartValue: info.heartRate, OOValue: info.bloodOxygen, respiratoryRateValue: info.respirationRate, temperatureValue: info.temperature, SBPValue: info.systolicBloodPressure, DBPValue: info.systolicBloodPressure)
+							let jsonData = try JSONEncoder().encode(healthData)
+							let jsonString = String(data: jsonData, encoding: .utf8)!
+							self.invokeFlutterMethodChannel(method: "onDataResponse", arguments: jsonString)
+						} catch {
+							print(error)
+						}
+					}
+				}
+			}
 			YCProduct.queryHealthData(datatType: YCQueryHealthDataType.heartRate) { state, response in
 				if state == .succeed, let data = response as? [YCHealthDataHeartRate] {
 					for info in data {
@@ -195,7 +235,7 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 				if state == .succeed, let data = response as? [YCHealthDataBloodPressure] {
 					for info in data {
 						do {
-							let healthData: DataResponse = DataResponse(startTime: info.startTimeStamp * 1000, DBPValue: info.diastolicBloodPressure, SBPValue: info.systolicBloodPressure)
+							let healthData: DataResponse = DataResponse(startTime: info.startTimeStamp * 1000, SBPValue: info.systolicBloodPressure, DBPValue: info.diastolicBloodPressure)
 							let jsonData = try JSONEncoder().encode(healthData)
 							let jsonString = String(data: jsonData, encoding: .utf8)!
 							self.invokeFlutterMethodChannel(method: "onDataResponse", arguments: jsonString)
@@ -205,6 +245,19 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 					}
 				}
 			}
+			result(nil)
+			break
+		case "deleteHealthHistoryData":
+			YCProduct.deleteHealthData(datatType: YCDeleteHealthDataType.combinedData) { state, response in
+				if state == .succeed {
+					print("succeed")
+				} else {
+					print("failed")
+				}
+				result(nil)
+			}
+			break
+		case "sportHistoryData":
 			YCProduct.queryHealthData(datatType: YCQueryHealthDataType.sportModeHistoryData) { state, response in
 				if state == .succeed, let data = response as? [YCHealthDataSportModeHistory] {
 					for info in data {
@@ -217,9 +270,19 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 							print(error)
 						}
 					}
+					result(nil)
 				}
 			}
-			result(nil)
+			break
+		case "deleteSportHistoryData":
+			YCProduct.deleteHealthData(datatType: YCDeleteHealthDataType.sportModeHistoryData) { state, response in
+				if state == .succeed {
+					print("succeed")
+				} else {
+					print("failed")
+				}
+				result(nil)
+			}
 			break
 		default:
 			print("Method not implemented")
