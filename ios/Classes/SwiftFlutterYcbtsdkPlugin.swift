@@ -54,7 +54,9 @@ public class SwiftFlutterYcbtsdkPlugin: NSObject, FlutterPlugin {
 			
 			YCProduct.scanningDevice(delayTime: scanTimeout) { devices, error in
 				for device in devices {
-					self.appendDeviceToList(device: device)
+					if (device.macAddress != "") {
+						self.appendDeviceToList(device: device)
+					}
 				}
 			}
 			result(nil)
