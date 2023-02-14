@@ -449,10 +449,10 @@ public class FlutterYcbtsdkPlugin implements FlutterPlugin, MethodCallHandler, A
 		return resultString;
 	}
 
-	private void setup(final BinaryMessenger messenger, final Application application) {
+	private void setup(final BinaryMessenger messenger, final Application context) {
 		synchronized (initializationLock) {
 			Log.d(TAG, "setup...");
-			context = application;
+			this.context = context;
 			methodChannel = new MethodChannel(messenger, NAMESPACE + "/methods");
 			methodChannel.setMethodCallHandler(this);
 			eventChannel = new EventChannel(messenger, NAMESPACE + "/events");
